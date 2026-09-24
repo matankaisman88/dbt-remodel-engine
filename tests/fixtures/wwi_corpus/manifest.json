@@ -1,0 +1,63 @@
+{
+  "pipeline_id": "wwi_sales_star",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 11,
+  "legacy_graph": {
+    "nodes": [
+      {"id": "sq_customers", "label": "Source Qualifier Customers", "meta": {"type": "source_qualifier"}},
+      {"id": "exp_customers", "label": "Expression Cleanse", "meta": {"type": "expression"}},
+      {"id": "jnr_sales", "label": "Joiner Sales+Customers", "meta": {"type": "joiner"}},
+      {"id": "agg_invoices", "label": "Aggregator Invoice Lines", "meta": {"type": "aggregator"}},
+      {"id": "upd_dim_customer", "label": "Update Strategy SCD", "meta": {"type": "update_strategy"}},
+      {"id": "tgt_dim_customer", "label": "DIM_CUSTOMER", "meta": {"type": "target"}},
+      {"id": "tgt_fct_invoice", "label": "FCT_INVOICE_LINES", "meta": {"type": "target"}}
+    ],
+    "edges": [
+      {"source": "sq_customers", "target": "exp_customers"},
+      {"source": "exp_customers", "target": "jnr_sales"},
+      {"source": "jnr_sales", "target": "upd_dim_customer"},
+      {"source": "upd_dim_customer", "target": "tgt_dim_customer"},
+      {"source": "jnr_sales", "target": "agg_invoices"},
+      {"source": "agg_invoices", "target": "tgt_fct_invoice"}
+    ]
+  },
+  "legacy_targets": {
+    "raw_tgt_dim_customer": {
+      "target_name": "DIM_CUSTOMER",
+      "last_transformation_type": "update_strategy_scd"
+    },
+    "raw_tgt_fct_invoice_lines": {
+      "target_name": "FCT_INVOICE_LINES",
+      "last_transformation_type": "aggregator_fact_load"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/wwi_corpus/seeds.sql",
+    "source_table_map": {
+      "wwi.customers": "seed_customers",
+      "wwi.invoice_lines": "seed_invoice_lines"
+    },
+    "model_table_map": {
+      "raw_stg_customers": "seed_customers",
+      "raw_int_sales_enriched": "parity_int_sales_enriched",
+      "raw_tgt_dim_customer": "parity_tgt_dim_customer",
+      "raw_tgt_fct_invoice_lines": "parity_tgt_fct_invoice_lines",
+      "raw_passthrough_ref_only": "parity_passthrough_ref_only",
+      "raw_multi_consumer_window": "parity_multi_consumer_window"
+    }
+  },
+  "raw_dbt_models": [
+    {"model_name": "raw_stg_customers", "file": "raw_stg_customers.sql", "materialization": "view"},
+    {"model_name": "raw_int_sales_enriched", "file": "raw_int_sales_enriched.sql", "materialization": "view"},
+    {"model_name": "raw_tgt_dim_customer", "file": "raw_tgt_dim_customer.sql", "materialization": "table"},
+    {"model_name": "raw_tgt_fct_invoice_lines", "file": "raw_tgt_fct_invoice_lines.sql", "materialization": "table"},
+    {"model_name": "raw_passthrough_ref_only", "file": "raw_passthrough_ref_only.sql", "materialization": "view"},
+    {"model_name": "raw_multi_consumer_window", "file": "raw_multi_consumer_window.sql", "materialization": "view"}
+  ]
+}
