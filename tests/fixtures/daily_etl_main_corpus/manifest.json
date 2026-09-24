@@ -1,0 +1,58 @@
+{
+  "pipeline_id": "daily_etl_main_active_diagnosis",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 14,
+  "legacy_graph": {
+    "nodes": [
+      {"id": "sq_diagnosis", "label": "SQ_ACTIVE_DIAGNOSIS", "meta": {"type": "source_qualifier"}},
+      {"id": "lkp_provider", "label": "LKP_PROVIDER", "meta": {"type": "lookup"}},
+      {"id": "rtr_status", "label": "RTR_BY_STATUS", "meta": {"type": "router"}},
+      {"id": "upd_dim", "label": "UPD_STRATEGY_SCD", "meta": {"type": "update_strategy"}},
+      {"id": "tgt_dim", "label": "DIM_ACTIVE_DIAGNOSIS", "meta": {"type": "target"}}
+    ],
+    "edges": [
+      {"source": "sq_diagnosis", "target": "lkp_provider"},
+      {"source": "lkp_provider", "target": "rtr_status"},
+      {"source": "rtr_status", "target": "upd_dim"},
+      {"source": "upd_dim", "target": "tgt_dim"}
+    ]
+  },
+  "legacy_targets": {
+    "raw_m_active_diagnosis": {
+      "target_name": "DIM_ACTIVE_DIAGNOSIS",
+      "last_transformation_type": "update_strategy_scd"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [
+    {
+      "model_name": "raw_int_diagnosis_enriched",
+      "lookup_alias": "prov",
+      "order_by_column": "provider_rank",
+      "partition_by_columns": ["diagnosis_id"],
+      "match_policy": "single_match"
+    }
+  ],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/daily_etl_main_corpus/seeds.sql",
+    "source_table_map": {
+      "clinical.diagnosis": "seed_diagnosis",
+      "clinical.provider": "seed_provider"
+    },
+    "model_table_map": {
+      "raw_stg_diagnosis": "seed_diagnosis",
+      "raw_int_diagnosis_enriched": "parity_int_diagnosis_enriched",
+      "raw_m_active_diagnosis": "parity_m_active_diagnosis"
+    }
+  },
+  "raw_dbt_models": [
+    {"model_name": "raw_stg_diagnosis", "file": "raw_stg_diagnosis.sql", "materialization": "view"},
+    {"model_name": "raw_int_diagnosis_enriched", "file": "raw_int_diagnosis_enriched.sql", "materialization": "view"},
+    {"model_name": "raw_m_active_diagnosis", "file": "raw_m_active_diagnosis.sql", "materialization": "table"},
+    {"model_name": "raw_lookup_ambiguous", "file": "raw_lookup_ambiguous.sql", "materialization": "view"}
+  ]
+}
