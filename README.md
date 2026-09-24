@@ -32,7 +32,11 @@ Corpus manifests live under `tests/fixtures/`:
 - `wwi_corpus/` — Wide World Importers–style star schema export
 - `daily_etl_main_corpus/` — DailyETLMain / active diagnosis Informatica-style export
 
-These follow the **read-only** `etl_to_dbt` raw model export shape (`manifest.json` + `models/*.sql` + DuckDB `seeds.sql`). Copy fresh exports from `ETL-Migration-Studio-main` into those folders to re-run verification on your local corpora.
+These follow the **read-only** `etl_to_dbt` raw model export shape (`manifest.json` + `models/*.sql` + DuckDB `seeds.sql`). Refresh from ETL-Migration-Studio:
+
+```bash
+python scripts/ingest_fixtures_from_studio.py --compile-missing
+```
 
 ## API
 

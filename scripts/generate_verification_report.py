@@ -12,6 +12,7 @@ from remodel_engine.layer_synthesizer import Layer
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
+PROVENANCE_PATH = FIXTURES / ".fixture_provenance.json"
 CORPORA = [
     ("WWI corpus (etl_to_dbt export format)", FIXTURES / "wwi_corpus" / "manifest.json"),
     (
@@ -21,6 +22,28 @@ CORPORA = [
 ]
 
 
+def _provenance_banner() -> list[str]:
+    if not PROVENANCE_PATH.is_file():
+        return [
+            "> **Fixture provenance:** Placeholder or manually copied corpora. Run",
+            "> `python scripts/ingest_fixtures_from_studio.py --compile-missing` with",
+            "> ETL-Migration-Studio checked out at `../ETL-Migration-Studio` to refresh.",
+        ]
+    data = json.loads(PROVENANCE_PATH.read_text())
+    studio = data.get("studio_root", "unknown")
+    lines = [
+        "> **Fixture provenance:** Ingested from ETL-Migration-Studio via",
+        "> `scripts/ingest_fixtures_from_studio.py`.",
+        f"> **Studio root:** `{studio}`",
+    ]
+    for entry in data.get("corpora", []):
+        lines.append(
+            f"> - `{entry.get('corpus')}` (`{entry.get('pipeline_id')}`): "
+            f"{entry.get('model_sql_files')} models from `{entry.get('source_export')}`"
+        )
+    return lines
+
+
 def main() -> None:
     engine = RemodelEngine()
     lines: list[str] = [
@@ -28,10 +51,7 @@ def main() -> None:
         "",
         "Phase A headless engine run against copied corpora under `tests/fixtures/`.",
         "",
-        "> **Fixture provenance:** These manifests mirror the raw 1:1 dbt export layout",
-        "> consumed from `etl_to_dbt` (WWI star schema + DailyETLMain active diagnosis pipeline).",
-        "> Replace files under `tests/fixtures/` with a fresh copy from `ETL-Migration-Studio-main`",
-        "> to re-verify against your local export.",
+        *_provenance_banner(),
         "",
     ]
 
