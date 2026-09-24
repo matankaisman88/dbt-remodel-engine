@@ -2,10 +2,9 @@
 
 Phase A headless engine run against copied corpora under `tests/fixtures/`.
 
-> **Fixture provenance:** These manifests mirror the raw 1:1 dbt export layout
-> consumed from `etl_to_dbt` (WWI star schema + DailyETLMain active diagnosis pipeline).
-> Replace files under `tests/fixtures/` with a fresh copy from `ETL-Migration-Studio-main`
-> to re-verify against your local export.
+> **Fixture provenance:** Placeholder or manually copied corpora. Run
+> `python scripts/ingest_fixtures_from_studio.py --compile-missing` with
+> ETL-Migration-Studio checked out at `../ETL-Migration-Studio` to refresh.
 
 ## WWI corpus (etl_to_dbt export format)
 
