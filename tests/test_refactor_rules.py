@@ -62,3 +62,15 @@ def test_lookup_rewrite_fail_closed_on_ambiguous_policy():
     result = apply_lookup_window_rewrite("SELECT 1", spec, enabled=True)
     assert result.passthrough_reasons
     assert result.window_functions_applied == 0
+
+
+def test_lookup_rewrite_parse_failure_is_passthrough():
+    spec = LookupRewriteSpec(
+        model_name="m",
+        lookup_alias="prov",
+        order_by_column="rank",
+        partition_by_columns=["provider_id"],
+    )
+    result = apply_lookup_window_rewrite("SELECT {{{{", spec, enabled=True)
+    assert result.sql == "SELECT {{{{"
+    assert any("parse failed" in r for r in result.passthrough_reasons)

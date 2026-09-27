@@ -5,7 +5,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+import sqlglot
 from pydantic import BaseModel, Field
+from sqlglot import exp
+from sqlglot.errors import ParseError
 
 from remodel_engine.sql_analysis import (
     analyze_sql,
@@ -16,6 +19,12 @@ from remodel_engine.sql_analysis import (
     parse_ctes,
     rule2_transform_summary,
 )
+from remodel_engine.star_shadowing import (
+    _jinja_to_parse_placeholders,
+    _restore_jinja_placeholders,
+)
+
+_LOOKUP_PARSE_DIALECT = "duckdb"
 
 
 @dataclass
@@ -156,31 +165,107 @@ def apply_lookup_window_rewrite(
             ],
         )
 
-    partition = ", ".join(spec.partition_by_columns) or "1"
-    window_expr = (
-        f"ROW_NUMBER() OVER (PARTITION BY {partition} "
-        f"ORDER BY {spec.order_by_column}) AS rn_{spec.lookup_alias}"
-    )
+    body = sql.strip()
+    if not body:
+        return RefactorResult(sql=sql)
+
     marker = f"-- LOOKUP:{spec.lookup_alias}"
-    if marker not in sql and spec.lookup_alias not in sql:
+    try:
+        parse_sql, jinja_map = _jinja_to_parse_placeholders(body)
+        ast = sqlglot.parse_one(parse_sql, read=_LOOKUP_PARSE_DIALECT)
+    except ParseError:
         return RefactorResult(
             sql=sql,
-            passthrough_reasons=[f"lookup rewrite: marker for {spec.lookup_alias} not found"],
+            passthrough_reasons=["lookup rewrite: sql parse failed"],
         )
 
-    rewritten = re.sub(
-        rf"(?i)(SELECT\s+)",
-        rf"\1{window_expr}, ",
-        sql,
-        count=1,
+    matching_joins = _lookup_joins_for_alias(ast, spec.lookup_alias)
+    if not matching_joins:
+        if marker not in sql and not _sql_references_lookup_alias(sql, spec.lookup_alias):
+            return RefactorResult(
+                sql=sql,
+                passthrough_reasons=[f"lookup rewrite: marker for {spec.lookup_alias} not found"],
+            )
+        return RefactorResult(
+            sql=sql,
+            passthrough_reasons=[
+                f"lookup rewrite: join with alias {spec.lookup_alias!r} not found"
+            ],
+        )
+
+    if len(matching_joins) > 1:
+        return RefactorResult(
+            sql=sql,
+            passthrough_reasons=[
+                f"lookup rewrite fail-closed: multiple JOIN targets for alias {spec.lookup_alias!r}"
+            ],
+        )
+
+    join = matching_joins[0]
+    try:
+        wrapped = _wrap_lookup_join_target(join.this, spec)
+    except ParseError:
+        return RefactorResult(
+            sql=sql,
+            passthrough_reasons=["lookup rewrite: failed to build wrapped lookup subquery"],
+        )
+    join.set("this", wrapped)
+
+    out = _restore_jinja_placeholders(ast.sql(dialect=_LOOKUP_PARSE_DIALECT), jinja_map)
+    if not out.endswith("\n") and sql.endswith("\n"):
+        out += "\n"
+    return RefactorResult(sql=out, window_functions_applied=1)
+
+
+def _sql_references_lookup_alias(sql: str, lookup_alias: str) -> bool:
+    """True when the alias appears as a lookup marker companion, not as a substring."""
+    if re.search(rf"(?i)\bAS\s+{re.escape(lookup_alias)}\b", sql):
+        return True
+    if re.search(rf"(?i)\bJOIN\s+[^\n]+?\s{re.escape(lookup_alias)}\s+ON\b", sql):
+        return True
+    return False
+
+
+def _lookup_joins_for_alias(root: exp.Expression, lookup_alias: str) -> list[exp.Join]:
+    target = lookup_alias.lower()
+    matches: list[exp.Join] = []
+    for join in root.find_all(exp.Join):
+        alias = join.this.alias
+        if alias and alias.lower() == target:
+            matches.append(join)
+    return matches
+
+
+def _wrap_lookup_join_target(
+    join_target: exp.Expression,
+    spec: LookupRewriteSpec,
+) -> exp.Subquery:
+    source = _lookup_source_from_join_target(join_target)
+    partition = ", ".join(spec.partition_by_columns) or "1"
+    rn_name = f"rn_{spec.lookup_alias}"
+    alias = spec.lookup_alias
+    scaffold = (
+        f"SELECT _placeholder FROM ("
+        f"SELECT * FROM ("
+        f"SELECT *, ROW_NUMBER() OVER (PARTITION BY {partition} "
+        f"ORDER BY {spec.order_by_column}) AS {rn_name} "
+        f"FROM {source}"
+        f") AS _lkp_wrapped WHERE {rn_name} = 1"
+        f") AS {alias}"
     )
-    rewritten = re.sub(
-        rf"(?i)\bJOIN\b.*?{re.escape(spec.lookup_alias)}",
-        f"JOIN (SELECT * FROM lookup_{spec.lookup_alias} WHERE rn_{spec.lookup_alias} = 1) {spec.lookup_alias}",
-        rewritten,
-        count=1,
-    )
-    return RefactorResult(sql=rewritten, window_functions_applied=1)
+    parsed = sqlglot.parse_one(scaffold, read=_LOOKUP_PARSE_DIALECT)
+    from_clause = parsed.find(exp.From)
+    if not from_clause or not isinstance(from_clause.this, exp.Subquery):
+        raise ParseError("expected wrapped lookup subquery")
+    return from_clause.this
+
+
+def _lookup_source_from_join_target(join_target: exp.Expression) -> str:
+    if isinstance(join_target, exp.Table):
+        return join_target.name
+    if isinstance(join_target, exp.Subquery):
+        return f"({join_target.this.sql(dialect=_LOOKUP_PARSE_DIALECT)})"
+    return join_target.sql(dialect=_LOOKUP_PARSE_DIALECT)
 
 
 def count_distinct_select_lists(parent_sql: str, child_name: str) -> int:

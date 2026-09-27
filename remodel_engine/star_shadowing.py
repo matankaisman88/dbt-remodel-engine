@@ -4,10 +4,12 @@ Inline queries may list ``join.col AS col`` before ``base.*``; Informatica treat
 star expansion as shadowing that join column with ``base.col``. DuckDB CTAS keeps both
 (``col``, ``col_1``), which changes ``COALESCE(col_DIM, col)`` unless harmonized.
 
-Rate-plan lookups use ``COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK)`` where the second
-argument must remain the lookup projection when ``base.RATE_PLAN_PK`` is null. Those
-join columns are renamed to ``RATE_PLAN_PK_LKP`` and COALESCE is expanded to three
-arguments. Other shadowed join columns are dropped so ``col`` resolves to ``base.col``.
+Trailing-star bind harmonization (``harmonize_bind_select_ast``) is a general CTAS rule.
+
+The COALESCE expansion in ``rewrite_coalesce_bindings_ast`` is **not** general CTAS
+shadowing: it is hardcoded to the rate-plan lookup naming convention
+(``RATE_PLAN_PK`` / ``RATE_PLAN_PK_DIM`` / ``RATE_PLAN_PK_LKP`` / ``ref_dim_rate_plan``)
+used by specific real-world fixtures and does not generalize to other lookups.
 """
 
 from __future__ import annotations
@@ -111,7 +113,10 @@ def rewrite_coalesce_bindings_ast(
     *,
     source_has_rate_plan_lkp: bool = False,
 ) -> tuple[exp.Expression, bool]:
-    """Expand ``COALESCE(<STEM>_DIM, <STEM>)`` to include ``<STEM>_LKP`` when matched."""
+    """Rate-plan only: expand ``COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK)`` with ``RATE_PLAN_PK_LKP``.
+
+    Scoped to the rate-plan lookup column naming convention; not a general CTAS-shadowing rule.
+    """
     if not source_has_rate_plan_lkp:
         return root, False
 

@@ -33,7 +33,7 @@
       "model_name": "raw_int_diagnosis_enriched",
       "lookup_alias": "prov",
       "order_by_column": "provider_rank",
-      "partition_by_columns": ["diagnosis_id"],
+      "partition_by_columns": ["provider_id"],
       "match_policy": "single_match"
     }
   ],
