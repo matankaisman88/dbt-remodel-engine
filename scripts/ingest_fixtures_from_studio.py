@@ -409,9 +409,10 @@ def copy_corpus_tree(src: Path, dest: Path, seeds_relpath: str) -> None:
         shutil.rmtree(dest)
     dest.mkdir(parents=True)
     shutil.copy2(src / "manifest.json", dest / "manifest.json")
-    models_src = src / "models"
-    if models_src.is_dir():
-        shutil.copytree(models_src, dest / "models")
+    for sub in ("models", "raw_models"):
+        src_sub = src / sub
+        if src_sub.is_dir():
+            shutil.copytree(src_sub, dest / sub)
     rewrite_manifest_seeds_path(dest / "manifest.json", seeds_relpath)
 
 
@@ -457,7 +458,9 @@ def ingest_corpus(studio: Path, plan: CorpusIngestPlan, *, compile_missing: bool
 
     rewrite_manifest_seeds_path(dest / "manifest.json", fixture_seeds_relpath(plan))
 
-    model_count = len(list((dest / "models").glob("*.sql"))) if (dest / "models").is_dir() else 0
+    model_count = (
+        len(list((dest / "models").rglob("*.sql"))) if (dest / "models").is_dir() else 0
+    )
     return {
         "corpus": plan.corpus_name,
         "pipeline_id": plan.pipeline_id,

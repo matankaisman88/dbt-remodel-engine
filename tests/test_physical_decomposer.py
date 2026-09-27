@@ -1,6 +1,8 @@
 """Tests for physical CTE → dbt model decomposition."""
 
-from remodel_engine.physical_decomposer import physical_decompose_batch
+from pathlib import Path
+
+from remodel_engine.physical_decomposer import physical_decompose_batch, write_physical_models
 
 _MULTI_TARGET_SQL = """
 {{
@@ -61,3 +63,19 @@ def test_monolith_without_ctes_becomes_single_model() -> None:
     assert len(result.models) == 1
     assert result.models[0].model_name == "customers"
     assert result.models[0].relative_path.startswith("models/")
+
+
+def test_write_physical_models_emits_layered_directories(tmp_path: Path) -> None:
+    result = physical_decompose_batch(
+        [{"model_name": "tgt_type_a", "sql": _MULTI_TARGET_SQL, "materialization": "table"}]
+    )
+    written = write_physical_models(result.models, tmp_path)
+    rels = {path.relative_to(tmp_path).as_posix() for path in written}
+    assert any(rel.startswith("models/staging/") for rel in rels)
+    assert any(rel.startswith("models/intermediate/") or rel.startswith("models/marts/") for rel in rels)
+    assert (tmp_path / "models" / "marts" / "fct_type_a.sql").is_file()
+    mart_sql = (tmp_path / "models" / "marts" / "fct_type_a.sql").read_text(encoding="utf-8")
+    assert "{{ ref(" in mart_sql
+    assert "WITH" not in mart_sql.upper()
+    stg = next((tmp_path / "models" / "staging").glob("*.sql"))
+    assert "{{ source(" in stg.read_text(encoding="utf-8")

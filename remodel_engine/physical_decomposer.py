@@ -230,7 +230,7 @@ def write_physical_models(models: list[PhysicalModel], corpus_root: Path) -> lis
     written: list[Path] = []
     for model in models:
         rel = Path(str(model.relative_path or "").replace("\\", "/"))
-        if rel.parts[:1] != ("models",):
+        if len(rel.parts) < 3 or rel.parts[0] != "models":
             rel = Path(_layer_path(model.layer, model.model_name))
         dest = corpus_root / rel
         dest.parent.mkdir(parents=True, exist_ok=True)

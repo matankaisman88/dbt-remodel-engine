@@ -5,8 +5,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
+
+ENGINE_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _graph_to_legacy(nodes, edges, *, prefix: str) -> tuple[list[dict], list[dict]]:
@@ -30,6 +33,44 @@ def _graph_to_legacy(nodes, edges, *, prefix: str) -> tuple[list[dict], list[dic
 
 def _model_stem(relative_path: str) -> str:
     return Path(relative_path).name.removesuffix(".sql")
+
+
+def _reset_dir(path: Path) -> Path:
+    if path.exists():
+        shutil.rmtree(path)
+    path.mkdir(parents=True)
+    return path
+
+
+def _write_layered_models(out_dir: Path, raw_entries: list[dict], raw_models_dir: Path) -> None:
+    """Decompose monoliths and write ``models/staging|intermediate|marts/*.sql``."""
+    if str(ENGINE_ROOT) not in sys.path:
+        sys.path.insert(0, str(ENGINE_ROOT))
+
+    from remodel_engine.layer_synthesizer import LegacyTargetMeta
+    from remodel_engine.physical_decomposer import physical_decompose_batch, write_physical_models
+
+    raw_payload = [
+        {
+            "model_name": entry["model_name"],
+            "sql": (raw_models_dir / entry["file"]).read_text(encoding="utf-8"),
+            "materialization": entry.get("materialization", "view"),
+        }
+        for entry in raw_entries
+    ]
+    legacy_targets = {
+        entry["model_name"]: LegacyTargetMeta(
+            target_name=str(entry.get("target_name") or entry["model_name"]),
+            last_transformation_type=str(entry.get("last_transformation_type") or "target"),
+        )
+        for entry in raw_entries
+        if entry.get("is_legacy_target")
+    }
+    decomposed = physical_decompose_batch(raw_payload, legacy_targets=legacy_targets)
+    models_dir = _reset_dir(out_dir / "models")
+    written = write_physical_models(decomposed.models, out_dir)
+    if not written:
+        raise RuntimeError(f"physical_decompose produced no model files under {models_dir}")
 
 
 def compile_bundle(
@@ -64,13 +105,7 @@ def compile_bundle(
     session = _require_session(parsed.pipeline_id)
     converted = convert_pipeline(session.pipeline_id, dialect)
 
-    models_dir = out_dir / "models"
-    if models_dir.exists():
-        for child in models_dir.iterdir():
-            if child.is_file():
-                child.unlink()
-    else:
-        models_dir.mkdir(parents=True)
+    raw_models_dir = _reset_dir(out_dir / "raw_models")
 
     raw_entries: list[dict] = []
     used_names: set[str] = set()
@@ -103,16 +138,24 @@ def compile_bundle(
                 model_name = f"{stem}_{n}"
             used_names.add(model_name)
             file_name = f"{model_name}.sql"
-            (models_dir / file_name).write_text(sql, encoding="utf-8")
+            (raw_models_dir / file_name).write_text(sql, encoding="utf-8")
             materialization = "table" if "{{ config(materialized='table'" in sql.lower() else "view"
+            is_legacy_target = (
+                model_name.startswith("raw_tgt_")
+                or stem.startswith("tgt_")
+                or stem.startswith("shortcut_to")
+            )
             raw_entries.append(
                 {
                     "model_name": model_name,
                     "file": file_name,
                     "materialization": materialization,
+                    "is_legacy_target": is_legacy_target,
+                    "target_name": stem.removeprefix("tgt_").upper(),
+                    "last_transformation_type": "target",
                 }
             )
-            if model_name.startswith("raw_tgt_") or stem.startswith("tgt_"):
+            if is_legacy_target:
                 legacy_targets[model_name] = {
                     "target_name": stem.removeprefix("tgt_").upper(),
                     "last_transformation_type": "target",
@@ -120,6 +163,8 @@ def compile_bundle(
 
     if not raw_entries:
         raise RuntimeError(f"No dbt models produced from {source_file}")
+
+    _write_layered_models(out_dir, raw_entries, raw_models_dir)
 
     merged_sources_yml = None
     for piece in converted.mappings:
@@ -153,7 +198,14 @@ def compile_bundle(
             "source_table_map": {},
             "model_table_map": {},
         },
-        "raw_dbt_models": raw_entries,
+        "raw_dbt_models": [
+            {
+                "model_name": entry["model_name"],
+                "file": entry["file"],
+                "materialization": entry["materialization"],
+            }
+            for entry in raw_entries
+        ],
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
