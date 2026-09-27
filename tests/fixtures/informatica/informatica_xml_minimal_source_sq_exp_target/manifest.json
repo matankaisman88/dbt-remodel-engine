@@ -60,10 +60,54 @@
     "modernize_window_functions": false
   },
   "lookup_rewrites": [],
+  "entity_consolidations": [
+    {
+      "new_entity": "dim_customer",
+      "old_tables": [
+        "legacy_cust_a",
+        "legacy_cust_b"
+      ],
+      "old_key_columns": {
+        "legacy_cust_a": "cust_id",
+        "legacy_cust_b": "cust_id"
+      },
+      "new_key_column": "customer_key",
+      "timestamp_column": "updated_at",
+      "conflict_fields": [
+        "customer_name"
+      ]
+    }
+  ],
   "parity_context": {
     "seeds_sql": "tests/fixtures/informatica/informatica_xml_minimal_source_sq_exp_target/seeds.sql",
     "source_table_map": {},
-    "model_table_map": {}
+    "model_table_map": {},
+    "entity_consolidation_clusters": [
+      {
+        "spec_new_entity": "dim_customer",
+        "new_key": "cust-1",
+        "rows": [
+          {
+            "old_key": "a1",
+            "old_table": "legacy_cust_a",
+            "timestamp": "2020-01-01T00:00:00",
+            "field_values": {
+              "customer_name": "Acme",
+              "updated_at": "2020-01-01"
+            }
+          },
+          {
+            "old_key": "b1",
+            "old_table": "legacy_cust_b",
+            "timestamp": "2021-01-01T00:00:00",
+            "field_values": {
+              "customer_name": "Acme",
+              "updated_at": "2021-01-01"
+            }
+          }
+        ]
+      }
+    ]
   },
   "raw_dbt_models": [
     {

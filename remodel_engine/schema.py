@@ -23,6 +23,19 @@ class ShadowedLookupRenameSpec(BaseModel):
     lookup_ref_pattern: str
 
 
+class EntityConsolidationSpec(BaseModel):
+    """Manifest-driven entity consolidation: N old tables -> 1 new entity,
+    with a single hardcoded most-recent-timestamp-wins survivorship rule."""
+
+    new_entity: str
+    old_tables: list[str]
+    old_key_columns: dict[str, str]  # old_table -> its key column name
+    new_key_column: str
+    timestamp_column: str  # column present in raw rows, used for
+    # most-recent-wins; assume same name across old_tables for this pass
+    conflict_fields: list[str]  # fields to check for value conflicts
+
+
 class RemodelPreferences(BaseModel):
     target_pattern: str = "star_schema"
     collapse_ctes: bool = True
@@ -38,6 +51,7 @@ class RemodelRequest(BaseModel):
     legacy_targets: dict[str, dict[str, str]] = Field(default_factory=dict)
     lookup_rewrites: list[dict[str, Any]] = Field(default_factory=list)
     shadowed_lookup_renames: list[dict[str, Any]] = Field(default_factory=list)
+    entity_consolidations: list[dict[str, Any]] = Field(default_factory=list)
     parity_context: dict[str, Any] | None = None
     legacy_transformations_count: int | None = None
     legacy_graph_nodes: list[dict[str, Any]] = Field(default_factory=list)
@@ -100,7 +114,9 @@ class RemodeledModel(BaseModel):
 
 class RemodelResponse(BaseModel):
     pipeline_id: str
-    status: Literal["success", "needs_manual_review", "failed_parity"]
+    status: Literal[
+        "success", "needs_manual_review", "failed_parity", "needs_survivorship_review"
+    ]
     refactoring_summary: RefactoringSummary
     before_graph: TransformationGraph
     after_graph: DbtModelGraph

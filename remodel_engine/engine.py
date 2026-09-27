@@ -19,7 +19,9 @@ from remodel_engine.refactor_rules import (
     collapse_eligible_ctes,
     explain_gate,
 )
+from remodel_engine.entity_consolidation import run_entity_consolidation_pass
 from remodel_engine.schema import (
+    EntityConsolidationSpec,
     ParityCheck,
     RefactoringSummary,
     RemodelRequest,
@@ -41,6 +43,9 @@ class RemodelEngine:
         }
         shadow_lookup_specs = [
             ShadowedLookupRenameSpec(**s) for s in request.shadowed_lookup_renames
+        ]
+        entity_consolidation_specs = [
+            EntityConsolidationSpec(**s) for s in request.entity_consolidations
         ]
         parity_ctx = _parity_context_from_request(request)
 
@@ -283,6 +288,17 @@ class RemodelEngine:
             status = "failed_parity"
         elif manual_review > 0:
             status = "needs_manual_review"
+
+        needs_survivorship_review = False
+        if entity_consolidation_specs:
+            consolidation_models, needs_survivorship_review = run_entity_consolidation_pass(
+                entity_consolidation_specs,
+                request.parity_context,
+            )
+            remodeled.extend(consolidation_models)
+
+        if needs_survivorship_review and status == "success":
+            status = "needs_survivorship_review"
 
         return RemodelResponse(
             pipeline_id=request.pipeline_id,
