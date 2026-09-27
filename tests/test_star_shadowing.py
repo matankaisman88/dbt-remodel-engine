@@ -37,7 +37,10 @@ SELECT
     COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK) AS RATE_PLAN_PK_OUT
 FROM {{ ref('int_exp_bind') }} base
 """
-    fixed_exp = fix_star_shadowing_for_ctas(exp_sql)
+    fixed_exp = fix_star_shadowing_for_ctas(
+        exp_sql,
+        source_has_rate_plan_lkp=True,
+    )
     assert "COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK_LKP, RATE_PLAN_PK)" in fixed_exp
 
 

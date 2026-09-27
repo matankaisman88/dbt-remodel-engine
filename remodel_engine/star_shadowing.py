@@ -22,7 +22,12 @@ _JINJA_PLACEHOLDER = re.compile(r"\{\{[^}]+\}\}")
 _RATE_PLAN_LKP_REF = re.compile(r"\blkp_lkp_ref_dim_rate_plan\b", re.IGNORECASE)
 
 
-def fix_star_shadowing_for_ctas(sql: str, *, dialect: str = "duckdb") -> str:
+def fix_star_shadowing_for_ctas(
+    sql: str,
+    *,
+    dialect: str = "duckdb",
+    source_has_rate_plan_lkp: bool = False,
+) -> str:
     """Harmonize star-shadowed join projections for DuckDB CTAS."""
     body = sql.strip()
     if not body:
@@ -42,7 +47,10 @@ def fix_star_shadowing_for_ctas(sql: str, *, dialect: str = "duckdb") -> str:
         )
         changed |= harmonized
 
-    ast, coalesce_changed = rewrite_coalesce_bindings_ast(ast)
+    ast, coalesce_changed = rewrite_coalesce_bindings_ast(
+        ast,
+        source_has_rate_plan_lkp=source_has_rate_plan_lkp,
+    )
     changed |= coalesce_changed
 
     if not changed:
@@ -100,8 +108,13 @@ def harmonize_bind_select_ast(
 
 def rewrite_coalesce_bindings_ast(
     root: exp.Expression,
+    *,
+    source_has_rate_plan_lkp: bool = False,
 ) -> tuple[exp.Expression, bool]:
     """Expand ``COALESCE(<STEM>_DIM, <STEM>)`` to include ``<STEM>_LKP`` when matched."""
+    if not source_has_rate_plan_lkp:
+        return root, False
+
     changed = False
 
     def _transform(node: exp.Expression) -> exp.Expression:

@@ -27,7 +27,7 @@ from remodel_engine.schema import (
     RemodeledModel,
 )
 from remodel_engine.star_shadowing import fix_star_shadowing_for_ctas
-from remodel_engine.sql_analysis import compile_dbt_sql, parse_ctes
+from remodel_engine.sql_analysis import compile_dbt_sql, extract_refs, parse_ctes
 
 
 class RemodelEngine:
@@ -95,10 +95,6 @@ class RemodelEngine:
             runtime_table_map = dict(parity_ctx.model_table_map)
 
         try:
-            if request.preferences.physical_decompose:
-                for item in working:
-                    item.sql = fix_star_shadowing_for_ctas(item.sql)
-
             if conn is not None and parity_ctx:
                 conn.execute(parity_ctx.seeds_sql)
                 if request.preferences.physical_decompose and working:
@@ -108,6 +104,9 @@ class RemodelEngine:
                         parity_ctx,
                         runtime_table_map,
                     )
+            elif request.preferences.physical_decompose:
+                for item in working:
+                    item.sql = fix_star_shadowing_for_ctas(item.sql)
 
             for item in working:
                 pre_refactor_sql = item.sql
@@ -330,6 +329,27 @@ class _WorkModel:
         self.is_mart = is_mart
 
 
+def _table_column_names(conn: duckdb.DuckDBPyConnection, table: str) -> set[str]:
+    try:
+        rows = conn.execute(f"DESCRIBE {table}").fetchall()
+    except duckdb.Error:
+        return set()
+    return {str(row[0]).upper() for row in rows}
+
+
+def _ref_source_column_names(
+    conn: duckdb.DuckDBPyConnection,
+    sql: str,
+    table_map: dict[str, str],
+) -> set[str]:
+    columns: set[str] = set()
+    for ref in extract_refs(sql):
+        mapped = table_map.get(ref)
+        if mapped:
+            columns |= _table_column_names(conn, mapped)
+    return columns
+
+
 def _materialize_physical_models(
     conn: duckdb.DuckDBPyConnection,
     models: list[_WorkModel],
@@ -346,11 +366,16 @@ def _materialize_physical_models(
         for m in models
     ]
     order = topological_model_order(physical)
-    by_name = {m.model_name: m for m in physical}
+    by_name = {m.name: m for m in models}
     updated = dict(table_map)
     for name in order:
-        model = by_name[name]
-        compiled = compile_dbt_sql(model.sql, updated, context.source_table_map)
+        item = by_name[name]
+        ref_columns = _ref_source_column_names(conn, item.sql, updated)
+        item.sql = fix_star_shadowing_for_ctas(
+            item.sql,
+            source_has_rate_plan_lkp="RATE_PLAN_PK_LKP" in ref_columns,
+        )
+        compiled = compile_dbt_sql(item.sql, updated, context.source_table_map)
         table = f"remodel_{name}"
         conn.execute(f"CREATE OR REPLACE TABLE {table} AS {compiled}")
         updated[name] = table

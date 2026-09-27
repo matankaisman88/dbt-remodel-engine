@@ -61,7 +61,8 @@ LEFT JOIN lkp_lkp_ref_dim_rate_plan u4 ON base.RATE_PLAN_CODE = u4.RATE_PLAN_COD
         """
 SELECT COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK) AS RATE_PLAN_PK_OUT
 FROM int_exp_bind
-"""
+""",
+        source_has_rate_plan_lkp=True,
     )
     rem_out = conn.execute(rem_sql).fetchone()[0]
 
