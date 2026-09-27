@@ -144,6 +144,7 @@ def compile_bundle(
             "target_pattern": "star_schema",
             "collapse_ctes": True,
             "modernize_window_functions": False,
+            "physical_decompose": True,
         },
         "lookup_rewrites": [],
         "parity_context": {
