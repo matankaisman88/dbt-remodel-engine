@@ -33,6 +33,7 @@ JOIN_PATTERN = re.compile(r"\b(?:INNER|LEFT|RIGHT|FULL|CROSS)?\s*JOIN\b", re.IGN
 GROUP_BY_PATTERN = re.compile(r"\bGROUP\s+BY\b", re.IGNORECASE)
 AGG_PATTERN = re.compile(r"\b(SUM|COUNT|AVG|MIN|MAX)\s*\(", re.IGNORECASE)
 CASE_PATTERN = re.compile(r"\bCASE\b", re.IGNORECASE)
+_DBT_CONTROL = re.compile(r"\{%.*?%\}", re.DOTALL)
 
 CTE_BLOCK_PATTERN = re.compile(
     r"\bWITH\b(?P<body>.*?)(?=\bSELECT\b(?!\s*.*?\bFROM\b))",
@@ -204,6 +205,7 @@ def compile_dbt_sql(
 
     out = REF_PATTERN.sub(ref_repl, out)
     out = SOURCE_PATTERN.sub(source_repl, out)
+    out = _DBT_CONTROL.sub("", out)
     out = re.sub(r"\{\{.*?\}\}", "", out, flags=re.DOTALL)
     out = re.sub(r"\{#.*?#\}", "", out, flags=re.DOTALL)
     return out.strip()
@@ -224,6 +226,11 @@ def split_dbt_header_and_body(sql: str) -> tuple[str, str]:
         stripped = lines[idx].strip()
         if stripped.startswith("--") or stripped == "":
             banner.append(lines[idx])
+            idx += 1
+            continue
+        if stripped.startswith("-- AUTO-GENERATED") or stripped.startswith(
+            "-- MANUAL_REVIEW_REQUIRED"
+        ):
             idx += 1
             continue
         break
