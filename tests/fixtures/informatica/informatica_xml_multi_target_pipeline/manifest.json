@@ -1,0 +1,102 @@
+{
+  "pipeline_id": "informatica_xml_multi_target_pipeline",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 6,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SQ_CUSTOMERS",
+        "label": "SQ_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_CUSTOMERS",
+        "label": "TGT_CUSTOMERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "EXP_CUSTOMERS",
+        "label": "EXP_CUSTOMERS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "EXP_ORDERS",
+        "label": "EXP_ORDERS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SQ_CUSTOMERS",
+        "target": "EXP_CUSTOMERS"
+      },
+      {
+        "source": "EXP_CUSTOMERS",
+        "target": "TGT_CUSTOMERS"
+      },
+      {
+        "source": "SQ_ORDERS",
+        "target": "EXP_ORDERS"
+      },
+      {
+        "source": "EXP_ORDERS",
+        "target": "TGT_ORDERS"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_customers": {
+      "target_name": "CUSTOMERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_orders": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_xml_multi_target_pipeline/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_customers",
+      "file": "tgt_customers.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_orders",
+      "file": "tgt_orders.sql",
+      "materialization": "view"
+    }
+  ]
+}

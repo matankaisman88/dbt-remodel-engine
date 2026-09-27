@@ -1,0 +1,25 @@
+-- Auto-generated DuckDB seed for Airflow dbt runs.
+CREATE SCHEMA IF NOT EXISTS "dbo";
+CREATE SCHEMA IF NOT EXISTS "dw_core";
+CREATE TABLE IF NOT EXISTS dbo.dim_customers(_row_id INTEGER);
+INSERT INTO "dbo"."dim_customers" ("_row_id") SELECT 754 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."dim_customers" WHERE "_row_id" = 754);
+INSERT INTO "dbo"."dim_customers" ("_row_id") SELECT 1169 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."dim_customers" WHERE "_row_id" = 1169);
+INSERT INTO "dbo"."dim_customers" ("_row_id") SELECT 6295 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."dim_customers" WHERE "_row_id" = 6295);
+INSERT INTO "dbo"."dim_customers" ("_row_id") SELECT 9093 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."dim_customers" WHERE "_row_id" = 9093);
+CREATE TABLE IF NOT EXISTS dbo.fct_orders(_row_id INTEGER);
+INSERT INTO "dbo"."fct_orders" ("_row_id") SELECT 754 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."fct_orders" WHERE "_row_id" = 754);
+INSERT INTO "dbo"."fct_orders" ("_row_id") SELECT 1169 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."fct_orders" WHERE "_row_id" = 1169);
+INSERT INTO "dbo"."fct_orders" ("_row_id") SELECT 6295 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."fct_orders" WHERE "_row_id" = 6295);
+INSERT INTO "dbo"."fct_orders" ("_row_id") SELECT 9093 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."fct_orders" WHERE "_row_id" = 9093);
+CREATE TABLE IF NOT EXISTS dbo.tgt_customers(CUSTOMER_ID INTEGER, CUSTOMER_NAME VARCHAR, CREATED_DATE VARCHAR);
+CREATE TABLE IF NOT EXISTS dbo.tgt_orders(ORDER_ID INTEGER, CUSTOMER_ID INTEGER, CREATED_DATE VARCHAR);
+CREATE TABLE IF NOT EXISTS dw_core.dim_customers(CUSTOMER_ID VARCHAR, CUSTOMER_NAME VARCHAR);
+INSERT INTO "dw_core"."dim_customers" ("CUSTOMER_ID", "CUSTOMER_NAME") SELECT 'customer_id_2', 'customer_name_2' WHERE NOT EXISTS (SELECT 1 FROM "dw_core"."dim_customers" WHERE "CUSTOMER_ID" = 'customer_id_2');
+INSERT INTO "dw_core"."dim_customers" ("CUSTOMER_ID", "CUSTOMER_NAME") SELECT 'customer_id_3', 'customer_name_3' WHERE NOT EXISTS (SELECT 1 FROM "dw_core"."dim_customers" WHERE "CUSTOMER_ID" = 'customer_id_3');
+INSERT INTO "dw_core"."dim_customers" ("CUSTOMER_ID", "CUSTOMER_NAME") SELECT 'customer_id_4', 'customer_name_4' WHERE NOT EXISTS (SELECT 1 FROM "dw_core"."dim_customers" WHERE "CUSTOMER_ID" = 'customer_id_4');
+INSERT INTO "dw_core"."dim_customers" ("CUSTOMER_ID", "CUSTOMER_NAME") VALUES (NULL, NULL);
+CREATE TABLE IF NOT EXISTS dw_core.fct_orders(ORDER_ID VARCHAR, CUSTOMER_ID VARCHAR);
+INSERT INTO "dw_core"."fct_orders" ("ORDER_ID", "CUSTOMER_ID") SELECT 'order_id_2', 'customer_id_2' WHERE NOT EXISTS (SELECT 1 FROM "dw_core"."fct_orders" WHERE "ORDER_ID" = 'order_id_2');
+INSERT INTO "dw_core"."fct_orders" ("ORDER_ID", "CUSTOMER_ID") SELECT 'order_id_3', 'customer_id_3' WHERE NOT EXISTS (SELECT 1 FROM "dw_core"."fct_orders" WHERE "ORDER_ID" = 'order_id_3');
+INSERT INTO "dw_core"."fct_orders" ("ORDER_ID", "CUSTOMER_ID") SELECT 'order_id_4', 'customer_id_4' WHERE NOT EXISTS (SELECT 1 FROM "dw_core"."fct_orders" WHERE "ORDER_ID" = 'order_id_4');
+INSERT INTO "dw_core"."fct_orders" ("ORDER_ID", "CUSTOMER_ID") VALUES (NULL, NULL);

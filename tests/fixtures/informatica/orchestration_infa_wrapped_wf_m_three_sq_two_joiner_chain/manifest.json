@@ -1,0 +1,130 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_three_sq_two_joiner_chain",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 9,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_EMPLOYEE",
+        "label": "SRC_EMPLOYEE",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_EMPLOYEE",
+        "label": "SQ_EMPLOYEE",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_DEPARTMENT",
+        "label": "SRC_DEPARTMENT",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_DEPARTMENT",
+        "label": "SQ_DEPARTMENT",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_MANAGER",
+        "label": "SRC_MANAGER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_MANAGER",
+        "label": "SQ_MANAGER",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_EMPLOYEE_FULL",
+        "label": "TGT_EMPLOYEE_FULL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "JNR_DEPT",
+        "label": "JNR_DEPT",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "JNR_MGR",
+        "label": "JNR_MGR",
+        "meta": {
+          "type": "JOINER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_EMPLOYEE",
+        "target": "SQ_EMPLOYEE"
+      },
+      {
+        "source": "SQ_EMPLOYEE",
+        "target": "JNR_DEPT"
+      },
+      {
+        "source": "SRC_DEPARTMENT",
+        "target": "SQ_DEPARTMENT"
+      },
+      {
+        "source": "SQ_DEPARTMENT",
+        "target": "JNR_DEPT"
+      },
+      {
+        "source": "SRC_MANAGER",
+        "target": "SQ_MANAGER"
+      },
+      {
+        "source": "SQ_MANAGER",
+        "target": "JNR_MGR"
+      },
+      {
+        "source": "JNR_DEPT",
+        "target": "JNR_MGR"
+      },
+      {
+        "source": "JNR_MGR",
+        "target": "TGT_EMPLOYEE_FULL"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_employee_full": {
+      "target_name": "EMPLOYEE_FULL",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_three_sq_two_joiner_chain/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_employee_full",
+      "file": "tgt_employee_full.sql",
+      "materialization": "view"
+    }
+  ]
+}

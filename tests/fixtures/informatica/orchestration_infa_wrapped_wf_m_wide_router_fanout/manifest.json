@@ -1,0 +1,175 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_wide_router_fanout",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 9,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_ELECTRONICS",
+        "label": "TGT_ELECTRONICS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_APPAREL",
+        "label": "TGT_APPAREL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_GROCERY",
+        "label": "TGT_GROCERY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_FURNITURE",
+        "label": "TGT_FURNITURE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_TOYS",
+        "label": "TGT_TOYS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_DEFAULT",
+        "label": "TGT_DEFAULT",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "RTR_CATEGORY",
+        "label": "RTR_CATEGORY",
+        "meta": {
+          "type": "ROUTER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_ORDERS",
+        "target": "SQ_ORDERS"
+      },
+      {
+        "source": "SQ_ORDERS",
+        "target": "RTR_CATEGORY"
+      },
+      {
+        "source": "RTR_CATEGORY",
+        "target": "TGT_ELECTRONICS"
+      },
+      {
+        "source": "RTR_CATEGORY",
+        "target": "TGT_APPAREL"
+      },
+      {
+        "source": "RTR_CATEGORY",
+        "target": "TGT_GROCERY"
+      },
+      {
+        "source": "RTR_CATEGORY",
+        "target": "TGT_FURNITURE"
+      },
+      {
+        "source": "RTR_CATEGORY",
+        "target": "TGT_TOYS"
+      },
+      {
+        "source": "RTR_CATEGORY",
+        "target": "TGT_DEFAULT"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_electronics": {
+      "target_name": "ELECTRONICS",
+      "last_transformation_type": "target"
+    },
+    "tgt_apparel": {
+      "target_name": "APPAREL",
+      "last_transformation_type": "target"
+    },
+    "tgt_grocery": {
+      "target_name": "GROCERY",
+      "last_transformation_type": "target"
+    },
+    "tgt_furniture": {
+      "target_name": "FURNITURE",
+      "last_transformation_type": "target"
+    },
+    "tgt_toys": {
+      "target_name": "TOYS",
+      "last_transformation_type": "target"
+    },
+    "tgt_default": {
+      "target_name": "DEFAULT",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_wide_router_fanout/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_electronics",
+      "file": "tgt_electronics.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_apparel",
+      "file": "tgt_apparel.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_grocery",
+      "file": "tgt_grocery.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_furniture",
+      "file": "tgt_furniture.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_toys",
+      "file": "tgt_toys.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_default",
+      "file": "tgt_default.sql",
+      "materialization": "view"
+    }
+  ]
+}

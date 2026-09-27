@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "informatica_stress_corpus_sorter_multi_key",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_LEADERBOARD",
+        "label": "SRC_LEADERBOARD",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_LEADERBOARD",
+        "label": "SQ_LEADERBOARD",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_LEADERBOARD_SORTED",
+        "label": "TGT_LEADERBOARD_SORTED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "SRT_LEADERBOARD",
+        "label": "SRT_LEADERBOARD",
+        "meta": {
+          "type": "SORTER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_LEADERBOARD",
+        "target": "SQ_LEADERBOARD"
+      },
+      {
+        "source": "SQ_LEADERBOARD",
+        "target": "SRT_LEADERBOARD"
+      },
+      {
+        "source": "SRT_LEADERBOARD",
+        "target": "TGT_LEADERBOARD_SORTED"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_leaderboard_sorted": {
+      "target_name": "LEADERBOARD_SORTED",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_sorter_multi_key/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_leaderboard_sorted",
+      "file": "tgt_leaderboard_sorted.sql",
+      "materialization": "view"
+    }
+  ]
+}

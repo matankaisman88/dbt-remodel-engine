@@ -1,0 +1,8 @@
+-- Auto-generated DuckDB seed for Airflow dbt runs.
+CREATE SCHEMA IF NOT EXISTS "dbo";
+CREATE TABLE IF NOT EXISTS dbo.src_orders(ORDER_ID INTEGER, CUSTOMER_NAME VARCHAR);
+INSERT INTO "dbo"."src_orders" ("ORDER_ID", "CUSTOMER_NAME") SELECT 755, 'customer_name_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_orders" WHERE "ORDER_ID" = 755);
+INSERT INTO "dbo"."src_orders" ("ORDER_ID", "CUSTOMER_NAME") SELECT 1170, 'customer_name_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_orders" WHERE "ORDER_ID" = 1170);
+INSERT INTO "dbo"."src_orders" ("ORDER_ID", "CUSTOMER_NAME") SELECT 6296, 'customer_name_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_orders" WHERE "ORDER_ID" = 6296);
+INSERT INTO "dbo"."src_orders" ("ORDER_ID", "CUSTOMER_NAME") VALUES (NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.tgt_orders(ORDER_ID DECIMAL(18,3), CUSTOMER_NAME VARCHAR);

@@ -1,0 +1,86 @@
+{
+  "pipeline_id": "informatica_stress_corpus_two_mapplets_chained",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 5,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_RAW_LABELS",
+        "label": "SRC_RAW_LABELS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_RAW_LABELS",
+        "label": "SQ_RAW_LABELS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_CLEAN_LABELS",
+        "label": "TGT_CLEAN_LABELS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "MP_TRIM_INST",
+        "label": "MP_TRIM_INST",
+        "meta": {
+          "type": "MAPPLET"
+        }
+      },
+      {
+        "id": "MP_UPPERCASE2_INST",
+        "label": "MP_UPPERCASE2_INST",
+        "meta": {
+          "type": "MAPPLET"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_RAW_LABELS",
+        "target": "SQ_RAW_LABELS"
+      },
+      {
+        "source": "SQ_RAW_LABELS",
+        "target": "MP_TRIM_INST"
+      },
+      {
+        "source": "MP_TRIM_INST",
+        "target": "MP_UPPERCASE2_INST"
+      },
+      {
+        "source": "MP_UPPERCASE2_INST",
+        "target": "TGT_CLEAN_LABELS"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_clean_labels": {
+      "target_name": "CLEAN_LABELS",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_two_mapplets_chained/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_clean_labels",
+      "file": "tgt_clean_labels.sql",
+      "materialization": "view"
+    }
+  ]
+}

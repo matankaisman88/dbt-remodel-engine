@@ -1,0 +1,141 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_union_heterogeneous_4way",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 10,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_WEB_EVENTS",
+        "label": "SRC_WEB_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_WEB_EVENTS",
+        "label": "SQ_SRC_WEB_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_MOBILE_EVENTS",
+        "label": "SRC_MOBILE_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_MOBILE_EVENTS",
+        "label": "SQ_SRC_MOBILE_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_POS_EVENTS",
+        "label": "SRC_POS_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_POS_EVENTS",
+        "label": "SQ_SRC_POS_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_CALLCENTER_EVENTS",
+        "label": "SRC_CALLCENTER_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_CALLCENTER_EVENTS",
+        "label": "SQ_SRC_CALLCENTER_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_ALL_EVENTS",
+        "label": "TGT_ALL_EVENTS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "UN_ALL_EVENTS",
+        "label": "UN_ALL_EVENTS",
+        "meta": {
+          "type": "UNION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_WEB_EVENTS",
+        "target": "SQ_SRC_WEB_EVENTS"
+      },
+      {
+        "source": "SQ_SRC_WEB_EVENTS",
+        "target": "UN_ALL_EVENTS"
+      },
+      {
+        "source": "SRC_MOBILE_EVENTS",
+        "target": "SQ_SRC_MOBILE_EVENTS"
+      },
+      {
+        "source": "SQ_SRC_MOBILE_EVENTS",
+        "target": "UN_ALL_EVENTS"
+      },
+      {
+        "source": "SRC_POS_EVENTS",
+        "target": "SQ_SRC_POS_EVENTS"
+      },
+      {
+        "source": "SQ_SRC_POS_EVENTS",
+        "target": "UN_ALL_EVENTS"
+      },
+      {
+        "source": "SRC_CALLCENTER_EVENTS",
+        "target": "SQ_SRC_CALLCENTER_EVENTS"
+      },
+      {
+        "source": "SQ_SRC_CALLCENTER_EVENTS",
+        "target": "UN_ALL_EVENTS"
+      },
+      {
+        "source": "UN_ALL_EVENTS",
+        "target": "TGT_ALL_EVENTS"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_all_events": {
+      "target_name": "ALL_EVENTS",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_union_heterogeneous_4way/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_all_events",
+      "file": "tgt_all_events.sql",
+      "materialization": "view"
+    }
+  ]
+}

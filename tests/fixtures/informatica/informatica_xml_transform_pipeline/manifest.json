@@ -1,0 +1,174 @@
+{
+  "pipeline_id": "informatica_xml_transform_pipeline",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 11,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_CUSTOMERS",
+        "label": "SRC_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_CUSTOMERS",
+        "label": "SQ_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_JOINED",
+        "label": "TGT_JOINED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_UNION",
+        "label": "TGT_UNION",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_VARS",
+        "label": "TGT_VARS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "JNR_ORDERS",
+        "label": "JNR_ORDERS",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "RTR_REGION",
+        "label": "RTR_REGION",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "UN_ORDERS",
+        "label": "UN_ORDERS",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "EXP_VARS",
+        "label": "EXP_VARS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_CUSTOMERS",
+        "target": "SQ_CUSTOMERS"
+      },
+      {
+        "source": "SRC_ORDERS",
+        "target": "SQ_ORDERS"
+      },
+      {
+        "source": "SQ_ORDERS",
+        "target": "JNR_ORDERS"
+      },
+      {
+        "source": "SQ_CUSTOMERS",
+        "target": "JNR_ORDERS"
+      },
+      {
+        "source": "JNR_ORDERS",
+        "target": "RTR_REGION"
+      },
+      {
+        "source": "RTR_REGION",
+        "target": "TGT_JOINED"
+      },
+      {
+        "source": "SQ_ORDERS",
+        "target": "UN_ORDERS"
+      },
+      {
+        "source": "SQ_CUSTOMERS",
+        "target": "UN_ORDERS"
+      },
+      {
+        "source": "UN_ORDERS",
+        "target": "TGT_UNION"
+      },
+      {
+        "source": "SQ_CUSTOMERS",
+        "target": "EXP_VARS"
+      },
+      {
+        "source": "EXP_VARS",
+        "target": "TGT_VARS"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_joined": {
+      "target_name": "JOINED",
+      "last_transformation_type": "target"
+    },
+    "tgt_union": {
+      "target_name": "UNION",
+      "last_transformation_type": "target"
+    },
+    "tgt_vars": {
+      "target_name": "VARS",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_xml_transform_pipeline/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_joined",
+      "file": "tgt_joined.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_union",
+      "file": "tgt_union.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_vars",
+      "file": "tgt_vars.sql",
+      "materialization": "view"
+    }
+  ]
+}

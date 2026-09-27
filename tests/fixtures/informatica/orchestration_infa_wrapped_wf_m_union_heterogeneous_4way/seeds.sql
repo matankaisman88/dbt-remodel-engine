@@ -1,0 +1,23 @@
+-- Auto-generated DuckDB seed for Airflow dbt runs.
+CREATE SCHEMA IF NOT EXISTS "dbo";
+CREATE TABLE IF NOT EXISTS dbo.src_callcenter_events(EVENT_ID INTEGER, EVENT_TS VARCHAR, CHANNEL VARCHAR);
+INSERT INTO "dbo"."src_callcenter_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 754, '2022-03-03', 'channel_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_callcenter_events" WHERE "EVENT_ID" = 754);
+INSERT INTO "dbo"."src_callcenter_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 1169, '2021-02-02', 'channel_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_callcenter_events" WHERE "EVENT_ID" = 1169);
+INSERT INTO "dbo"."src_callcenter_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 6295, '2023-04-04', 'channel_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_callcenter_events" WHERE "EVENT_ID" = 6295);
+INSERT INTO "dbo"."src_callcenter_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") VALUES (NULL, NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.src_mobile_events(EVENT_ID INTEGER, EVENT_TS VARCHAR, CHANNEL VARCHAR);
+INSERT INTO "dbo"."src_mobile_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 754, '2022-03-03', 'channel_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_mobile_events" WHERE "EVENT_ID" = 754);
+INSERT INTO "dbo"."src_mobile_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 1169, '2021-02-02', 'channel_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_mobile_events" WHERE "EVENT_ID" = 1169);
+INSERT INTO "dbo"."src_mobile_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 6295, '2023-04-04', 'channel_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_mobile_events" WHERE "EVENT_ID" = 6295);
+INSERT INTO "dbo"."src_mobile_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") VALUES (NULL, NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.src_pos_events(EVENT_ID INTEGER, EVENT_TS VARCHAR, CHANNEL VARCHAR);
+INSERT INTO "dbo"."src_pos_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 754, '2022-03-03', 'channel_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_pos_events" WHERE "EVENT_ID" = 754);
+INSERT INTO "dbo"."src_pos_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 1169, '2021-02-02', 'channel_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_pos_events" WHERE "EVENT_ID" = 1169);
+INSERT INTO "dbo"."src_pos_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 6295, '2023-04-04', 'channel_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_pos_events" WHERE "EVENT_ID" = 6295);
+INSERT INTO "dbo"."src_pos_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") VALUES (NULL, NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.src_web_events(EVENT_ID INTEGER, EVENT_TS VARCHAR, CHANNEL VARCHAR);
+INSERT INTO "dbo"."src_web_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 754, '2022-03-03', 'channel_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_web_events" WHERE "EVENT_ID" = 754);
+INSERT INTO "dbo"."src_web_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 1169, '2021-02-02', 'channel_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_web_events" WHERE "EVENT_ID" = 1169);
+INSERT INTO "dbo"."src_web_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") SELECT 6295, '2023-04-04', 'channel_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_web_events" WHERE "EVENT_ID" = 6295);
+INSERT INTO "dbo"."src_web_events" ("EVENT_ID", "EVENT_TS", "CHANNEL") VALUES (NULL, NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.tgt_all_events(EVENT_ID VARCHAR, EVENT_TS VARCHAR, CHANNEL VARCHAR);

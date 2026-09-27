@@ -1,0 +1,60 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_with_unsupported",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 3,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_ORDERS",
+        "target": "SQ_ORDERS"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_orders": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_with_unsupported/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_orders",
+      "file": "tgt_orders.sql",
+      "materialization": "view"
+    }
+  ]
+}

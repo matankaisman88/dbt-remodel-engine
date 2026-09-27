@@ -1,0 +1,79 @@
+{
+  "pipeline_id": "informatica_stress_corpus_lookup_composite_condition",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_INVENTORY_MOVEMENT",
+        "label": "SRC_INVENTORY_MOVEMENT",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_INVENTORY_MOVEMENT",
+        "label": "SQ_INVENTORY_MOVEMENT",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_INVENTORY_VALUED",
+        "label": "TGT_INVENTORY_VALUED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "LKP_UNIT_COST",
+        "label": "LKP_UNIT_COST",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_INVENTORY_MOVEMENT",
+        "target": "SQ_INVENTORY_MOVEMENT"
+      },
+      {
+        "source": "SQ_INVENTORY_MOVEMENT",
+        "target": "TGT_INVENTORY_VALUED"
+      },
+      {
+        "source": "SQ_INVENTORY_MOVEMENT",
+        "target": "LKP_UNIT_COST"
+      },
+      {
+        "source": "LKP_UNIT_COST",
+        "target": "TGT_INVENTORY_VALUED"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_inventory_valued": {
+      "target_name": "INVENTORY_VALUED",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_lookup_composite_condition/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_inventory_valued",
+      "file": "tgt_inventory_valued.sql",
+      "materialization": "view"
+    }
+  ]
+}

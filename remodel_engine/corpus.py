@@ -8,6 +8,38 @@ from pathlib import Path
 from remodel_engine.schema import RawDbtModel, RemodelRequest
 
 
+def _resolve_parity_context(
+    parity_context: dict | None,
+    manifest_path: Path,
+) -> dict | None:
+    if not parity_context:
+        return None
+    ctx = dict(parity_context)
+    seeds_ref = ctx.get("seeds_sql")
+    if not isinstance(seeds_ref, str) or not seeds_ref.strip().endswith(".sql"):
+        return ctx
+    corpus_dir = manifest_path.parent
+    candidates = [
+        Path(seeds_ref),
+        corpus_dir / Path(seeds_ref).name,
+        corpus_dir / "seeds.sql",
+    ]
+    if seeds_ref.replace("\\", "/").startswith("tests/fixtures/"):
+        repo_root = manifest_path
+        for _ in range(6):
+            if (repo_root / "tests" / "fixtures").is_dir():
+                candidates.append(repo_root / seeds_ref.replace("\\", "/"))
+                break
+            if repo_root.parent == repo_root:
+                break
+            repo_root = repo_root.parent
+    for candidate in candidates:
+        if candidate.is_file():
+            ctx["seeds_sql"] = str(candidate.resolve())
+            break
+    return ctx
+
+
 def load_corpus_manifest(path: Path) -> RemodelRequest:
     data = json.loads(path.read_text())
     models_dir = path.parent / "models"
@@ -30,7 +62,7 @@ def load_corpus_manifest(path: Path) -> RemodelRequest:
         preferences=data.get("preferences", {}),
         legacy_targets=data.get("legacy_targets", {}),
         lookup_rewrites=data.get("lookup_rewrites", []),
-        parity_context=data.get("parity_context"),
+        parity_context=_resolve_parity_context(data.get("parity_context"), path),
         legacy_transformations_count=data.get("legacy_transformations_count"),
         legacy_graph_nodes=data.get("legacy_graph", {}).get("nodes", []),
         legacy_graph_edges=data.get("legacy_graph", {}).get("edges", []),

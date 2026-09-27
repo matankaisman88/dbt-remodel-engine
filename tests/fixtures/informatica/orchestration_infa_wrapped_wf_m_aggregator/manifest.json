@@ -1,0 +1,137 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_aggregator",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 8,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_SALES",
+        "label": "SRC_SALES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SALES",
+        "label": "SQ_SALES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_DISTINCT",
+        "label": "TGT_DISTINCT",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_SUMMARY",
+        "label": "TGT_SUMMARY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_GLOBAL",
+        "label": "TGT_GLOBAL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "AGG_DISTINCT",
+        "label": "AGG_DISTINCT",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "AGG_SUMMARY",
+        "label": "AGG_SUMMARY",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "AGG_GLOBAL",
+        "label": "AGG_GLOBAL",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_SALES",
+        "target": "SQ_SALES"
+      },
+      {
+        "source": "SQ_SALES",
+        "target": "AGG_DISTINCT"
+      },
+      {
+        "source": "SQ_SALES",
+        "target": "AGG_SUMMARY"
+      },
+      {
+        "source": "SQ_SALES",
+        "target": "AGG_GLOBAL"
+      },
+      {
+        "source": "AGG_DISTINCT",
+        "target": "TGT_DISTINCT"
+      },
+      {
+        "source": "AGG_SUMMARY",
+        "target": "TGT_SUMMARY"
+      },
+      {
+        "source": "AGG_GLOBAL",
+        "target": "TGT_GLOBAL"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_distinct": {
+      "target_name": "DISTINCT",
+      "last_transformation_type": "target"
+    },
+    "tgt_summary": {
+      "target_name": "SUMMARY",
+      "last_transformation_type": "target"
+    },
+    "tgt_global": {
+      "target_name": "GLOBAL",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_aggregator/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_distinct",
+      "file": "tgt_distinct.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_summary",
+      "file": "tgt_summary.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_global",
+      "file": "tgt_global.sql",
+      "materialization": "view"
+    }
+  ]
+}

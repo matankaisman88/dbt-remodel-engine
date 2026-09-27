@@ -1,0 +1,124 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_reused_mapplet_twice",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 8,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_PRODUCT_NAMES",
+        "label": "SRC_PRODUCT_NAMES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_PRODUCT_NAMES",
+        "label": "SQ_PRODUCT_NAMES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_SUPPLIER_NAMES",
+        "label": "SRC_SUPPLIER_NAMES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SUPPLIER_NAMES",
+        "label": "SQ_SUPPLIER_NAMES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_PRODUCT_NAMES_CLEAN",
+        "label": "TGT_PRODUCT_NAMES_CLEAN",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_SUPPLIER_NAMES_CLEAN",
+        "label": "TGT_SUPPLIER_NAMES_CLEAN",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "MP_NORMALIZE_PRODUCT",
+        "label": "MP_NORMALIZE_PRODUCT",
+        "meta": {
+          "type": "MAPPLET"
+        }
+      },
+      {
+        "id": "MP_NORMALIZE_SUPPLIER",
+        "label": "MP_NORMALIZE_SUPPLIER",
+        "meta": {
+          "type": "MAPPLET"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_PRODUCT_NAMES",
+        "target": "SQ_PRODUCT_NAMES"
+      },
+      {
+        "source": "SQ_PRODUCT_NAMES",
+        "target": "MP_NORMALIZE_PRODUCT"
+      },
+      {
+        "source": "MP_NORMALIZE_PRODUCT",
+        "target": "TGT_PRODUCT_NAMES_CLEAN"
+      },
+      {
+        "source": "SRC_SUPPLIER_NAMES",
+        "target": "SQ_SUPPLIER_NAMES"
+      },
+      {
+        "source": "SQ_SUPPLIER_NAMES",
+        "target": "MP_NORMALIZE_SUPPLIER"
+      },
+      {
+        "source": "MP_NORMALIZE_SUPPLIER",
+        "target": "TGT_SUPPLIER_NAMES_CLEAN"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_product_names_clean": {
+      "target_name": "PRODUCT_NAMES_CLEAN",
+      "last_transformation_type": "target"
+    },
+    "tgt_supplier_names_clean": {
+      "target_name": "SUPPLIER_NAMES_CLEAN",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_reused_mapplet_twice/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_product_names_clean",
+      "file": "tgt_product_names_clean.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_supplier_names_clean",
+      "file": "tgt_supplier_names_clean.sql",
+      "materialization": "view"
+    }
+  ]
+}

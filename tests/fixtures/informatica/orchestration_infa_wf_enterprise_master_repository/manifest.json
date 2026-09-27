@@ -1,0 +1,3064 @@
+{
+  "pipeline_id": "orchestration_infa_wf_enterprise_master_repository",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 245,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "m_aggregator:SRC_SALES",
+        "label": "SRC_SALES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator:SQ_SALES",
+        "label": "SQ_SALES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_aggregator:TGT_DISTINCT",
+        "label": "TGT_DISTINCT",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator:TGT_SUMMARY",
+        "label": "TGT_SUMMARY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator:TGT_GLOBAL",
+        "label": "TGT_GLOBAL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator:AGG_DISTINCT",
+        "label": "AGG_DISTINCT",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_aggregator:AGG_SUMMARY",
+        "label": "AGG_SUMMARY",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_aggregator:AGG_GLOBAL",
+        "label": "AGG_GLOBAL",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_mapplet:SRC_CUSTOMERS",
+        "label": "SRC_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_mapplet:SQ_CUSTOMERS",
+        "label": "SQ_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_mapplet:TGT_CUSTOMERS",
+        "label": "TGT_CUSTOMERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_minimal:SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_minimal:SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_minimal:TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_minimal:EXP_ORDERS",
+        "label": "EXP_ORDERS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_missing_transformation:SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_missing_transformation:TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_with_unsupported:SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_with_unsupported:SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_with_unsupported:TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_union:SQ_BRANCH_A",
+        "label": "SQ_BRANCH_A",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_multi_union:SQ_BRANCH_B",
+        "label": "SQ_BRANCH_B",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_multi_union:SQ_BRANCH_C",
+        "label": "SQ_BRANCH_C",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_multi_union:TGT_UNION_OUT",
+        "label": "TGT_UNION_OUT",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_union:EXP_BRANCH_A",
+        "label": "EXP_BRANCH_A",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_multi_union:EXP_BRANCH_B",
+        "label": "EXP_BRANCH_B",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_multi_union:EXP_BRANCH_C",
+        "label": "EXP_BRANCH_C",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_multi_union:Union_Custom",
+        "label": "Union_Custom",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_multi_target:SQ_CUSTOMERS",
+        "label": "SQ_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_multi_target:SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_multi_target:TGT_CUSTOMERS",
+        "label": "TGT_CUSTOMERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_target:TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_target:EXP_CUSTOMERS",
+        "label": "EXP_CUSTOMERS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_multi_target:EXP_ORDERS",
+        "label": "EXP_ORDERS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER",
+        "label": "Shortcut_to_SRC_SUBSCRIPTION_MASTER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER1",
+        "label": "Shortcut_to_SRC_SUBSCRIPTION_MASTER1",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER2",
+        "label": "Shortcut_to_SRC_SUBSCRIPTION_MASTER2",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "label": "Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "label": "Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:REF_DIM_RATE_PLAN",
+        "label": "REF_DIM_RATE_PLAN",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SRC_BILLING_AUDIT_TRAIL",
+        "label": "SRC_BILLING_AUDIT_TRAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "label": "SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "label": "SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN",
+        "label": "SQ_REF_DIM_RATE_PLAN",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL",
+        "label": "SQ_SRC_BILLING_AUDIT_TRAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_LIFECYCLE",
+        "label": "Shortcut_to_STG_SUBSCRIPTION_LIFECYCLE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIBER_ACCOUNT_KEY",
+        "label": "Shortcut_to_STG_SUBSCRIBER_ACCOUNT_KEY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_KEY",
+        "label": "Shortcut_to_STG_SUBSCRIPTION_KEY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "label": "EXP_FIELDS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY",
+        "label": "AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL",
+        "label": "EXP_SRC_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FOR_SUBSCRIBER_KEY",
+        "label": "EXP_FOR_SUBSCRIBER_KEY",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "label": "EXP_CAST_TO_INT",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_BILLING_REGION",
+        "label": "LKP_REF_BILLING_REGION",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL1",
+        "label": "EXP_SRC_SUBSCRIPTION_DETAIL1",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_RATE_PLAN",
+        "label": "LKP_REF_DIM_RATE_PLAN",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_FOR_SUBSCRIBER_KEY",
+        "label": "AGG_FOR_SUBSCRIBER_KEY",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP",
+        "label": "EXP",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_STOP",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_STOP",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_START",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_START",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1",
+        "label": "Union1",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS1",
+        "label": "EXPTRANS1",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS",
+        "label": "EXPTRANS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS1",
+        "label": "SRTTRANS1",
+        "meta": {
+          "type": "SORTER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS",
+        "label": "SRTTRANS",
+        "meta": {
+          "type": "SORTER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "label": "JNRTRANS",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:RNKTRANS",
+        "label": "RNKTRANS",
+        "meta": {
+          "type": "RANK"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2",
+        "label": "EXPTRANS2",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_RATE_PLAN_ALIASES",
+        "label": "LKP_REF_RATE_PLAN_ALIASES",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:SRC_EXT_CDC_SUBSCRIPTION_EVENTS",
+        "label": "SRC_EXT_CDC_SUBSCRIPTION_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:SQ_EXT_CDC",
+        "label": "SQ_EXT_CDC",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:TGT_LND_OPEN_SUBSCRIPTION_DETAIL",
+        "label": "TGT_LND_OPEN_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:EXP_DELTA",
+        "label": "EXP_DELTA",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:SRC_STG_SUBSCRIPTION_LIFECYCLE",
+        "label": "SRC_STG_SUBSCRIPTION_LIFECYCLE",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:SQ_STG",
+        "label": "SQ_STG",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:TGT_FCT_SUBSCRIPTION_LIFECYCLE",
+        "label": "TGT_FCT_SUBSCRIPTION_LIFECYCLE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:EXP_FCT",
+        "label": "EXP_FCT",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:UPD_FCT",
+        "label": "UPD_FCT",
+        "meta": {
+          "type": "UPDATE_STRATEGY"
+        }
+      },
+      {
+        "id": "m_transforms:SRC_CUSTOMERS",
+        "label": "SRC_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_transforms:SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_transforms:SQ_CUSTOMERS",
+        "label": "SQ_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_transforms:SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_transforms:TGT_JOINED",
+        "label": "TGT_JOINED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_transforms:TGT_UNION",
+        "label": "TGT_UNION",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_transforms:TGT_VARS",
+        "label": "TGT_VARS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_transforms:JNR_ORDERS",
+        "label": "JNR_ORDERS",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_transforms:RTR_REGION",
+        "label": "RTR_REGION",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "m_transforms:UN_ORDERS",
+        "label": "UN_ORDERS",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_transforms:EXP_VARS",
+        "label": "EXP_VARS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_update_strategy:SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_update_strategy:SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_update_strategy:TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_update_strategy:EXP_ORDERS",
+        "label": "EXP_ORDERS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_update_strategy:UPD_ORDERS",
+        "label": "UPD_ORDERS",
+        "meta": {
+          "type": "UPDATE_STRATEGY"
+        }
+      },
+      {
+        "id": "m_aggregator_multi_groupby:SRC_SALES_DETAIL",
+        "label": "SRC_SALES_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator_multi_groupby:SQ_SALES_DETAIL",
+        "label": "SQ_SALES_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_aggregator_multi_groupby:TGT_SALES_ROLLUP",
+        "label": "TGT_SALES_ROLLUP",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator_multi_groupby:AGG_MULTI_GROUP",
+        "label": "AGG_MULTI_GROUP",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_colliding_names_stress:VALUE",
+        "label": "VALUE",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_colliding_names_stress:SQ_VALUE",
+        "label": "SQ_VALUE",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_colliding_names_stress:TGT_VALUE_TABLE",
+        "label": "TGT_VALUE_TABLE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_colliding_names_stress:VALUE_EXP",
+        "label": "VALUE_EXP",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:SRC_TXN",
+        "label": "SRC_TXN",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:SQ_TXN",
+        "label": "SQ_TXN",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:TGT_TXN_ENRICHED",
+        "label": "TGT_TXN_ENRICHED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_CUST",
+        "label": "LKP_CUST",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_REGION",
+        "label": "LKP_REGION",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_COUNTRY",
+        "label": "LKP_COUNTRY",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_CURRENCY",
+        "label": "LKP_CURRENCY",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_FXRATE",
+        "label": "LKP_FXRATE",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:Fin_AP__Vendor_Master",
+        "label": "Fin_AP__Vendor_Master",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:SQ_Fin_AP__Vendor_Master",
+        "label": "SQ_Fin_AP__Vendor_Master",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:fin_ar__Customer_Master",
+        "label": "fin_ar__Customer_Master",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:SQ_fin_ar__Customer_Master",
+        "label": "SQ_fin_ar__Customer_Master",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:HR_Core__Employee_Master",
+        "label": "HR_Core__Employee_Master",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:SQ_HR_Core__Employee_Master",
+        "label": "SQ_HR_Core__Employee_Master",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:dw_core__all_entities_master",
+        "label": "dw_core__all_entities_master",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:EXP_TAG_VENDOR",
+        "label": "EXP_TAG_VENDOR",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:EXP_TAG_CUSTOMER",
+        "label": "EXP_TAG_CUSTOMER",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:EXP_TAG_EMPLOYEE",
+        "label": "EXP_TAG_EMPLOYEE",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_dunder_schema_names_3merge:UN_ALL_ENTITIES",
+        "label": "UN_ALL_ENTITIES",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:SRC_CLAIMS",
+        "label": "SRC_CLAIMS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:SQ_CLAIMS",
+        "label": "SQ_CLAIMS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:TGT_CLAIMS_FLAGGED",
+        "label": "TGT_CLAIMS_FLAGGED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:FIL_ACTIVE",
+        "label": "FIL_ACTIVE",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:RTR_HIGH_LOW",
+        "label": "RTR_HIGH_LOW",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:EXP_HIGH_FLAG",
+        "label": "EXP_HIGH_FLAG",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:EXP_LOW_FLAG",
+        "label": "EXP_LOW_FLAG",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS",
+        "label": "UN_FLAGGED_CLAIMS",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:SRC_CUSTOMER_DIM",
+        "label": "SRC_CUSTOMER_DIM",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:SQ_CUSTOMER_DIM",
+        "label": "SQ_CUSTOMER_DIM",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:TGT_DIM_CUSTOMER",
+        "label": "TGT_DIM_CUSTOMER",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:EXP_SCD_DATES",
+        "label": "EXP_SCD_DATES",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:UPD_SCD",
+        "label": "UPD_SCD",
+        "meta": {
+          "type": "UPDATE_STRATEGY"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:SRC_RAW_LOG",
+        "label": "SRC_RAW_LOG",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:SQ_RAW_LOG",
+        "label": "SQ_RAW_LOG",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:TGT_LOG_PROCESSED",
+        "label": "TGT_LOG_PROCESSED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:EXP_CLEAN1",
+        "label": "EXP_CLEAN1",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:FIL_NOT_DEBUG",
+        "label": "FIL_NOT_DEBUG",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:LKP_SEVERITY_CODE",
+        "label": "LKP_SEVERITY_CODE",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:EXP_CLEAN2",
+        "label": "EXP_CLEAN2",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:RTR_SEV",
+        "label": "RTR_SEV",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:EXP_TAG_CRITICAL",
+        "label": "EXP_TAG_CRITICAL",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:EXP_TAG_NORMAL",
+        "label": "EXP_TAG_NORMAL",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:UN_TAGGED",
+        "label": "UN_TAGGED",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_long_linear_10stage:SRT_FINAL",
+        "label": "SRT_FINAL",
+        "meta": {
+          "type": "SORTER"
+        }
+      },
+      {
+        "id": "m_lookup_composite_condition:SRC_INVENTORY_MOVEMENT",
+        "label": "SRC_INVENTORY_MOVEMENT",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_lookup_composite_condition:SQ_INVENTORY_MOVEMENT",
+        "label": "SQ_INVENTORY_MOVEMENT",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_lookup_composite_condition:TGT_INVENTORY_VALUED",
+        "label": "TGT_INVENTORY_VALUED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_lookup_composite_condition:LKP_UNIT_COST",
+        "label": "LKP_UNIT_COST",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_multi_target_nonsequential_load_order:SRC_MASTER_DATA",
+        "label": "SRC_MASTER_DATA",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_target_nonsequential_load_order:SQ_MASTER_DATA",
+        "label": "SQ_MASTER_DATA",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_multi_target_nonsequential_load_order:TGT_TYPE_A",
+        "label": "TGT_TYPE_A",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_target_nonsequential_load_order:TGT_TYPE_B",
+        "label": "TGT_TYPE_B",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_target_nonsequential_load_order:TGT_TYPE_C",
+        "label": "TGT_TYPE_C",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_multi_target_nonsequential_load_order:RTR_TYPE",
+        "label": "RTR_TYPE",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "m_nested_conditional_expression:SRC_SCORES",
+        "label": "SRC_SCORES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_nested_conditional_expression:SQ_SCORES",
+        "label": "SQ_SCORES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_nested_conditional_expression:TGT_STUDENT_GRADES",
+        "label": "TGT_STUDENT_GRADES",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_nested_conditional_expression:EXP_GRADE",
+        "label": "EXP_GRADE",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_nested_mapplet_pipeline:SRC_RAW_NAMES",
+        "label": "SRC_RAW_NAMES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_nested_mapplet_pipeline:SQ_RAW_NAMES",
+        "label": "SQ_RAW_NAMES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_nested_mapplet_pipeline:TGT_CLEAN_NAMES",
+        "label": "TGT_CLEAN_NAMES",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_rank_sorter_aggregator_chain:SRC_SALES",
+        "label": "SRC_SALES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_rank_sorter_aggregator_chain:SQ_SALES",
+        "label": "SQ_SALES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_rank_sorter_aggregator_chain:TGT_REGION_SUMMARY",
+        "label": "TGT_REGION_SUMMARY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_rank_sorter_aggregator_chain:RNK_TOP_SALES",
+        "label": "RNK_TOP_SALES",
+        "meta": {
+          "type": "RANK"
+        }
+      },
+      {
+        "id": "m_rank_sorter_aggregator_chain:SRT_BY_AMT",
+        "label": "SRT_BY_AMT",
+        "meta": {
+          "type": "SORTER"
+        }
+      },
+      {
+        "id": "m_rank_sorter_aggregator_chain:AGG_REGION_TOTAL",
+        "label": "AGG_REGION_TOTAL",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_reused_mapplet_twice:SRC_PRODUCT_NAMES",
+        "label": "SRC_PRODUCT_NAMES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_reused_mapplet_twice:SQ_PRODUCT_NAMES",
+        "label": "SQ_PRODUCT_NAMES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_reused_mapplet_twice:SRC_SUPPLIER_NAMES",
+        "label": "SRC_SUPPLIER_NAMES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_reused_mapplet_twice:SQ_SUPPLIER_NAMES",
+        "label": "SQ_SUPPLIER_NAMES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_reused_mapplet_twice:TGT_PRODUCT_NAMES_CLEAN",
+        "label": "TGT_PRODUCT_NAMES_CLEAN",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_reused_mapplet_twice:TGT_SUPPLIER_NAMES_CLEAN",
+        "label": "TGT_SUPPLIER_NAMES_CLEAN",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:SRC_NEW_ACCOUNTS",
+        "label": "SRC_NEW_ACCOUNTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:SQ_NEW_ACCOUNTS",
+        "label": "SQ_NEW_ACCOUNTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:SRC_NEW_CONTACTS",
+        "label": "SRC_NEW_CONTACTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:SQ_NEW_CONTACTS",
+        "label": "SQ_NEW_CONTACTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:TGT_ACCOUNTS",
+        "label": "TGT_ACCOUNTS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:TGT_CONTACTS",
+        "label": "TGT_CONTACTS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:SEQ_SHARED_ID",
+        "label": "SEQ_SHARED_ID",
+        "meta": {
+          "type": "SEQUENCE_GENERATOR"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:EXP_ACCT_KEY",
+        "label": "EXP_ACCT_KEY",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_sequence_generator_reused:EXP_CONTACT_KEY",
+        "label": "EXP_CONTACT_KEY",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_sequence_update_strategy:SRC_CUSTOMER_CHANGES",
+        "label": "SRC_CUSTOMER_CHANGES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sequence_update_strategy:SQ_CUSTOMER_CHANGES",
+        "label": "SQ_CUSTOMER_CHANGES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_sequence_update_strategy:TGT_CUSTOMER_SCD",
+        "label": "TGT_CUSTOMER_SCD",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sequence_update_strategy:SEQ_SURROGATE_KEY",
+        "label": "SEQ_SURROGATE_KEY",
+        "meta": {
+          "type": "SEQUENCE_GENERATOR"
+        }
+      },
+      {
+        "id": "m_sequence_update_strategy:EXP_BUILD_ROW",
+        "label": "EXP_BUILD_ROW",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_sequence_update_strategy:UPD_APPLY_CHANGE",
+        "label": "UPD_APPLY_CHANGE",
+        "meta": {
+          "type": "UPDATE_STRATEGY"
+        }
+      },
+      {
+        "id": "m_sorter_multi_key:SRC_LEADERBOARD",
+        "label": "SRC_LEADERBOARD",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sorter_multi_key:SQ_LEADERBOARD",
+        "label": "SQ_LEADERBOARD",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_sorter_multi_key:TGT_LEADERBOARD_SORTED",
+        "label": "TGT_LEADERBOARD_SORTED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_sorter_multi_key:SRT_LEADERBOARD",
+        "label": "SRT_LEADERBOARD",
+        "meta": {
+          "type": "SORTER"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SRC_ORDER_HEADER",
+        "label": "SRC_ORDER_HEADER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SQ_ORDER_HEADER",
+        "label": "SQ_ORDER_HEADER",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SRC_CUSTOMER",
+        "label": "SRC_CUSTOMER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SQ_SRC_CUSTOMER",
+        "label": "SQ_SRC_CUSTOMER",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SRC_SHIPPING",
+        "label": "SRC_SHIPPING",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SQ_SRC_SHIPPING",
+        "label": "SQ_SRC_SHIPPING",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SRC_PAYMENT",
+        "label": "SRC_PAYMENT",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:SQ_SRC_PAYMENT",
+        "label": "SQ_SRC_PAYMENT",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:TGT_ORDER_ENRICHED",
+        "label": "TGT_ORDER_ENRICHED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:JNR_CUST",
+        "label": "JNR_CUST",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:JNR_SHIP",
+        "label": "JNR_SHIP",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_star_join_4satellite:JNR_PAY",
+        "label": "JNR_PAY",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:SRC_EMPLOYEE",
+        "label": "SRC_EMPLOYEE",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:SQ_EMPLOYEE",
+        "label": "SQ_EMPLOYEE",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:SRC_DEPARTMENT",
+        "label": "SRC_DEPARTMENT",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:SQ_DEPARTMENT",
+        "label": "SQ_DEPARTMENT",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:SRC_MANAGER",
+        "label": "SRC_MANAGER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:SQ_MANAGER",
+        "label": "SQ_MANAGER",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:TGT_EMPLOYEE_FULL",
+        "label": "TGT_EMPLOYEE_FULL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:JNR_DEPT",
+        "label": "JNR_DEPT",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_three_sq_two_joiner_chain:JNR_MGR",
+        "label": "JNR_MGR",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_two_mapplets_chained:SRC_RAW_LABELS",
+        "label": "SRC_RAW_LABELS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_two_mapplets_chained:SQ_RAW_LABELS",
+        "label": "SQ_RAW_LABELS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_two_mapplets_chained:TGT_CLEAN_LABELS",
+        "label": "TGT_CLEAN_LABELS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_underscore_schema_multi_target:legacy_ops_tmp_staging_raw_events",
+        "label": "legacy_ops_tmp_staging_raw_events",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_underscore_schema_multi_target:SQ_legacy_ops_tmp_staging_raw_events",
+        "label": "SQ_legacy_ops_tmp_staging_raw_events",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_underscore_schema_multi_target:dw_core_tmp_staging_events_clean",
+        "label": "dw_core_tmp_staging_events_clean",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_underscore_schema_multi_target:dw_core_tmp_staging_events_rejected",
+        "label": "dw_core_tmp_staging_events_rejected",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_underscore_schema_multi_target:FIL_VALID",
+        "label": "FIL_VALID",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "m_underscore_schema_multi_target:FIL_INVALID",
+        "label": "FIL_INVALID",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SRC_WEB_EVENTS",
+        "label": "SRC_WEB_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SQ_SRC_WEB_EVENTS",
+        "label": "SQ_SRC_WEB_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SRC_MOBILE_EVENTS",
+        "label": "SRC_MOBILE_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SQ_SRC_MOBILE_EVENTS",
+        "label": "SQ_SRC_MOBILE_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SRC_POS_EVENTS",
+        "label": "SRC_POS_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SQ_SRC_POS_EVENTS",
+        "label": "SQ_SRC_POS_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SRC_CALLCENTER_EVENTS",
+        "label": "SRC_CALLCENTER_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:SQ_SRC_CALLCENTER_EVENTS",
+        "label": "SQ_SRC_CALLCENTER_EVENTS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:TGT_ALL_EVENTS",
+        "label": "TGT_ALL_EVENTS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_union_heterogeneous_4way:UN_ALL_EVENTS",
+        "label": "UN_ALL_EVENTS",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:TGT_ELECTRONICS",
+        "label": "TGT_ELECTRONICS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:TGT_APPAREL",
+        "label": "TGT_APPAREL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:TGT_GROCERY",
+        "label": "TGT_GROCERY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:TGT_FURNITURE",
+        "label": "TGT_FURNITURE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:TGT_TOYS",
+        "label": "TGT_TOYS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:TGT_DEFAULT",
+        "label": "TGT_DEFAULT",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_wide_router_fanout:RTR_CATEGORY",
+        "label": "RTR_CATEGORY",
+        "meta": {
+          "type": "ROUTER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "m_aggregator:SRC_SALES",
+        "target": "m_aggregator:SQ_SALES"
+      },
+      {
+        "source": "m_aggregator:SQ_SALES",
+        "target": "m_aggregator:AGG_DISTINCT"
+      },
+      {
+        "source": "m_aggregator:SQ_SALES",
+        "target": "m_aggregator:AGG_SUMMARY"
+      },
+      {
+        "source": "m_aggregator:SQ_SALES",
+        "target": "m_aggregator:AGG_GLOBAL"
+      },
+      {
+        "source": "m_aggregator:AGG_DISTINCT",
+        "target": "m_aggregator:TGT_DISTINCT"
+      },
+      {
+        "source": "m_aggregator:AGG_SUMMARY",
+        "target": "m_aggregator:TGT_SUMMARY"
+      },
+      {
+        "source": "m_aggregator:AGG_GLOBAL",
+        "target": "m_aggregator:TGT_GLOBAL"
+      },
+      {
+        "source": "m_mapplet:SRC_CUSTOMERS",
+        "target": "m_mapplet:SQ_CUSTOMERS"
+      },
+      {
+        "source": "m_minimal:SRC_ORDERS",
+        "target": "m_minimal:SQ_ORDERS"
+      },
+      {
+        "source": "m_minimal:SQ_ORDERS",
+        "target": "m_minimal:EXP_ORDERS"
+      },
+      {
+        "source": "m_minimal:EXP_ORDERS",
+        "target": "m_minimal:TGT_ORDERS"
+      },
+      {
+        "source": "m_with_unsupported:SRC_ORDERS",
+        "target": "m_with_unsupported:SQ_ORDERS"
+      },
+      {
+        "source": "m_multi_union:SQ_BRANCH_A",
+        "target": "m_multi_union:EXP_BRANCH_A"
+      },
+      {
+        "source": "m_multi_union:SQ_BRANCH_B",
+        "target": "m_multi_union:EXP_BRANCH_B"
+      },
+      {
+        "source": "m_multi_union:SQ_BRANCH_C",
+        "target": "m_multi_union:EXP_BRANCH_C"
+      },
+      {
+        "source": "m_multi_union:EXP_BRANCH_A",
+        "target": "m_multi_union:Union_Custom"
+      },
+      {
+        "source": "m_multi_union:EXP_BRANCH_B",
+        "target": "m_multi_union:Union_Custom"
+      },
+      {
+        "source": "m_multi_union:EXP_BRANCH_C",
+        "target": "m_multi_union:Union_Custom"
+      },
+      {
+        "source": "m_multi_union:Union_Custom",
+        "target": "m_multi_union:TGT_UNION_OUT"
+      },
+      {
+        "source": "m_multi_target:SQ_CUSTOMERS",
+        "target": "m_multi_target:EXP_CUSTOMERS"
+      },
+      {
+        "source": "m_multi_target:EXP_CUSTOMERS",
+        "target": "m_multi_target:TGT_CUSTOMERS"
+      },
+      {
+        "source": "m_multi_target:SQ_ORDERS",
+        "target": "m_multi_target:EXP_ORDERS"
+      },
+      {
+        "source": "m_multi_target:EXP_ORDERS",
+        "target": "m_multi_target:TGT_ORDERS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_LIFECYCLE"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FOR_SUBSCRIBER_KEY",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIBER_ACCOUNT_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER2",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:REF_DIM_RATE_PLAN",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRC_BILLING_AUDIT_TRAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRC_BILLING_AUDIT_TRAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_BILLING_REGION",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_RATE_PLAN"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_FOR_SUBSCRIBER_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_STOP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_START"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_FOR_SUBSCRIBER_KEY",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FOR_SUBSCRIBER_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_BILLING_REGION"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_RATE_PLAN",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_STOP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_START",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:RNKTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:RNKTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_RATE_PLAN_ALIASES"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_RATE_PLAN_ALIASES",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2"
+      },
+      {
+        "source": "m_INGEST_SUBSCRIPTION_DELTA:SRC_EXT_CDC_SUBSCRIPTION_EVENTS",
+        "target": "m_INGEST_SUBSCRIPTION_DELTA:SQ_EXT_CDC"
+      },
+      {
+        "source": "m_INGEST_SUBSCRIPTION_DELTA:SQ_EXT_CDC",
+        "target": "m_INGEST_SUBSCRIPTION_DELTA:EXP_DELTA"
+      },
+      {
+        "source": "m_INGEST_SUBSCRIPTION_DELTA:EXP_DELTA",
+        "target": "m_INGEST_SUBSCRIPTION_DELTA:TGT_LND_OPEN_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:SRC_STG_SUBSCRIPTION_LIFECYCLE",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:SQ_STG"
+      },
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:SQ_STG",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:EXP_FCT"
+      },
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:EXP_FCT",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:UPD_FCT"
+      },
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:UPD_FCT",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:TGT_FCT_SUBSCRIPTION_LIFECYCLE"
+      },
+      {
+        "source": "m_transforms:SRC_CUSTOMERS",
+        "target": "m_transforms:SQ_CUSTOMERS"
+      },
+      {
+        "source": "m_transforms:SRC_ORDERS",
+        "target": "m_transforms:SQ_ORDERS"
+      },
+      {
+        "source": "m_transforms:SQ_ORDERS",
+        "target": "m_transforms:JNR_ORDERS"
+      },
+      {
+        "source": "m_transforms:SQ_CUSTOMERS",
+        "target": "m_transforms:JNR_ORDERS"
+      },
+      {
+        "source": "m_transforms:JNR_ORDERS",
+        "target": "m_transforms:RTR_REGION"
+      },
+      {
+        "source": "m_transforms:RTR_REGION",
+        "target": "m_transforms:TGT_JOINED"
+      },
+      {
+        "source": "m_transforms:SQ_ORDERS",
+        "target": "m_transforms:UN_ORDERS"
+      },
+      {
+        "source": "m_transforms:SQ_CUSTOMERS",
+        "target": "m_transforms:UN_ORDERS"
+      },
+      {
+        "source": "m_transforms:UN_ORDERS",
+        "target": "m_transforms:TGT_UNION"
+      },
+      {
+        "source": "m_transforms:SQ_CUSTOMERS",
+        "target": "m_transforms:EXP_VARS"
+      },
+      {
+        "source": "m_transforms:EXP_VARS",
+        "target": "m_transforms:TGT_VARS"
+      },
+      {
+        "source": "m_update_strategy:SRC_ORDERS",
+        "target": "m_update_strategy:SQ_ORDERS"
+      },
+      {
+        "source": "m_update_strategy:SQ_ORDERS",
+        "target": "m_update_strategy:EXP_ORDERS"
+      },
+      {
+        "source": "m_update_strategy:EXP_ORDERS",
+        "target": "m_update_strategy:UPD_ORDERS"
+      },
+      {
+        "source": "m_update_strategy:UPD_ORDERS",
+        "target": "m_update_strategy:TGT_ORDERS"
+      },
+      {
+        "source": "m_aggregator_multi_groupby:SRC_SALES_DETAIL",
+        "target": "m_aggregator_multi_groupby:SQ_SALES_DETAIL"
+      },
+      {
+        "source": "m_aggregator_multi_groupby:SQ_SALES_DETAIL",
+        "target": "m_aggregator_multi_groupby:AGG_MULTI_GROUP"
+      },
+      {
+        "source": "m_aggregator_multi_groupby:AGG_MULTI_GROUP",
+        "target": "m_aggregator_multi_groupby:TGT_SALES_ROLLUP"
+      },
+      {
+        "source": "m_colliding_names_stress:VALUE",
+        "target": "m_colliding_names_stress:SQ_VALUE"
+      },
+      {
+        "source": "m_colliding_names_stress:SQ_VALUE",
+        "target": "m_colliding_names_stress:VALUE_EXP"
+      },
+      {
+        "source": "m_colliding_names_stress:VALUE_EXP",
+        "target": "m_colliding_names_stress:TGT_VALUE_TABLE"
+      },
+      {
+        "source": "m_deep_lookup_chain:SRC_TXN",
+        "target": "m_deep_lookup_chain:SQ_TXN"
+      },
+      {
+        "source": "m_deep_lookup_chain:SQ_TXN",
+        "target": "m_deep_lookup_chain:LKP_CUST"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CUST",
+        "target": "m_deep_lookup_chain:LKP_REGION"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_REGION",
+        "target": "m_deep_lookup_chain:LKP_COUNTRY"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_COUNTRY",
+        "target": "m_deep_lookup_chain:LKP_CURRENCY"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CURRENCY",
+        "target": "m_deep_lookup_chain:LKP_FXRATE"
+      },
+      {
+        "source": "m_deep_lookup_chain:SQ_TXN",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CUST",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_REGION",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_COUNTRY",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CURRENCY",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_FXRATE",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:Fin_AP__Vendor_Master",
+        "target": "m_dunder_schema_names_3merge:SQ_Fin_AP__Vendor_Master"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:SQ_Fin_AP__Vendor_Master",
+        "target": "m_dunder_schema_names_3merge:EXP_TAG_VENDOR"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:EXP_TAG_VENDOR",
+        "target": "m_dunder_schema_names_3merge:UN_ALL_ENTITIES"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:fin_ar__Customer_Master",
+        "target": "m_dunder_schema_names_3merge:SQ_fin_ar__Customer_Master"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:SQ_fin_ar__Customer_Master",
+        "target": "m_dunder_schema_names_3merge:EXP_TAG_CUSTOMER"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:EXP_TAG_CUSTOMER",
+        "target": "m_dunder_schema_names_3merge:UN_ALL_ENTITIES"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:HR_Core__Employee_Master",
+        "target": "m_dunder_schema_names_3merge:SQ_HR_Core__Employee_Master"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:SQ_HR_Core__Employee_Master",
+        "target": "m_dunder_schema_names_3merge:EXP_TAG_EMPLOYEE"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:EXP_TAG_EMPLOYEE",
+        "target": "m_dunder_schema_names_3merge:UN_ALL_ENTITIES"
+      },
+      {
+        "source": "m_dunder_schema_names_3merge:UN_ALL_ENTITIES",
+        "target": "m_dunder_schema_names_3merge:dw_core__all_entities_master"
+      },
+      {
+        "source": "m_filter_router_union_faninout:SRC_CLAIMS",
+        "target": "m_filter_router_union_faninout:SQ_CLAIMS"
+      },
+      {
+        "source": "m_filter_router_union_faninout:SQ_CLAIMS",
+        "target": "m_filter_router_union_faninout:FIL_ACTIVE"
+      },
+      {
+        "source": "m_filter_router_union_faninout:FIL_ACTIVE",
+        "target": "m_filter_router_union_faninout:RTR_HIGH_LOW"
+      },
+      {
+        "source": "m_filter_router_union_faninout:RTR_HIGH_LOW",
+        "target": "m_filter_router_union_faninout:EXP_HIGH_FLAG"
+      },
+      {
+        "source": "m_filter_router_union_faninout:RTR_HIGH_LOW",
+        "target": "m_filter_router_union_faninout:EXP_LOW_FLAG"
+      },
+      {
+        "source": "m_filter_router_union_faninout:EXP_HIGH_FLAG",
+        "target": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS"
+      },
+      {
+        "source": "m_filter_router_union_faninout:EXP_LOW_FLAG",
+        "target": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS"
+      },
+      {
+        "source": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS",
+        "target": "m_filter_router_union_faninout:TGT_CLAIMS_FLAGGED"
+      },
+      {
+        "source": "m_informatica_scd_type2:SRC_CUSTOMER_DIM",
+        "target": "m_informatica_scd_type2:SQ_CUSTOMER_DIM"
+      },
+      {
+        "source": "m_informatica_scd_type2:SQ_CUSTOMER_DIM",
+        "target": "m_informatica_scd_type2:EXP_SCD_DATES"
+      },
+      {
+        "source": "m_informatica_scd_type2:EXP_SCD_DATES",
+        "target": "m_informatica_scd_type2:UPD_SCD"
+      },
+      {
+        "source": "m_informatica_scd_type2:UPD_SCD",
+        "target": "m_informatica_scd_type2:TGT_DIM_CUSTOMER"
+      },
+      {
+        "source": "m_long_linear_10stage:SRC_RAW_LOG",
+        "target": "m_long_linear_10stage:SQ_RAW_LOG"
+      },
+      {
+        "source": "m_long_linear_10stage:SQ_RAW_LOG",
+        "target": "m_long_linear_10stage:EXP_CLEAN1"
+      },
+      {
+        "source": "m_long_linear_10stage:EXP_CLEAN1",
+        "target": "m_long_linear_10stage:FIL_NOT_DEBUG"
+      },
+      {
+        "source": "m_long_linear_10stage:FIL_NOT_DEBUG",
+        "target": "m_long_linear_10stage:LKP_SEVERITY_CODE"
+      },
+      {
+        "source": "m_long_linear_10stage:LKP_SEVERITY_CODE",
+        "target": "m_long_linear_10stage:EXP_CLEAN2"
+      },
+      {
+        "source": "m_long_linear_10stage:EXP_CLEAN2",
+        "target": "m_long_linear_10stage:RTR_SEV"
+      },
+      {
+        "source": "m_long_linear_10stage:RTR_SEV",
+        "target": "m_long_linear_10stage:EXP_TAG_CRITICAL"
+      },
+      {
+        "source": "m_long_linear_10stage:RTR_SEV",
+        "target": "m_long_linear_10stage:EXP_TAG_NORMAL"
+      },
+      {
+        "source": "m_long_linear_10stage:EXP_TAG_CRITICAL",
+        "target": "m_long_linear_10stage:UN_TAGGED"
+      },
+      {
+        "source": "m_long_linear_10stage:EXP_TAG_NORMAL",
+        "target": "m_long_linear_10stage:UN_TAGGED"
+      },
+      {
+        "source": "m_long_linear_10stage:UN_TAGGED",
+        "target": "m_long_linear_10stage:SRT_FINAL"
+      },
+      {
+        "source": "m_long_linear_10stage:SRT_FINAL",
+        "target": "m_long_linear_10stage:TGT_LOG_PROCESSED"
+      },
+      {
+        "source": "m_lookup_composite_condition:SRC_INVENTORY_MOVEMENT",
+        "target": "m_lookup_composite_condition:SQ_INVENTORY_MOVEMENT"
+      },
+      {
+        "source": "m_lookup_composite_condition:SQ_INVENTORY_MOVEMENT",
+        "target": "m_lookup_composite_condition:TGT_INVENTORY_VALUED"
+      },
+      {
+        "source": "m_lookup_composite_condition:SQ_INVENTORY_MOVEMENT",
+        "target": "m_lookup_composite_condition:LKP_UNIT_COST"
+      },
+      {
+        "source": "m_lookup_composite_condition:LKP_UNIT_COST",
+        "target": "m_lookup_composite_condition:TGT_INVENTORY_VALUED"
+      },
+      {
+        "source": "m_multi_target_nonsequential_load_order:SRC_MASTER_DATA",
+        "target": "m_multi_target_nonsequential_load_order:SQ_MASTER_DATA"
+      },
+      {
+        "source": "m_multi_target_nonsequential_load_order:SQ_MASTER_DATA",
+        "target": "m_multi_target_nonsequential_load_order:RTR_TYPE"
+      },
+      {
+        "source": "m_multi_target_nonsequential_load_order:RTR_TYPE",
+        "target": "m_multi_target_nonsequential_load_order:TGT_TYPE_A"
+      },
+      {
+        "source": "m_multi_target_nonsequential_load_order:RTR_TYPE",
+        "target": "m_multi_target_nonsequential_load_order:TGT_TYPE_B"
+      },
+      {
+        "source": "m_multi_target_nonsequential_load_order:RTR_TYPE",
+        "target": "m_multi_target_nonsequential_load_order:TGT_TYPE_C"
+      },
+      {
+        "source": "m_nested_conditional_expression:SRC_SCORES",
+        "target": "m_nested_conditional_expression:SQ_SCORES"
+      },
+      {
+        "source": "m_nested_conditional_expression:SQ_SCORES",
+        "target": "m_nested_conditional_expression:EXP_GRADE"
+      },
+      {
+        "source": "m_nested_conditional_expression:EXP_GRADE",
+        "target": "m_nested_conditional_expression:TGT_STUDENT_GRADES"
+      },
+      {
+        "source": "m_nested_mapplet_pipeline:SRC_RAW_NAMES",
+        "target": "m_nested_mapplet_pipeline:SQ_RAW_NAMES"
+      },
+      {
+        "source": "m_rank_sorter_aggregator_chain:SRC_SALES",
+        "target": "m_rank_sorter_aggregator_chain:SQ_SALES"
+      },
+      {
+        "source": "m_rank_sorter_aggregator_chain:SQ_SALES",
+        "target": "m_rank_sorter_aggregator_chain:RNK_TOP_SALES"
+      },
+      {
+        "source": "m_rank_sorter_aggregator_chain:RNK_TOP_SALES",
+        "target": "m_rank_sorter_aggregator_chain:SRT_BY_AMT"
+      },
+      {
+        "source": "m_rank_sorter_aggregator_chain:SRT_BY_AMT",
+        "target": "m_rank_sorter_aggregator_chain:AGG_REGION_TOTAL"
+      },
+      {
+        "source": "m_rank_sorter_aggregator_chain:AGG_REGION_TOTAL",
+        "target": "m_rank_sorter_aggregator_chain:TGT_REGION_SUMMARY"
+      },
+      {
+        "source": "m_reused_mapplet_twice:SRC_PRODUCT_NAMES",
+        "target": "m_reused_mapplet_twice:SQ_PRODUCT_NAMES"
+      },
+      {
+        "source": "m_reused_mapplet_twice:SRC_SUPPLIER_NAMES",
+        "target": "m_reused_mapplet_twice:SQ_SUPPLIER_NAMES"
+      },
+      {
+        "source": "m_sequence_generator_reused:SRC_NEW_ACCOUNTS",
+        "target": "m_sequence_generator_reused:SQ_NEW_ACCOUNTS"
+      },
+      {
+        "source": "m_sequence_generator_reused:SQ_NEW_ACCOUNTS",
+        "target": "m_sequence_generator_reused:EXP_ACCT_KEY"
+      },
+      {
+        "source": "m_sequence_generator_reused:SEQ_SHARED_ID",
+        "target": "m_sequence_generator_reused:EXP_ACCT_KEY"
+      },
+      {
+        "source": "m_sequence_generator_reused:SRC_NEW_CONTACTS",
+        "target": "m_sequence_generator_reused:SQ_NEW_CONTACTS"
+      },
+      {
+        "source": "m_sequence_generator_reused:SQ_NEW_CONTACTS",
+        "target": "m_sequence_generator_reused:EXP_CONTACT_KEY"
+      },
+      {
+        "source": "m_sequence_generator_reused:SEQ_SHARED_ID",
+        "target": "m_sequence_generator_reused:EXP_CONTACT_KEY"
+      },
+      {
+        "source": "m_sequence_generator_reused:EXP_ACCT_KEY",
+        "target": "m_sequence_generator_reused:TGT_ACCOUNTS"
+      },
+      {
+        "source": "m_sequence_generator_reused:EXP_CONTACT_KEY",
+        "target": "m_sequence_generator_reused:TGT_CONTACTS"
+      },
+      {
+        "source": "m_sequence_update_strategy:SRC_CUSTOMER_CHANGES",
+        "target": "m_sequence_update_strategy:SQ_CUSTOMER_CHANGES"
+      },
+      {
+        "source": "m_sequence_update_strategy:SQ_CUSTOMER_CHANGES",
+        "target": "m_sequence_update_strategy:EXP_BUILD_ROW"
+      },
+      {
+        "source": "m_sequence_update_strategy:SEQ_SURROGATE_KEY",
+        "target": "m_sequence_update_strategy:EXP_BUILD_ROW"
+      },
+      {
+        "source": "m_sequence_update_strategy:EXP_BUILD_ROW",
+        "target": "m_sequence_update_strategy:UPD_APPLY_CHANGE"
+      },
+      {
+        "source": "m_sequence_update_strategy:UPD_APPLY_CHANGE",
+        "target": "m_sequence_update_strategy:TGT_CUSTOMER_SCD"
+      },
+      {
+        "source": "m_sorter_multi_key:SRC_LEADERBOARD",
+        "target": "m_sorter_multi_key:SQ_LEADERBOARD"
+      },
+      {
+        "source": "m_sorter_multi_key:SQ_LEADERBOARD",
+        "target": "m_sorter_multi_key:SRT_LEADERBOARD"
+      },
+      {
+        "source": "m_sorter_multi_key:SRT_LEADERBOARD",
+        "target": "m_sorter_multi_key:TGT_LEADERBOARD_SORTED"
+      },
+      {
+        "source": "m_star_join_4satellite:SRC_ORDER_HEADER",
+        "target": "m_star_join_4satellite:SQ_ORDER_HEADER"
+      },
+      {
+        "source": "m_star_join_4satellite:SRC_CUSTOMER",
+        "target": "m_star_join_4satellite:SQ_SRC_CUSTOMER"
+      },
+      {
+        "source": "m_star_join_4satellite:SQ_ORDER_HEADER",
+        "target": "m_star_join_4satellite:JNR_CUST"
+      },
+      {
+        "source": "m_star_join_4satellite:SQ_SRC_CUSTOMER",
+        "target": "m_star_join_4satellite:JNR_CUST"
+      },
+      {
+        "source": "m_star_join_4satellite:SRC_SHIPPING",
+        "target": "m_star_join_4satellite:SQ_SRC_SHIPPING"
+      },
+      {
+        "source": "m_star_join_4satellite:JNR_CUST",
+        "target": "m_star_join_4satellite:JNR_SHIP"
+      },
+      {
+        "source": "m_star_join_4satellite:SQ_SRC_SHIPPING",
+        "target": "m_star_join_4satellite:JNR_SHIP"
+      },
+      {
+        "source": "m_star_join_4satellite:SRC_PAYMENT",
+        "target": "m_star_join_4satellite:SQ_SRC_PAYMENT"
+      },
+      {
+        "source": "m_star_join_4satellite:JNR_SHIP",
+        "target": "m_star_join_4satellite:JNR_PAY"
+      },
+      {
+        "source": "m_star_join_4satellite:SQ_SRC_PAYMENT",
+        "target": "m_star_join_4satellite:JNR_PAY"
+      },
+      {
+        "source": "m_star_join_4satellite:JNR_PAY",
+        "target": "m_star_join_4satellite:TGT_ORDER_ENRICHED"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:SRC_EMPLOYEE",
+        "target": "m_three_sq_two_joiner_chain:SQ_EMPLOYEE"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:SQ_EMPLOYEE",
+        "target": "m_three_sq_two_joiner_chain:JNR_DEPT"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:SRC_DEPARTMENT",
+        "target": "m_three_sq_two_joiner_chain:SQ_DEPARTMENT"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:SQ_DEPARTMENT",
+        "target": "m_three_sq_two_joiner_chain:JNR_DEPT"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:SRC_MANAGER",
+        "target": "m_three_sq_two_joiner_chain:SQ_MANAGER"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:SQ_MANAGER",
+        "target": "m_three_sq_two_joiner_chain:JNR_MGR"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:JNR_DEPT",
+        "target": "m_three_sq_two_joiner_chain:JNR_MGR"
+      },
+      {
+        "source": "m_three_sq_two_joiner_chain:JNR_MGR",
+        "target": "m_three_sq_two_joiner_chain:TGT_EMPLOYEE_FULL"
+      },
+      {
+        "source": "m_two_mapplets_chained:SRC_RAW_LABELS",
+        "target": "m_two_mapplets_chained:SQ_RAW_LABELS"
+      },
+      {
+        "source": "m_underscore_schema_multi_target:legacy_ops_tmp_staging_raw_events",
+        "target": "m_underscore_schema_multi_target:SQ_legacy_ops_tmp_staging_raw_events"
+      },
+      {
+        "source": "m_underscore_schema_multi_target:SQ_legacy_ops_tmp_staging_raw_events",
+        "target": "m_underscore_schema_multi_target:FIL_VALID"
+      },
+      {
+        "source": "m_underscore_schema_multi_target:SQ_legacy_ops_tmp_staging_raw_events",
+        "target": "m_underscore_schema_multi_target:FIL_INVALID"
+      },
+      {
+        "source": "m_underscore_schema_multi_target:FIL_VALID",
+        "target": "m_underscore_schema_multi_target:dw_core_tmp_staging_events_clean"
+      },
+      {
+        "source": "m_underscore_schema_multi_target:FIL_INVALID",
+        "target": "m_underscore_schema_multi_target:dw_core_tmp_staging_events_rejected"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SRC_WEB_EVENTS",
+        "target": "m_union_heterogeneous_4way:SQ_SRC_WEB_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SQ_SRC_WEB_EVENTS",
+        "target": "m_union_heterogeneous_4way:UN_ALL_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SRC_MOBILE_EVENTS",
+        "target": "m_union_heterogeneous_4way:SQ_SRC_MOBILE_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SQ_SRC_MOBILE_EVENTS",
+        "target": "m_union_heterogeneous_4way:UN_ALL_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SRC_POS_EVENTS",
+        "target": "m_union_heterogeneous_4way:SQ_SRC_POS_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SQ_SRC_POS_EVENTS",
+        "target": "m_union_heterogeneous_4way:UN_ALL_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SRC_CALLCENTER_EVENTS",
+        "target": "m_union_heterogeneous_4way:SQ_SRC_CALLCENTER_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:SQ_SRC_CALLCENTER_EVENTS",
+        "target": "m_union_heterogeneous_4way:UN_ALL_EVENTS"
+      },
+      {
+        "source": "m_union_heterogeneous_4way:UN_ALL_EVENTS",
+        "target": "m_union_heterogeneous_4way:TGT_ALL_EVENTS"
+      },
+      {
+        "source": "m_wide_router_fanout:SRC_ORDERS",
+        "target": "m_wide_router_fanout:SQ_ORDERS"
+      },
+      {
+        "source": "m_wide_router_fanout:SQ_ORDERS",
+        "target": "m_wide_router_fanout:RTR_CATEGORY"
+      },
+      {
+        "source": "m_wide_router_fanout:RTR_CATEGORY",
+        "target": "m_wide_router_fanout:TGT_ELECTRONICS"
+      },
+      {
+        "source": "m_wide_router_fanout:RTR_CATEGORY",
+        "target": "m_wide_router_fanout:TGT_APPAREL"
+      },
+      {
+        "source": "m_wide_router_fanout:RTR_CATEGORY",
+        "target": "m_wide_router_fanout:TGT_GROCERY"
+      },
+      {
+        "source": "m_wide_router_fanout:RTR_CATEGORY",
+        "target": "m_wide_router_fanout:TGT_FURNITURE"
+      },
+      {
+        "source": "m_wide_router_fanout:RTR_CATEGORY",
+        "target": "m_wide_router_fanout:TGT_TOYS"
+      },
+      {
+        "source": "m_wide_router_fanout:RTR_CATEGORY",
+        "target": "m_wide_router_fanout:TGT_DEFAULT"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_distinct": {
+      "target_name": "DISTINCT",
+      "last_transformation_type": "target"
+    },
+    "tgt_summary": {
+      "target_name": "SUMMARY",
+      "last_transformation_type": "target"
+    },
+    "tgt_global": {
+      "target_name": "GLOBAL",
+      "last_transformation_type": "target"
+    },
+    "tgt_customers": {
+      "target_name": "CUSTOMERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_orders": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_orders_2": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_orders_3": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_union_out": {
+      "target_name": "UNION_OUT",
+      "last_transformation_type": "target"
+    },
+    "tgt_customers_2": {
+      "target_name": "CUSTOMERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_orders_4": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_lnd_open_subscription_detail": {
+      "target_name": "LND_OPEN_SUBSCRIPTION_DETAIL",
+      "last_transformation_type": "target"
+    },
+    "tgt_fct_subscription_lifecycle": {
+      "target_name": "FCT_SUBSCRIPTION_LIFECYCLE",
+      "last_transformation_type": "target"
+    },
+    "tgt_joined": {
+      "target_name": "JOINED",
+      "last_transformation_type": "target"
+    },
+    "tgt_union": {
+      "target_name": "UNION",
+      "last_transformation_type": "target"
+    },
+    "tgt_vars": {
+      "target_name": "VARS",
+      "last_transformation_type": "target"
+    },
+    "tgt_orders_5": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    },
+    "tgt_sales_rollup": {
+      "target_name": "SALES_ROLLUP",
+      "last_transformation_type": "target"
+    },
+    "tgt_value_table": {
+      "target_name": "VALUE_TABLE",
+      "last_transformation_type": "target"
+    },
+    "tgt_txn_enriched": {
+      "target_name": "TXN_ENRICHED",
+      "last_transformation_type": "target"
+    },
+    "tgt_claims_flagged": {
+      "target_name": "CLAIMS_FLAGGED",
+      "last_transformation_type": "target"
+    },
+    "tgt_dim_customer": {
+      "target_name": "DIM_CUSTOMER",
+      "last_transformation_type": "target"
+    },
+    "tgt_log_processed": {
+      "target_name": "LOG_PROCESSED",
+      "last_transformation_type": "target"
+    },
+    "tgt_inventory_valued": {
+      "target_name": "INVENTORY_VALUED",
+      "last_transformation_type": "target"
+    },
+    "tgt_type_c": {
+      "target_name": "TYPE_C",
+      "last_transformation_type": "target"
+    },
+    "tgt_type_a": {
+      "target_name": "TYPE_A",
+      "last_transformation_type": "target"
+    },
+    "tgt_type_b": {
+      "target_name": "TYPE_B",
+      "last_transformation_type": "target"
+    },
+    "tgt_student_grades": {
+      "target_name": "STUDENT_GRADES",
+      "last_transformation_type": "target"
+    },
+    "tgt_clean_names": {
+      "target_name": "CLEAN_NAMES",
+      "last_transformation_type": "target"
+    },
+    "tgt_region_summary": {
+      "target_name": "REGION_SUMMARY",
+      "last_transformation_type": "target"
+    },
+    "tgt_product_names_clean": {
+      "target_name": "PRODUCT_NAMES_CLEAN",
+      "last_transformation_type": "target"
+    },
+    "tgt_supplier_names_clean": {
+      "target_name": "SUPPLIER_NAMES_CLEAN",
+      "last_transformation_type": "target"
+    },
+    "tgt_accounts": {
+      "target_name": "ACCOUNTS",
+      "last_transformation_type": "target"
+    },
+    "tgt_contacts": {
+      "target_name": "CONTACTS",
+      "last_transformation_type": "target"
+    },
+    "tgt_customer_scd": {
+      "target_name": "CUSTOMER_SCD",
+      "last_transformation_type": "target"
+    },
+    "tgt_leaderboard_sorted": {
+      "target_name": "LEADERBOARD_SORTED",
+      "last_transformation_type": "target"
+    },
+    "tgt_order_enriched": {
+      "target_name": "ORDER_ENRICHED",
+      "last_transformation_type": "target"
+    },
+    "tgt_employee_full": {
+      "target_name": "EMPLOYEE_FULL",
+      "last_transformation_type": "target"
+    },
+    "tgt_clean_labels": {
+      "target_name": "CLEAN_LABELS",
+      "last_transformation_type": "target"
+    },
+    "tgt_all_events": {
+      "target_name": "ALL_EVENTS",
+      "last_transformation_type": "target"
+    },
+    "tgt_electronics": {
+      "target_name": "ELECTRONICS",
+      "last_transformation_type": "target"
+    },
+    "tgt_apparel": {
+      "target_name": "APPAREL",
+      "last_transformation_type": "target"
+    },
+    "tgt_grocery": {
+      "target_name": "GROCERY",
+      "last_transformation_type": "target"
+    },
+    "tgt_furniture": {
+      "target_name": "FURNITURE",
+      "last_transformation_type": "target"
+    },
+    "tgt_toys": {
+      "target_name": "TOYS",
+      "last_transformation_type": "target"
+    },
+    "tgt_default": {
+      "target_name": "DEFAULT",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wf_enterprise_master_repository/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_distinct",
+      "file": "tgt_distinct.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_summary",
+      "file": "tgt_summary.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_global",
+      "file": "tgt_global.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_customers",
+      "file": "tgt_customers.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_orders",
+      "file": "tgt_orders.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_orders_2",
+      "file": "tgt_orders_2.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_orders_3",
+      "file": "tgt_orders_3.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_union_out",
+      "file": "tgt_union_out.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_customers_2",
+      "file": "tgt_customers_2.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_orders_4",
+      "file": "tgt_orders_4.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "shortcut_to_stg_subscriber_account_key",
+      "file": "shortcut_to_stg_subscriber_account_key.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "shortcut_to_stg_subscription_key",
+      "file": "shortcut_to_stg_subscription_key.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "shortcut_to_stg_subscription_lifecycle",
+      "file": "shortcut_to_stg_subscription_lifecycle.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_lnd_open_subscription_detail",
+      "file": "tgt_lnd_open_subscription_detail.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_fct_subscription_lifecycle",
+      "file": "tgt_fct_subscription_lifecycle.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_joined",
+      "file": "tgt_joined.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_union",
+      "file": "tgt_union.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_vars",
+      "file": "tgt_vars.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_orders_5",
+      "file": "tgt_orders_5.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_sales_rollup",
+      "file": "tgt_sales_rollup.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_value_table",
+      "file": "tgt_value_table.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_txn_enriched",
+      "file": "tgt_txn_enriched.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "dw_core_all_entities_master",
+      "file": "dw_core_all_entities_master.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_claims_flagged",
+      "file": "tgt_claims_flagged.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_dim_customer",
+      "file": "tgt_dim_customer.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_log_processed",
+      "file": "tgt_log_processed.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_inventory_valued",
+      "file": "tgt_inventory_valued.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_type_c",
+      "file": "tgt_type_c.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_type_a",
+      "file": "tgt_type_a.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_type_b",
+      "file": "tgt_type_b.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_student_grades",
+      "file": "tgt_student_grades.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_clean_names",
+      "file": "tgt_clean_names.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_region_summary",
+      "file": "tgt_region_summary.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_product_names_clean",
+      "file": "tgt_product_names_clean.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_supplier_names_clean",
+      "file": "tgt_supplier_names_clean.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_accounts",
+      "file": "tgt_accounts.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_contacts",
+      "file": "tgt_contacts.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_customer_scd",
+      "file": "tgt_customer_scd.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_leaderboard_sorted",
+      "file": "tgt_leaderboard_sorted.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_order_enriched",
+      "file": "tgt_order_enriched.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_employee_full",
+      "file": "tgt_employee_full.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_clean_labels",
+      "file": "tgt_clean_labels.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "dw_core_tmp_staging_events_clean",
+      "file": "dw_core_tmp_staging_events_clean.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "dw_core_tmp_staging_events_rejected",
+      "file": "dw_core_tmp_staging_events_rejected.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_all_events",
+      "file": "tgt_all_events.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_electronics",
+      "file": "tgt_electronics.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_apparel",
+      "file": "tgt_apparel.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_grocery",
+      "file": "tgt_grocery.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_furniture",
+      "file": "tgt_furniture.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_toys",
+      "file": "tgt_toys.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_default",
+      "file": "tgt_default.sql",
+      "materialization": "view"
+    }
+  ]
+}

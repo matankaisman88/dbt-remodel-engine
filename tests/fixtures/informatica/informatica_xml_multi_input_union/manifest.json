@@ -1,0 +1,119 @@
+{
+  "pipeline_id": "informatica_xml_multi_input_union",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 8,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SQ_BRANCH_A",
+        "label": "SQ_BRANCH_A",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SQ_BRANCH_B",
+        "label": "SQ_BRANCH_B",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SQ_BRANCH_C",
+        "label": "SQ_BRANCH_C",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_UNION_OUT",
+        "label": "TGT_UNION_OUT",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "EXP_BRANCH_A",
+        "label": "EXP_BRANCH_A",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "EXP_BRANCH_B",
+        "label": "EXP_BRANCH_B",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "EXP_BRANCH_C",
+        "label": "EXP_BRANCH_C",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "Union_Custom",
+        "label": "Union_Custom",
+        "meta": {
+          "type": "UNION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SQ_BRANCH_A",
+        "target": "EXP_BRANCH_A"
+      },
+      {
+        "source": "SQ_BRANCH_B",
+        "target": "EXP_BRANCH_B"
+      },
+      {
+        "source": "SQ_BRANCH_C",
+        "target": "EXP_BRANCH_C"
+      },
+      {
+        "source": "EXP_BRANCH_A",
+        "target": "Union_Custom"
+      },
+      {
+        "source": "EXP_BRANCH_B",
+        "target": "Union_Custom"
+      },
+      {
+        "source": "EXP_BRANCH_C",
+        "target": "Union_Custom"
+      },
+      {
+        "source": "Union_Custom",
+        "target": "TGT_UNION_OUT"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_union_out": {
+      "target_name": "UNION_OUT",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_xml_multi_input_union/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_union_out",
+      "file": "tgt_union_out.sql",
+      "materialization": "view"
+    }
+  ]
+}

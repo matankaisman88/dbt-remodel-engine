@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "informatica_stress_corpus_nested_conditional_expression",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_SCORES",
+        "label": "SRC_SCORES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SCORES",
+        "label": "SQ_SCORES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_STUDENT_GRADES",
+        "label": "TGT_STUDENT_GRADES",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "EXP_GRADE",
+        "label": "EXP_GRADE",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_SCORES",
+        "target": "SQ_SCORES"
+      },
+      {
+        "source": "SQ_SCORES",
+        "target": "EXP_GRADE"
+      },
+      {
+        "source": "EXP_GRADE",
+        "target": "TGT_STUDENT_GRADES"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_student_grades": {
+      "target_name": "STUDENT_GRADES",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_nested_conditional_expression/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_student_grades",
+      "file": "tgt_student_grades.sql",
+      "materialization": "view"
+    }
+  ]
+}

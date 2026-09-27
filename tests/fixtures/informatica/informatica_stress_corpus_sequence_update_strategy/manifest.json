@@ -1,0 +1,97 @@
+{
+  "pipeline_id": "informatica_stress_corpus_sequence_update_strategy",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 6,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_CUSTOMER_CHANGES",
+        "label": "SRC_CUSTOMER_CHANGES",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_CUSTOMER_CHANGES",
+        "label": "SQ_CUSTOMER_CHANGES",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_CUSTOMER_SCD",
+        "label": "TGT_CUSTOMER_SCD",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "SEQ_SURROGATE_KEY",
+        "label": "SEQ_SURROGATE_KEY",
+        "meta": {
+          "type": "SEQUENCE_GENERATOR"
+        }
+      },
+      {
+        "id": "EXP_BUILD_ROW",
+        "label": "EXP_BUILD_ROW",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "UPD_APPLY_CHANGE",
+        "label": "UPD_APPLY_CHANGE",
+        "meta": {
+          "type": "UPDATE_STRATEGY"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_CUSTOMER_CHANGES",
+        "target": "SQ_CUSTOMER_CHANGES"
+      },
+      {
+        "source": "SQ_CUSTOMER_CHANGES",
+        "target": "EXP_BUILD_ROW"
+      },
+      {
+        "source": "SEQ_SURROGATE_KEY",
+        "target": "EXP_BUILD_ROW"
+      },
+      {
+        "source": "EXP_BUILD_ROW",
+        "target": "UPD_APPLY_CHANGE"
+      },
+      {
+        "source": "UPD_APPLY_CHANGE",
+        "target": "TGT_CUSTOMER_SCD"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_customer_scd": {
+      "target_name": "CUSTOMER_SCD",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_sequence_update_strategy/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_customer_scd",
+      "file": "tgt_customer_scd.sql",
+      "materialization": "view"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "corpora": [
+    {
+      "pipeline_id": "daily_etl_main_active_diagnosis",
+      "compile_inputs": [
+        "tests/fixtures/ssis/official/DailyETLMain.dtsx"
+      ],
+      "seed_globs": [
+        "tests/fixtures/**/daily_etl_main*/seeds.sql",
+        "tests/fixtures/**/DailyETLMain*/seeds.sql",
+        "tests/fixtures/**/active_diagnosis*/seeds.sql"
+      ]
+    },
+    {
+      "pipeline_id": "wwi_sales_star",
+      "compile_inputs": [
+        "fixtures/informatica_xml/real_world_complex_pipeline.xml",
+        "tests/fixtures/informatica_xml/real_world_complex_pipeline.xml",
+        "fixtures/informatica_xml/wwi_star_schema_pipeline.xml",
+        "tests/fixtures/informatica_xml/wwi_star_schema_pipeline.xml",
+        "fixtures/informatica_xml/wwi_sales_star.xml"
+      ],
+      "seed_globs": [
+        "tests/fixtures/**/wwi*/seeds.sql",
+        "tests/fixtures/**/real_world_complex*/seeds.sql"
+      ]
+    }
+  ]
+}

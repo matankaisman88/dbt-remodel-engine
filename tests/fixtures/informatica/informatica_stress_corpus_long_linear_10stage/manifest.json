@@ -1,0 +1,167 @@
+{
+  "pipeline_id": "informatica_stress_corpus_long_linear_10stage",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 12,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_RAW_LOG",
+        "label": "SRC_RAW_LOG",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_RAW_LOG",
+        "label": "SQ_RAW_LOG",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_LOG_PROCESSED",
+        "label": "TGT_LOG_PROCESSED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "EXP_CLEAN1",
+        "label": "EXP_CLEAN1",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "FIL_NOT_DEBUG",
+        "label": "FIL_NOT_DEBUG",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "LKP_SEVERITY_CODE",
+        "label": "LKP_SEVERITY_CODE",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "EXP_CLEAN2",
+        "label": "EXP_CLEAN2",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "RTR_SEV",
+        "label": "RTR_SEV",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "EXP_TAG_CRITICAL",
+        "label": "EXP_TAG_CRITICAL",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "EXP_TAG_NORMAL",
+        "label": "EXP_TAG_NORMAL",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "UN_TAGGED",
+        "label": "UN_TAGGED",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "SRT_FINAL",
+        "label": "SRT_FINAL",
+        "meta": {
+          "type": "SORTER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_RAW_LOG",
+        "target": "SQ_RAW_LOG"
+      },
+      {
+        "source": "SQ_RAW_LOG",
+        "target": "EXP_CLEAN1"
+      },
+      {
+        "source": "EXP_CLEAN1",
+        "target": "FIL_NOT_DEBUG"
+      },
+      {
+        "source": "FIL_NOT_DEBUG",
+        "target": "LKP_SEVERITY_CODE"
+      },
+      {
+        "source": "LKP_SEVERITY_CODE",
+        "target": "EXP_CLEAN2"
+      },
+      {
+        "source": "EXP_CLEAN2",
+        "target": "RTR_SEV"
+      },
+      {
+        "source": "RTR_SEV",
+        "target": "EXP_TAG_CRITICAL"
+      },
+      {
+        "source": "RTR_SEV",
+        "target": "EXP_TAG_NORMAL"
+      },
+      {
+        "source": "EXP_TAG_CRITICAL",
+        "target": "UN_TAGGED"
+      },
+      {
+        "source": "EXP_TAG_NORMAL",
+        "target": "UN_TAGGED"
+      },
+      {
+        "source": "UN_TAGGED",
+        "target": "SRT_FINAL"
+      },
+      {
+        "source": "SRT_FINAL",
+        "target": "TGT_LOG_PROCESSED"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_log_processed": {
+      "target_name": "LOG_PROCESSED",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_long_linear_10stage/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_log_processed",
+      "file": "tgt_log_processed.sql",
+      "materialization": "view"
+    }
+  ]
+}

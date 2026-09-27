@@ -1,0 +1,8 @@
+-- Auto-generated DuckDB seed for Airflow dbt runs.
+CREATE SCHEMA IF NOT EXISTS "dbo";
+CREATE TABLE IF NOT EXISTS dbo.src_customer_dim(CUST_ID INTEGER, CUST_NAME VARCHAR, REGION VARCHAR, CHANGE_TYPE VARCHAR);
+INSERT INTO "dbo"."src_customer_dim" ("CUST_ID", "CUST_NAME", "REGION", "CHANGE_TYPE") SELECT 755, 'cust_name_3', 'region_3', 'PENDING' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_customer_dim" WHERE "CUST_ID" = 755);
+INSERT INTO "dbo"."src_customer_dim" ("CUST_ID", "CUST_NAME", "REGION", "CHANGE_TYPE") SELECT 1170, 'cust_name_2', 'region_2', 'COMPLETED' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_customer_dim" WHERE "CUST_ID" = 1170);
+INSERT INTO "dbo"."src_customer_dim" ("CUST_ID", "CUST_NAME", "REGION", "CHANGE_TYPE") SELECT 6296, 'cust_name_4', 'region_4', 'CANCELLED' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_customer_dim" WHERE "CUST_ID" = 6296);
+INSERT INTO "dbo"."src_customer_dim" ("CUST_ID", "CUST_NAME", "REGION", "CHANGE_TYPE") VALUES (NULL, NULL, NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.tgt_dim_customer(CUST_ID_O VARCHAR, CUST_NAME_O VARCHAR, REGION_O VARCHAR, START_DATE TIMESTAMP, END_DATE TIMESTAMP, IS_CURRENT VARCHAR);

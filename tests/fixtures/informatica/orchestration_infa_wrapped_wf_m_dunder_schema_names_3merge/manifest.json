@@ -1,0 +1,147 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_dunder_schema_names_3merge",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 11,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "Fin_AP__Vendor_Master",
+        "label": "Fin_AP__Vendor_Master",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_Fin_AP__Vendor_Master",
+        "label": "SQ_Fin_AP__Vendor_Master",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "fin_ar__Customer_Master",
+        "label": "fin_ar__Customer_Master",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_fin_ar__Customer_Master",
+        "label": "SQ_fin_ar__Customer_Master",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "HR_Core__Employee_Master",
+        "label": "HR_Core__Employee_Master",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_HR_Core__Employee_Master",
+        "label": "SQ_HR_Core__Employee_Master",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "dw_core__all_entities_master",
+        "label": "dw_core__all_entities_master",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "EXP_TAG_VENDOR",
+        "label": "EXP_TAG_VENDOR",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "EXP_TAG_CUSTOMER",
+        "label": "EXP_TAG_CUSTOMER",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "EXP_TAG_EMPLOYEE",
+        "label": "EXP_TAG_EMPLOYEE",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "UN_ALL_ENTITIES",
+        "label": "UN_ALL_ENTITIES",
+        "meta": {
+          "type": "UNION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "Fin_AP__Vendor_Master",
+        "target": "SQ_Fin_AP__Vendor_Master"
+      },
+      {
+        "source": "SQ_Fin_AP__Vendor_Master",
+        "target": "EXP_TAG_VENDOR"
+      },
+      {
+        "source": "EXP_TAG_VENDOR",
+        "target": "UN_ALL_ENTITIES"
+      },
+      {
+        "source": "fin_ar__Customer_Master",
+        "target": "SQ_fin_ar__Customer_Master"
+      },
+      {
+        "source": "SQ_fin_ar__Customer_Master",
+        "target": "EXP_TAG_CUSTOMER"
+      },
+      {
+        "source": "EXP_TAG_CUSTOMER",
+        "target": "UN_ALL_ENTITIES"
+      },
+      {
+        "source": "HR_Core__Employee_Master",
+        "target": "SQ_HR_Core__Employee_Master"
+      },
+      {
+        "source": "SQ_HR_Core__Employee_Master",
+        "target": "EXP_TAG_EMPLOYEE"
+      },
+      {
+        "source": "EXP_TAG_EMPLOYEE",
+        "target": "UN_ALL_ENTITIES"
+      },
+      {
+        "source": "UN_ALL_ENTITIES",
+        "target": "dw_core__all_entities_master"
+      }
+    ]
+  },
+  "legacy_targets": {},
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_dunder_schema_names_3merge/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "dw_core_all_entities_master",
+      "file": "dw_core_all_entities_master.sql",
+      "materialization": "view"
+    }
+  ]
+}

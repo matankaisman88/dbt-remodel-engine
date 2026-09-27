@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "informatica_stress_corpus_aggregator_multi_groupby",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_SALES_DETAIL",
+        "label": "SRC_SALES_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SALES_DETAIL",
+        "label": "SQ_SALES_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_SALES_ROLLUP",
+        "label": "TGT_SALES_ROLLUP",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "AGG_MULTI_GROUP",
+        "label": "AGG_MULTI_GROUP",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_SALES_DETAIL",
+        "target": "SQ_SALES_DETAIL"
+      },
+      {
+        "source": "SQ_SALES_DETAIL",
+        "target": "AGG_MULTI_GROUP"
+      },
+      {
+        "source": "AGG_MULTI_GROUP",
+        "target": "TGT_SALES_ROLLUP"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_sales_rollup": {
+      "target_name": "SALES_ROLLUP",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_aggregator_multi_groupby/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_sales_rollup",
+      "file": "tgt_sales_rollup.sql",
+      "materialization": "view"
+    }
+  ]
+}

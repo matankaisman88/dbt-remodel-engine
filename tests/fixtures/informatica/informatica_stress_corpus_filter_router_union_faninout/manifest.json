@@ -1,0 +1,123 @@
+{
+  "pipeline_id": "informatica_stress_corpus_filter_router_union_faninout",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 8,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_CLAIMS",
+        "label": "SRC_CLAIMS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_CLAIMS",
+        "label": "SQ_CLAIMS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_CLAIMS_FLAGGED",
+        "label": "TGT_CLAIMS_FLAGGED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "FIL_ACTIVE",
+        "label": "FIL_ACTIVE",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "RTR_HIGH_LOW",
+        "label": "RTR_HIGH_LOW",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "EXP_HIGH_FLAG",
+        "label": "EXP_HIGH_FLAG",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "EXP_LOW_FLAG",
+        "label": "EXP_LOW_FLAG",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "UN_FLAGGED_CLAIMS",
+        "label": "UN_FLAGGED_CLAIMS",
+        "meta": {
+          "type": "UNION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_CLAIMS",
+        "target": "SQ_CLAIMS"
+      },
+      {
+        "source": "SQ_CLAIMS",
+        "target": "FIL_ACTIVE"
+      },
+      {
+        "source": "FIL_ACTIVE",
+        "target": "RTR_HIGH_LOW"
+      },
+      {
+        "source": "RTR_HIGH_LOW",
+        "target": "EXP_HIGH_FLAG"
+      },
+      {
+        "source": "RTR_HIGH_LOW",
+        "target": "EXP_LOW_FLAG"
+      },
+      {
+        "source": "EXP_HIGH_FLAG",
+        "target": "UN_FLAGGED_CLAIMS"
+      },
+      {
+        "source": "EXP_LOW_FLAG",
+        "target": "UN_FLAGGED_CLAIMS"
+      },
+      {
+        "source": "UN_FLAGGED_CLAIMS",
+        "target": "TGT_CLAIMS_FLAGGED"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_claims_flagged": {
+      "target_name": "CLAIMS_FLAGGED",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_filter_router_union_faninout/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_claims_flagged",
+      "file": "tgt_claims_flagged.sql",
+      "materialization": "view"
+    }
+  ]
+}

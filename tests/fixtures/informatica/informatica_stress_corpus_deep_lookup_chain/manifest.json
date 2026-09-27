@@ -1,0 +1,139 @@
+{
+  "pipeline_id": "informatica_stress_corpus_deep_lookup_chain",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 8,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_TXN",
+        "label": "SRC_TXN",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_TXN",
+        "label": "SQ_TXN",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_TXN_ENRICHED",
+        "label": "TGT_TXN_ENRICHED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "LKP_CUST",
+        "label": "LKP_CUST",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "LKP_REGION",
+        "label": "LKP_REGION",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "LKP_COUNTRY",
+        "label": "LKP_COUNTRY",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "LKP_CURRENCY",
+        "label": "LKP_CURRENCY",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "LKP_FXRATE",
+        "label": "LKP_FXRATE",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_TXN",
+        "target": "SQ_TXN"
+      },
+      {
+        "source": "SQ_TXN",
+        "target": "LKP_CUST"
+      },
+      {
+        "source": "LKP_CUST",
+        "target": "LKP_REGION"
+      },
+      {
+        "source": "LKP_REGION",
+        "target": "LKP_COUNTRY"
+      },
+      {
+        "source": "LKP_COUNTRY",
+        "target": "LKP_CURRENCY"
+      },
+      {
+        "source": "LKP_CURRENCY",
+        "target": "LKP_FXRATE"
+      },
+      {
+        "source": "SQ_TXN",
+        "target": "TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "LKP_CUST",
+        "target": "TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "LKP_REGION",
+        "target": "TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "LKP_COUNTRY",
+        "target": "TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "LKP_CURRENCY",
+        "target": "TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "LKP_FXRATE",
+        "target": "TGT_TXN_ENRICHED"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_txn_enriched": {
+      "target_name": "TXN_ENRICHED",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_deep_lookup_chain/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_txn_enriched",
+      "file": "tgt_txn_enriched.sql",
+      "materialization": "view"
+    }
+  ]
+}

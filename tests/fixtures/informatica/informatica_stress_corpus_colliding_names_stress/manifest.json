@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "informatica_stress_corpus_colliding_names_stress",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "VALUE",
+        "label": "VALUE",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_VALUE",
+        "label": "SQ_VALUE",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_VALUE_TABLE",
+        "label": "TGT_VALUE_TABLE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "VALUE_EXP",
+        "label": "VALUE_EXP",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "VALUE",
+        "target": "SQ_VALUE"
+      },
+      {
+        "source": "SQ_VALUE",
+        "target": "VALUE_EXP"
+      },
+      {
+        "source": "VALUE_EXP",
+        "target": "TGT_VALUE_TABLE"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_value_table": {
+      "target_name": "VALUE_TABLE",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_colliding_names_stress/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_value_table",
+      "file": "tgt_value_table.sql",
+      "materialization": "view"
+    }
+  ]
+}

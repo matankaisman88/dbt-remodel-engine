@@ -1,0 +1,509 @@
+{
+  "studio_root": "C:\\ETL-Migration-Studio",
+  "corpora": [
+    {
+      "corpus": "daily_etl_main_active_diagnosis",
+      "pipeline_id": "daily_etl_main_active_diagnosis",
+      "source_export": ".remodel_engine_exports\\daily_etl_main_active_diagnosis",
+      "compile_source": null,
+      "model_sql_files": 13
+    },
+    {
+      "corpus": "informatica_stress_corpus_aggregator_multi_groupby",
+      "pipeline_id": "informatica_stress_corpus_aggregator_multi_groupby",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_aggregator_multi_groupby",
+      "compile_source": "fixtures\\informatica_stress_corpus\\aggregator_multi_groupby.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_colliding_names_stress",
+      "pipeline_id": "informatica_stress_corpus_colliding_names_stress",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_colliding_names_stress",
+      "compile_source": "fixtures\\informatica_stress_corpus\\colliding_names_stress.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_deep_lookup_chain",
+      "pipeline_id": "informatica_stress_corpus_deep_lookup_chain",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_deep_lookup_chain",
+      "compile_source": "fixtures\\informatica_stress_corpus\\deep_lookup_chain.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_dunder_schema_names_3merge",
+      "pipeline_id": "informatica_stress_corpus_dunder_schema_names_3merge",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_dunder_schema_names_3merge",
+      "compile_source": "fixtures\\informatica_stress_corpus\\dunder_schema_names_3merge.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_filter_router_union_faninout",
+      "pipeline_id": "informatica_stress_corpus_filter_router_union_faninout",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_filter_router_union_faninout",
+      "compile_source": "fixtures\\informatica_stress_corpus\\filter_router_union_faninout.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_informatica_scd_type2",
+      "pipeline_id": "informatica_stress_corpus_informatica_scd_type2",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_informatica_scd_type2",
+      "compile_source": "fixtures\\informatica_stress_corpus\\informatica_scd_type2.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_long_linear_10stage",
+      "pipeline_id": "informatica_stress_corpus_long_linear_10stage",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_long_linear_10stage",
+      "compile_source": "fixtures\\informatica_stress_corpus\\long_linear_10stage.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_lookup_composite_condition",
+      "pipeline_id": "informatica_stress_corpus_lookup_composite_condition",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_lookup_composite_condition",
+      "compile_source": "fixtures\\informatica_stress_corpus\\lookup_composite_condition.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_multi_target_nonsequential_load_order",
+      "pipeline_id": "informatica_stress_corpus_multi_target_nonsequential_load_order",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_multi_target_nonsequential_load_order",
+      "compile_source": "fixtures\\informatica_stress_corpus\\multi_target_nonsequential_load_order.xml",
+      "model_sql_files": 3
+    },
+    {
+      "corpus": "informatica_stress_corpus_nested_conditional_expression",
+      "pipeline_id": "informatica_stress_corpus_nested_conditional_expression",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_nested_conditional_expression",
+      "compile_source": "fixtures\\informatica_stress_corpus\\nested_conditional_expression.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_nested_mapplet_pipeline",
+      "pipeline_id": "informatica_stress_corpus_nested_mapplet_pipeline",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_nested_mapplet_pipeline",
+      "compile_source": "fixtures\\informatica_stress_corpus\\nested_mapplet_pipeline.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_rank_sorter_aggregator_chain",
+      "pipeline_id": "informatica_stress_corpus_rank_sorter_aggregator_chain",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_rank_sorter_aggregator_chain",
+      "compile_source": "fixtures\\informatica_stress_corpus\\rank_sorter_aggregator_chain.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_reused_mapplet_twice",
+      "pipeline_id": "informatica_stress_corpus_reused_mapplet_twice",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_reused_mapplet_twice",
+      "compile_source": "fixtures\\informatica_stress_corpus\\reused_mapplet_twice.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "informatica_stress_corpus_sequence_generator_reused",
+      "pipeline_id": "informatica_stress_corpus_sequence_generator_reused",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_sequence_generator_reused",
+      "compile_source": "fixtures\\informatica_stress_corpus\\sequence_generator_reused.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "informatica_stress_corpus_sequence_update_strategy",
+      "pipeline_id": "informatica_stress_corpus_sequence_update_strategy",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_sequence_update_strategy",
+      "compile_source": "fixtures\\informatica_stress_corpus\\sequence_update_strategy.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_sorter_multi_key",
+      "pipeline_id": "informatica_stress_corpus_sorter_multi_key",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_sorter_multi_key",
+      "compile_source": "fixtures\\informatica_stress_corpus\\sorter_multi_key.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_star_join_4satellite",
+      "pipeline_id": "informatica_stress_corpus_star_join_4satellite",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_star_join_4satellite",
+      "compile_source": "fixtures\\informatica_stress_corpus\\star_join_4satellite.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_three_sq_two_joiner_chain",
+      "pipeline_id": "informatica_stress_corpus_three_sq_two_joiner_chain",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_three_sq_two_joiner_chain",
+      "compile_source": "fixtures\\informatica_stress_corpus\\three_sq_two_joiner_chain.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_two_mapplets_chained",
+      "pipeline_id": "informatica_stress_corpus_two_mapplets_chained",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_two_mapplets_chained",
+      "compile_source": "fixtures\\informatica_stress_corpus\\two_mapplets_chained.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_underscore_schema_multi_target",
+      "pipeline_id": "informatica_stress_corpus_underscore_schema_multi_target",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_underscore_schema_multi_target",
+      "compile_source": "fixtures\\informatica_stress_corpus\\underscore_schema_multi_target.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "informatica_stress_corpus_union_heterogeneous_4way",
+      "pipeline_id": "informatica_stress_corpus_union_heterogeneous_4way",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_union_heterogeneous_4way",
+      "compile_source": "fixtures\\informatica_stress_corpus\\union_heterogeneous_4way.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_stress_corpus_wide_router_fanout",
+      "pipeline_id": "informatica_stress_corpus_wide_router_fanout",
+      "source_export": ".remodel_engine_exports\\informatica_stress_corpus_wide_router_fanout",
+      "compile_source": "fixtures\\informatica_stress_corpus\\wide_router_fanout.xml",
+      "model_sql_files": 6
+    },
+    {
+      "corpus": "informatica_xml_aggregator_pipeline",
+      "pipeline_id": "informatica_xml_aggregator_pipeline",
+      "source_export": ".remodel_engine_exports\\informatica_xml_aggregator_pipeline",
+      "compile_source": "fixtures\\informatica_xml\\aggregator_pipeline.xml",
+      "model_sql_files": 3
+    },
+    {
+      "corpus": "informatica_xml_mapplet_pipeline",
+      "pipeline_id": "informatica_xml_mapplet_pipeline",
+      "source_export": ".remodel_engine_exports\\informatica_xml_mapplet_pipeline",
+      "compile_source": "fixtures\\informatica_xml\\mapplet_pipeline.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_xml_minimal_source_sq_exp_target",
+      "pipeline_id": "informatica_xml_minimal_source_sq_exp_target",
+      "source_export": ".remodel_engine_exports\\informatica_xml_minimal_source_sq_exp_target",
+      "compile_source": "fixtures\\informatica_xml\\minimal_source_sq_exp_target.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_xml_minimal_with_missing_transformation",
+      "pipeline_id": "informatica_xml_minimal_with_missing_transformation",
+      "source_export": ".remodel_engine_exports\\informatica_xml_minimal_with_missing_transformation",
+      "compile_source": "fixtures\\informatica_xml\\minimal_with_missing_transformation.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_xml_minimal_with_unsupported",
+      "pipeline_id": "informatica_xml_minimal_with_unsupported",
+      "source_export": ".remodel_engine_exports\\informatica_xml_minimal_with_unsupported",
+      "compile_source": "fixtures\\informatica_xml\\minimal_with_unsupported.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_xml_multi_input_union",
+      "pipeline_id": "informatica_xml_multi_input_union",
+      "source_export": ".remodel_engine_exports\\informatica_xml_multi_input_union",
+      "compile_source": "fixtures\\informatica_xml\\multi_input_union.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_xml_multi_target_pipeline",
+      "pipeline_id": "informatica_xml_multi_target_pipeline",
+      "source_export": ".remodel_engine_exports\\informatica_xml_multi_target_pipeline",
+      "compile_source": "fixtures\\informatica_xml\\multi_target_pipeline.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "informatica_xml_real_world_complex_pipeline",
+      "pipeline_id": "informatica_xml_real_world_complex_pipeline",
+      "source_export": ".remodel_engine_exports\\informatica_xml_real_world_complex_pipeline",
+      "compile_source": "fixtures\\informatica_xml\\real_world_complex_pipeline.xml",
+      "model_sql_files": 5
+    },
+    {
+      "corpus": "informatica_xml_sq_user_defined_join_two_tables",
+      "pipeline_id": "informatica_xml_sq_user_defined_join_two_tables",
+      "source_export": ".remodel_engine_exports\\informatica_xml_sq_user_defined_join_two_tables",
+      "compile_source": "fixtures\\informatica_xml\\sq_user_defined_join_two_tables.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "informatica_xml_transform_pipeline",
+      "pipeline_id": "informatica_xml_transform_pipeline",
+      "source_export": ".remodel_engine_exports\\informatica_xml_transform_pipeline",
+      "compile_source": "fixtures\\informatica_xml\\transform_pipeline.xml",
+      "model_sql_files": 3
+    },
+    {
+      "corpus": "informatica_xml_update_strategy_pipeline",
+      "pipeline_id": "informatica_xml_update_strategy_pipeline",
+      "source_export": ".remodel_engine_exports\\informatica_xml_update_strategy_pipeline",
+      "compile_source": "fixtures\\informatica_xml\\update_strategy_pipeline.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_synthetic_nonconforming_names",
+      "pipeline_id": "orchestration_infa_synthetic_nonconforming_names",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_synthetic_nonconforming_names",
+      "compile_source": "fixtures\\orchestration\\infa\\synthetic_nonconforming_names.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_synthetic_standalone_worklet_root",
+      "pipeline_id": "orchestration_infa_synthetic_standalone_worklet_root",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_synthetic_standalone_worklet_root",
+      "compile_source": "fixtures\\orchestration\\infa\\synthetic_standalone_worklet_root.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wf_enterprise_daily_run",
+      "pipeline_id": "orchestration_infa_wf_enterprise_daily_run",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wf_enterprise_daily_run",
+      "compile_source": "fixtures\\orchestration\\infa\\wf_enterprise_daily_run.xml",
+      "model_sql_files": 4
+    },
+    {
+      "corpus": "orchestration_infa_wf_enterprise_master_repository",
+      "pipeline_id": "orchestration_infa_wf_enterprise_master_repository",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wf_enterprise_master_repository",
+      "compile_source": "fixtures\\orchestration\\infa\\wf_enterprise_master_repository.xml",
+      "model_sql_files": 51
+    },
+    {
+      "corpus": "orchestration_infa_wf_with_nested_worklet",
+      "pipeline_id": "orchestration_infa_wf_with_nested_worklet",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wf_with_nested_worklet",
+      "compile_source": "fixtures\\orchestration\\infa\\wf_with_nested_worklet.xml",
+      "model_sql_files": 3
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_aggregator",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_aggregator",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_aggregator",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_aggregator.xml",
+      "model_sql_files": 3
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_aggregator_multi_groupby",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_aggregator_multi_groupby",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_aggregator_multi_groupby",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_aggregator_multi_groupby.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_colliding_names_stress",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_colliding_names_stress",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_colliding_names_stress",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_colliding_names_stress.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_deep_lookup_chain",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_deep_lookup_chain",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_deep_lookup_chain",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_deep_lookup_chain.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_dunder_schema_names_3merge",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_dunder_schema_names_3merge",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_dunder_schema_names_3merge",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_dunder_schema_names_3merge.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_filter_router_union_faninout",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_filter_router_union_faninout",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_filter_router_union_faninout",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_filter_router_union_faninout.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_informatica_scd_type2",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_informatica_scd_type2",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_informatica_scd_type2",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_informatica_scd_type2.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_long_linear_10stage",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_long_linear_10stage",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_long_linear_10stage",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_long_linear_10stage.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_lookup_composite_condition",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_lookup_composite_condition",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_lookup_composite_condition",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_lookup_composite_condition.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_mapplet",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_mapplet",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_mapplet",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_mapplet.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_minimal",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_minimal",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_minimal",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_minimal.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_missing_transformation",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_missing_transformation",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_missing_transformation",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_missing_transformation.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_multi_target",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_multi_target",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_multi_target",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_multi_target.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_multi_target_nonsequential_load_order",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_multi_target_nonsequential_load_order",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_multi_target_nonsequential_load_order",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_multi_target_nonsequential_load_order.xml",
+      "model_sql_files": 3
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_multi_union",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_multi_union",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_multi_union",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_multi_union.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_nested_conditional_expression",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_nested_conditional_expression",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_nested_conditional_expression",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_nested_conditional_expression.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_nested_mapplet_pipeline",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_nested_mapplet_pipeline",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_nested_mapplet_pipeline",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_nested_mapplet_pipeline.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_rank_sorter_aggregator_chain",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_rank_sorter_aggregator_chain",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_rank_sorter_aggregator_chain",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_rank_sorter_aggregator_chain.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_reused_mapplet_twice",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_reused_mapplet_twice",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_reused_mapplet_twice",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_reused_mapplet_twice.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_sequence_generator_reused",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_sequence_generator_reused",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_sequence_generator_reused",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_sequence_generator_reused.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_sequence_update_strategy",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_sequence_update_strategy",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_sequence_update_strategy",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_sequence_update_strategy.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_sorter_multi_key",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_sorter_multi_key",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_sorter_multi_key",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_sorter_multi_key.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_sq_user_defined_join_two_tables",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_sq_user_defined_join_two_tables",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_sq_user_defined_join_two_tables",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_sq_user_defined_join_two_tables.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_star_join_4satellite",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_star_join_4satellite",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_star_join_4satellite",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_star_join_4satellite.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_three_sq_two_joiner_chain",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_three_sq_two_joiner_chain",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_three_sq_two_joiner_chain",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_three_sq_two_joiner_chain.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_transforms",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_transforms",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_transforms",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_transforms.xml",
+      "model_sql_files": 3
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_two_mapplets_chained",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_two_mapplets_chained",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_two_mapplets_chained",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_two_mapplets_chained.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_underscore_schema_multi_target",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_underscore_schema_multi_target",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_underscore_schema_multi_target",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_underscore_schema_multi_target.xml",
+      "model_sql_files": 2
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_union_heterogeneous_4way",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_union_heterogeneous_4way",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_union_heterogeneous_4way",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_union_heterogeneous_4way.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_update_strategy",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_update_strategy",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_update_strategy",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_update_strategy.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_wide_router_fanout",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_wide_router_fanout",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_wide_router_fanout",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_wide_router_fanout.xml",
+      "model_sql_files": 6
+    },
+    {
+      "corpus": "orchestration_infa_wrapped_wf_m_with_unsupported",
+      "pipeline_id": "orchestration_infa_wrapped_wf_m_with_unsupported",
+      "source_export": ".remodel_engine_exports\\orchestration_infa_wrapped_wf_m_with_unsupported",
+      "compile_source": "fixtures\\orchestration\\infa_wrapped\\wf_m_with_unsupported.xml",
+      "model_sql_files": 1
+    },
+    {
+      "corpus": "wwi_sales_star",
+      "pipeline_id": "wwi_sales_star",
+      "source_export": ".remodel_engine_exports\\_test_wwi",
+      "compile_source": null,
+      "model_sql_files": 5
+    }
+  ]
+}

@@ -13,13 +13,24 @@ from remodel_engine.layer_synthesizer import Layer
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
 PROVENANCE_PATH = FIXTURES / ".fixture_provenance.json"
-CORPORA = [
-    ("WWI corpus (etl_to_dbt export format)", FIXTURES / "wwi_corpus" / "manifest.json"),
-    (
-        "DailyETLMain / Informatica corpus (etl_to_dbt export format)",
-        FIXTURES / "daily_etl_main_corpus" / "manifest.json",
-    ),
-]
+
+
+def discover_fixture_corpora() -> list[tuple[str, Path]]:
+    manifests = sorted(
+        (
+            p
+            for p in FIXTURES.rglob("manifest.json")
+            if p.is_file() and p.parent != FIXTURES
+        ),
+        key=lambda p: str(p.relative_to(FIXTURES)),
+    )
+    return [
+        (
+            f"{manifest.parent.relative_to(FIXTURES).as_posix()} (etl_to_dbt export format)",
+            manifest,
+        )
+        for manifest in manifests
+    ]
 
 
 def _provenance_banner() -> list[str]:
@@ -58,7 +69,7 @@ def main() -> None:
     failures: list[str] = []
     manual: list[str] = []
 
-    for title, manifest_path in CORPORA:
+    for title, manifest_path in discover_fixture_corpora():
         req = load_corpus_manifest(manifest_path)
         resp = engine.remodel(req)
         lines.extend(

@@ -1,0 +1,97 @@
+{
+  "pipeline_id": "informatica_stress_corpus_underscore_schema_multi_target",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 6,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "legacy_ops_tmp_staging_raw_events",
+        "label": "legacy_ops_tmp_staging_raw_events",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_legacy_ops_tmp_staging_raw_events",
+        "label": "SQ_legacy_ops_tmp_staging_raw_events",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "dw_core_tmp_staging_events_clean",
+        "label": "dw_core_tmp_staging_events_clean",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "dw_core_tmp_staging_events_rejected",
+        "label": "dw_core_tmp_staging_events_rejected",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "FIL_VALID",
+        "label": "FIL_VALID",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "FIL_INVALID",
+        "label": "FIL_INVALID",
+        "meta": {
+          "type": "FILTER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "legacy_ops_tmp_staging_raw_events",
+        "target": "SQ_legacy_ops_tmp_staging_raw_events"
+      },
+      {
+        "source": "SQ_legacy_ops_tmp_staging_raw_events",
+        "target": "FIL_VALID"
+      },
+      {
+        "source": "SQ_legacy_ops_tmp_staging_raw_events",
+        "target": "FIL_INVALID"
+      },
+      {
+        "source": "FIL_VALID",
+        "target": "dw_core_tmp_staging_events_clean"
+      },
+      {
+        "source": "FIL_INVALID",
+        "target": "dw_core_tmp_staging_events_rejected"
+      }
+    ]
+  },
+  "legacy_targets": {},
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_stress_corpus_underscore_schema_multi_target/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "dw_core_tmp_staging_events_clean",
+      "file": "dw_core_tmp_staging_events_clean.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "dw_core_tmp_staging_events_rejected",
+      "file": "dw_core_tmp_staging_events_rejected.sql",
+      "materialization": "view"
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_star_join_4satellite",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 12,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_ORDER_HEADER",
+        "label": "SRC_ORDER_HEADER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_ORDER_HEADER",
+        "label": "SQ_ORDER_HEADER",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_CUSTOMER",
+        "label": "SRC_CUSTOMER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_CUSTOMER",
+        "label": "SQ_SRC_CUSTOMER",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_SHIPPING",
+        "label": "SRC_SHIPPING",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_SHIPPING",
+        "label": "SQ_SRC_SHIPPING",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "SRC_PAYMENT",
+        "label": "SRC_PAYMENT",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_PAYMENT",
+        "label": "SQ_SRC_PAYMENT",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_ORDER_ENRICHED",
+        "label": "TGT_ORDER_ENRICHED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "JNR_CUST",
+        "label": "JNR_CUST",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "JNR_SHIP",
+        "label": "JNR_SHIP",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "JNR_PAY",
+        "label": "JNR_PAY",
+        "meta": {
+          "type": "JOINER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_ORDER_HEADER",
+        "target": "SQ_ORDER_HEADER"
+      },
+      {
+        "source": "SRC_CUSTOMER",
+        "target": "SQ_SRC_CUSTOMER"
+      },
+      {
+        "source": "SQ_ORDER_HEADER",
+        "target": "JNR_CUST"
+      },
+      {
+        "source": "SQ_SRC_CUSTOMER",
+        "target": "JNR_CUST"
+      },
+      {
+        "source": "SRC_SHIPPING",
+        "target": "SQ_SRC_SHIPPING"
+      },
+      {
+        "source": "JNR_CUST",
+        "target": "JNR_SHIP"
+      },
+      {
+        "source": "SQ_SRC_SHIPPING",
+        "target": "JNR_SHIP"
+      },
+      {
+        "source": "SRC_PAYMENT",
+        "target": "SQ_SRC_PAYMENT"
+      },
+      {
+        "source": "JNR_SHIP",
+        "target": "JNR_PAY"
+      },
+      {
+        "source": "SQ_SRC_PAYMENT",
+        "target": "JNR_PAY"
+      },
+      {
+        "source": "JNR_PAY",
+        "target": "TGT_ORDER_ENRICHED"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_order_enriched": {
+      "target_name": "ORDER_ENRICHED",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_star_join_4satellite/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_order_enriched",
+      "file": "tgt_order_enriched.sql",
+      "materialization": "view"
+    }
+  ]
+}

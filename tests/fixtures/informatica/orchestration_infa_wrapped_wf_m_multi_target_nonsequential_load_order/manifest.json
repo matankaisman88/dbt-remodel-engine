@@ -1,0 +1,115 @@
+{
+  "pipeline_id": "orchestration_infa_wrapped_wf_m_multi_target_nonsequential_load_order",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 6,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_MASTER_DATA",
+        "label": "SRC_MASTER_DATA",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_MASTER_DATA",
+        "label": "SQ_MASTER_DATA",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_TYPE_A",
+        "label": "TGT_TYPE_A",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_TYPE_B",
+        "label": "TGT_TYPE_B",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "TGT_TYPE_C",
+        "label": "TGT_TYPE_C",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "RTR_TYPE",
+        "label": "RTR_TYPE",
+        "meta": {
+          "type": "ROUTER"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_MASTER_DATA",
+        "target": "SQ_MASTER_DATA"
+      },
+      {
+        "source": "SQ_MASTER_DATA",
+        "target": "RTR_TYPE"
+      },
+      {
+        "source": "RTR_TYPE",
+        "target": "TGT_TYPE_A"
+      },
+      {
+        "source": "RTR_TYPE",
+        "target": "TGT_TYPE_B"
+      },
+      {
+        "source": "RTR_TYPE",
+        "target": "TGT_TYPE_C"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_type_c": {
+      "target_name": "TYPE_C",
+      "last_transformation_type": "target"
+    },
+    "tgt_type_a": {
+      "target_name": "TYPE_A",
+      "last_transformation_type": "target"
+    },
+    "tgt_type_b": {
+      "target_name": "TYPE_B",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wrapped_wf_m_multi_target_nonsequential_load_order/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_type_c",
+      "file": "tgt_type_c.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_type_a",
+      "file": "tgt_type_a.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_type_b",
+      "file": "tgt_type_b.sql",
+      "materialization": "view"
+    }
+  ]
+}

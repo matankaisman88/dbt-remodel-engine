@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "informatica_xml_mapplet_pipeline",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_CUSTOMERS",
+        "label": "SRC_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_CUSTOMERS",
+        "label": "SQ_CUSTOMERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_CUSTOMERS",
+        "label": "TGT_CUSTOMERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "MP_UPPER_INST",
+        "label": "MP_UPPER_INST",
+        "meta": {
+          "type": "MAPPLET"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_CUSTOMERS",
+        "target": "SQ_CUSTOMERS"
+      },
+      {
+        "source": "SQ_CUSTOMERS",
+        "target": "MP_UPPER_INST"
+      },
+      {
+        "source": "MP_UPPER_INST",
+        "target": "TGT_CUSTOMERS"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_customers": {
+      "target_name": "CUSTOMERS",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_xml_mapplet_pipeline/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_customers",
+      "file": "tgt_customers.sql",
+      "materialization": "view"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+-- Auto-generated DuckDB seed for Airflow dbt runs.
+CREATE SCHEMA IF NOT EXISTS "dbo";
+CREATE TABLE IF NOT EXISTS dbo.src_customer(CUST_ID INTEGER, CUST_NAME VARCHAR);
+INSERT INTO "dbo"."src_customer" ("CUST_ID", "CUST_NAME") SELECT 755, 'cust_name_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_customer" WHERE "CUST_ID" = 755);
+INSERT INTO "dbo"."src_customer" ("CUST_ID", "CUST_NAME") SELECT 1170, 'cust_name_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_customer" WHERE "CUST_ID" = 1170);
+INSERT INTO "dbo"."src_customer" ("CUST_ID", "CUST_NAME") SELECT 6296, 'cust_name_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_customer" WHERE "CUST_ID" = 6296);
+INSERT INTO "dbo"."src_customer" ("CUST_ID", "CUST_NAME") VALUES (NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.src_order_header(ORDER_ID INTEGER, CUST_ID INTEGER, SHIP_ID INTEGER, PAY_ID INTEGER);
+INSERT INTO "dbo"."src_order_header" ("ORDER_ID", "CUST_ID", "SHIP_ID", "PAY_ID") SELECT 755, 5661, 3534, 3983 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_order_header" WHERE "ORDER_ID" = 755);
+INSERT INTO "dbo"."src_order_header" ("ORDER_ID", "CUST_ID", "SHIP_ID", "PAY_ID") SELECT 1170, 4268, 4584, 212 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_order_header" WHERE "ORDER_ID" = 1170);
+INSERT INTO "dbo"."src_order_header" ("ORDER_ID", "CUST_ID", "SHIP_ID", "PAY_ID") SELECT 6296, 1038, 4329, 1843 WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_order_header" WHERE "ORDER_ID" = 6296);
+INSERT INTO "dbo"."src_order_header" ("ORDER_ID", "CUST_ID", "SHIP_ID", "PAY_ID") VALUES (NULL, NULL, NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.src_payment(PAY_ID INTEGER, PAY_METHOD VARCHAR);
+INSERT INTO "dbo"."src_payment" ("PAY_ID", "PAY_METHOD") SELECT 754, 'pay_method_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_payment" WHERE "PAY_ID" = 754);
+INSERT INTO "dbo"."src_payment" ("PAY_ID", "PAY_METHOD") SELECT 1169, 'pay_method_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_payment" WHERE "PAY_ID" = 1169);
+INSERT INTO "dbo"."src_payment" ("PAY_ID", "PAY_METHOD") SELECT 6295, 'pay_method_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_payment" WHERE "PAY_ID" = 6295);
+INSERT INTO "dbo"."src_payment" ("PAY_ID", "PAY_METHOD") VALUES (NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.src_shipping(SHIP_ID INTEGER, SHIP_METHOD VARCHAR);
+INSERT INTO "dbo"."src_shipping" ("SHIP_ID", "SHIP_METHOD") SELECT 754, 'ship_method_3' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_shipping" WHERE "SHIP_ID" = 754);
+INSERT INTO "dbo"."src_shipping" ("SHIP_ID", "SHIP_METHOD") SELECT 1169, 'ship_method_2' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_shipping" WHERE "SHIP_ID" = 1169);
+INSERT INTO "dbo"."src_shipping" ("SHIP_ID", "SHIP_METHOD") SELECT 6295, 'ship_method_4' WHERE NOT EXISTS (SELECT 1 FROM "dbo"."src_shipping" WHERE "SHIP_ID" = 6295);
+INSERT INTO "dbo"."src_shipping" ("SHIP_ID", "SHIP_METHOD") VALUES (NULL, NULL);
+CREATE TABLE IF NOT EXISTS dbo.tgt_order_enriched(ORDER_ID VARCHAR, CUST_NAME VARCHAR, SHIP_METHOD VARCHAR, PAY_METHOD VARCHAR);

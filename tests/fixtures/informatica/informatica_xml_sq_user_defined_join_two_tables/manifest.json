@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "informatica_xml_sq_user_defined_join_two_tables",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_DETAIL",
+        "label": "SRC_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SRC_SUBSCRIPTION_MASTER",
+        "label": "SRC_SUBSCRIPTION_MASTER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_SRC_DETAIL",
+        "label": "SQ_SRC_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_OUT",
+        "label": "TGT_OUT",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_DETAIL",
+        "target": "SQ_SRC_DETAIL"
+      },
+      {
+        "source": "SRC_SUBSCRIPTION_MASTER",
+        "target": "SQ_SRC_DETAIL"
+      },
+      {
+        "source": "SQ_SRC_DETAIL",
+        "target": "TGT_OUT"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_out": {
+      "target_name": "OUT",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_xml_sq_user_defined_join_two_tables/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_out",
+      "file": "tgt_out.sql",
+      "materialization": "view"
+    }
+  ]
+}

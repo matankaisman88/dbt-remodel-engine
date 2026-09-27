@@ -1,0 +1,612 @@
+{
+  "pipeline_id": "informatica_xml_real_world_complex_pipeline",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 47,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:SRC_STG_SUBSCRIPTION_LIFECYCLE",
+        "label": "SRC_STG_SUBSCRIPTION_LIFECYCLE",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:SQ_STG",
+        "label": "SQ_STG",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:TGT_FCT_SUBSCRIPTION_LIFECYCLE",
+        "label": "TGT_FCT_SUBSCRIPTION_LIFECYCLE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:EXP_FCT",
+        "label": "EXP_FCT",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_FCT_SUBSCRIPTION_LIFECYCLE:UPD_FCT",
+        "label": "UPD_FCT",
+        "meta": {
+          "type": "UPDATE_STRATEGY"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:SRC_EXT_CDC_SUBSCRIPTION_EVENTS",
+        "label": "SRC_EXT_CDC_SUBSCRIPTION_EVENTS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:SQ_EXT_CDC",
+        "label": "SQ_EXT_CDC",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:TGT_LND_OPEN_SUBSCRIPTION_DETAIL",
+        "label": "TGT_LND_OPEN_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_INGEST_SUBSCRIPTION_DELTA:EXP_DELTA",
+        "label": "EXP_DELTA",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER",
+        "label": "Shortcut_to_SRC_SUBSCRIPTION_MASTER",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER1",
+        "label": "Shortcut_to_SRC_SUBSCRIPTION_MASTER1",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER2",
+        "label": "Shortcut_to_SRC_SUBSCRIPTION_MASTER2",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "label": "Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "label": "Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:REF_DIM_RATE_PLAN",
+        "label": "REF_DIM_RATE_PLAN",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SRC_BILLING_AUDIT_TRAIL",
+        "label": "SRC_BILLING_AUDIT_TRAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "label": "SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "label": "SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN",
+        "label": "SQ_REF_DIM_RATE_PLAN",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL",
+        "label": "SQ_SRC_BILLING_AUDIT_TRAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_LIFECYCLE",
+        "label": "Shortcut_to_STG_SUBSCRIPTION_LIFECYCLE",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIBER_ACCOUNT_KEY",
+        "label": "Shortcut_to_STG_SUBSCRIBER_ACCOUNT_KEY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_KEY",
+        "label": "Shortcut_to_STG_SUBSCRIPTION_KEY",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "label": "EXP_FIELDS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY",
+        "label": "AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL",
+        "label": "EXP_SRC_SUBSCRIPTION_DETAIL",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FOR_SUBSCRIBER_KEY",
+        "label": "EXP_FOR_SUBSCRIBER_KEY",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "label": "EXP_CAST_TO_INT",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_BILLING_REGION",
+        "label": "LKP_REF_BILLING_REGION",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL1",
+        "label": "EXP_SRC_SUBSCRIPTION_DETAIL1",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_RATE_PLAN",
+        "label": "LKP_REF_DIM_RATE_PLAN",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_FOR_SUBSCRIBER_KEY",
+        "label": "AGG_FOR_SUBSCRIBER_KEY",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP",
+        "label": "EXP",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_STOP",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_STOP",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_START",
+        "label": "LKP_REF_DIM_CSR_AGENT_KEYS_START",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1",
+        "label": "Union1",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS1",
+        "label": "EXPTRANS1",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS",
+        "label": "EXPTRANS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS1",
+        "label": "SRTTRANS1",
+        "meta": {
+          "type": "SORTER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS",
+        "label": "SRTTRANS",
+        "meta": {
+          "type": "SORTER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "label": "JNRTRANS",
+        "meta": {
+          "type": "JOINER"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:RNKTRANS",
+        "label": "RNKTRANS",
+        "meta": {
+          "type": "RANK"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2",
+        "label": "EXPTRANS2",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_RATE_PLAN_ALIASES",
+        "label": "LKP_REF_RATE_PLAN_ALIASES",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_STG_SUBSCRIPTION_LIFECYCLE:MAPPLET_NORMALIZE_BILLING_DATE",
+        "label": "MAPPLET_NORMALIZE_BILLING_DATE",
+        "meta": {
+          "type": "MAPPLET"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:SRC_STG_SUBSCRIPTION_LIFECYCLE",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:SQ_STG"
+      },
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:SQ_STG",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:EXP_FCT"
+      },
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:EXP_FCT",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:UPD_FCT"
+      },
+      {
+        "source": "m_FCT_SUBSCRIPTION_LIFECYCLE:UPD_FCT",
+        "target": "m_FCT_SUBSCRIPTION_LIFECYCLE:TGT_FCT_SUBSCRIPTION_LIFECYCLE"
+      },
+      {
+        "source": "m_INGEST_SUBSCRIPTION_DELTA:SRC_EXT_CDC_SUBSCRIPTION_EVENTS",
+        "target": "m_INGEST_SUBSCRIPTION_DELTA:SQ_EXT_CDC"
+      },
+      {
+        "source": "m_INGEST_SUBSCRIPTION_DELTA:SQ_EXT_CDC",
+        "target": "m_INGEST_SUBSCRIPTION_DELTA:EXP_DELTA"
+      },
+      {
+        "source": "m_INGEST_SUBSCRIPTION_DELTA:EXP_DELTA",
+        "target": "m_INGEST_SUBSCRIPTION_DELTA:TGT_LND_OPEN_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_LIFECYCLE"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FOR_SUBSCRIBER_KEY",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIBER_ACCOUNT_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_STG_SUBSCRIPTION_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_SUBSCRIPTION_MASTER2",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:REF_DIM_RATE_PLAN",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRC_BILLING_AUDIT_TRAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRC_BILLING_AUDIT_TRAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_BILLING_REGION",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:MAPPLET_NORMALIZE_BILLING_DATE",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_RATE_PLAN"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_FOR_SUBSCRIBER_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_STOP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FIELDS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_START"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_SUBSCRIPTION_SUBSCRIPTION_SUBSCRIPTION_EVENT_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_OPEN_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_Shortcut_to_SRC_TERMINATED_SUBSCRIPTION_DETAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:AGG_FOR_SUBSCRIBER_KEY",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_FOR_SUBSCRIBER_KEY"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_BILLING_REGION"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_CAST_TO_INT",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP_SRC_SUBSCRIPTION_DETAIL1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_RATE_PLAN",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_STOP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_START",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_START",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_DIM_CSR_AGENT_KEYS_noOBJID_STOP",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXP"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:MAPPLET_NORMALIZE_BILLING_DATE"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:Union1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_REF_DIM_RATE_PLAN",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:RNKTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SQ_SRC_BILLING_AUDIT_TRAIL",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS1"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS1",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:RNKTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:SRTTRANS"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:JNRTRANS",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_RATE_PLAN_ALIASES"
+      },
+      {
+        "source": "m_STG_SUBSCRIPTION_LIFECYCLE:LKP_REF_RATE_PLAN_ALIASES",
+        "target": "m_STG_SUBSCRIPTION_LIFECYCLE:EXPTRANS2"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_fct_subscription_lifecycle": {
+      "target_name": "FCT_SUBSCRIPTION_LIFECYCLE",
+      "last_transformation_type": "target"
+    },
+    "tgt_lnd_open_subscription_detail": {
+      "target_name": "LND_OPEN_SUBSCRIPTION_DETAIL",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_xml_real_world_complex_pipeline/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_fct_subscription_lifecycle",
+      "file": "tgt_fct_subscription_lifecycle.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_lnd_open_subscription_detail",
+      "file": "tgt_lnd_open_subscription_detail.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "shortcut_to_stg_subscriber_account_key",
+      "file": "shortcut_to_stg_subscriber_account_key.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "shortcut_to_stg_subscription_key",
+      "file": "shortcut_to_stg_subscription_key.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "shortcut_to_stg_subscription_lifecycle",
+      "file": "shortcut_to_stg_subscription_lifecycle.sql",
+      "materialization": "view"
+    }
+  ]
+}

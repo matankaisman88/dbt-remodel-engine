@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "informatica_xml_minimal_source_sq_exp_target",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 4,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_ORDERS",
+        "label": "SRC_ORDERS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_ORDERS",
+        "label": "SQ_ORDERS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_ORDERS",
+        "label": "TGT_ORDERS",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "EXP_ORDERS",
+        "label": "EXP_ORDERS",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_ORDERS",
+        "target": "SQ_ORDERS"
+      },
+      {
+        "source": "SQ_ORDERS",
+        "target": "EXP_ORDERS"
+      },
+      {
+        "source": "EXP_ORDERS",
+        "target": "TGT_ORDERS"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_orders": {
+      "target_name": "ORDERS",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/informatica_xml_minimal_source_sq_exp_target/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_orders",
+      "file": "tgt_orders.sql",
+      "materialization": "view"
+    }
+  ]
+}

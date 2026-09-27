@@ -6,41 +6,293 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS = Path(__file__).resolve().parent
+ROOT = SCRIPTS.parent
 FIXTURES = ROOT / "tests" / "fixtures"
+STUDIO_COMPILE_DEFAULTS = SCRIPTS / "studio_compile_defaults.json"
 
-CORPUS_SPECS: dict[str, dict] = {
-    "daily_etl_main_corpus": {
-        "pipeline_id": "daily_etl_main_active_diagnosis",
-        "compile_inputs": [
-            "tests/fixtures/ssis/official/DailyETLMain.dtsx",
-        ],
-        "seed_globs": [
-            "tests/fixtures/**/daily_etl_main*/seeds.sql",
-            "tests/fixtures/**/DailyETLMain*/seeds.sql",
-            "tests/fixtures/**/active_diagnosis*/seeds.sql",
-        ],
-    },
-    "wwi_corpus": {
-        "pipeline_id": "wwi_sales_star",
-        "compile_inputs": [
-            "fixtures/informatica_xml/real_world_complex_pipeline.xml",
-            "tests/fixtures/informatica_xml/real_world_complex_pipeline.xml",
-            "fixtures/informatica_xml/wwi_star_schema_pipeline.xml",
-            "tests/fixtures/informatica_xml/wwi_star_schema_pipeline.xml",
-            "fixtures/informatica_xml/wwi_sales_star.xml",
-        ],
-        "seed_globs": [
-            "tests/fixtures/**/wwi*/seeds.sql",
-            "tests/fixtures/**/real_world_complex*/seeds.sql",
-        ],
-    },
-}
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+import informatica_fixtures as infa  # noqa: E402
+
+INGEST_CONFIG_NAMES = ("ingest_config.json", ".ingest_config.json")
+SKIP_DIR_NAMES = frozenset({"node_modules", ".git"})
+
+
+def sanitize_corpus_name(pipeline_id: str) -> str:
+    name = re.sub(r"[^\w.\-]+", "_", pipeline_id.strip())
+    name = name.strip("._")
+    return (name or "corpus").lower()
+
+
+def _skip_path(path: Path) -> bool:
+    return any(part in SKIP_DIR_NAMES for part in path.parts)
+
+
+def iter_studio_manifests(studio: Path):
+    for manifest in studio.rglob("manifest.json"):
+        if _skip_path(manifest):
+            continue
+        yield manifest
+
+
+@dataclass
+class CorpusIngestPlan:
+    pipeline_id: str
+    corpus_name: str
+    export_dir: Path | None = None
+    seed_globs: list[str] = field(default_factory=list)
+    compile_inputs: list[str] = field(default_factory=list)
+    fixture_namespace: str | None = None
+
+
+def load_studio_compile_defaults() -> list[dict]:
+    if not STUDIO_COMPILE_DEFAULTS.is_file():
+        return []
+    try:
+        data = json.loads(STUDIO_COMPILE_DEFAULTS.read_text())
+    except (json.JSONDecodeError, OSError):
+        return []
+    if isinstance(data, list):
+        return [entry for entry in data if isinstance(entry, dict)]
+    if isinstance(data, dict):
+        corpora = data.get("corpora")
+        if isinstance(corpora, list):
+            return [entry for entry in corpora if isinstance(entry, dict)]
+    return []
+
+
+def load_ingest_config(directory: Path) -> dict:
+    for name in INGEST_CONFIG_NAMES:
+        path = directory / name
+        if path.is_file():
+            try:
+                return json.loads(path.read_text())
+            except (json.JSONDecodeError, OSError):
+                return {}
+    return {}
+
+
+def unique_corpus_name(pipeline_id: str, used: set[str]) -> str:
+    base = sanitize_corpus_name(pipeline_id)
+    if base not in used:
+        used.add(base)
+        return base
+    n = 2
+    while True:
+        candidate = f"{base}_{n}"
+        if candidate not in used:
+            used.add(candidate)
+            return candidate
+        n += 1
+
+
+def discover_export_corpora(
+    studio: Path,
+    pipeline_ids: set[str] | None,
+) -> list[CorpusIngestPlan]:
+    used_names: set[str] = set()
+    plans: list[CorpusIngestPlan] = []
+    for manifest_path in iter_studio_manifests(studio):
+        try:
+            data = json.loads(manifest_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            continue
+        pipeline_id = data.get("pipeline_id")
+        if not pipeline_id or not isinstance(pipeline_id, str):
+            continue
+        if pipeline_ids is not None and pipeline_id not in pipeline_ids:
+            continue
+        export_dir = manifest_path.parent
+        if not (export_dir / "models").is_dir() and not data.get("raw_dbt_models"):
+            continue
+        cfg = load_ingest_config(export_dir)
+        plans.append(
+            CorpusIngestPlan(
+                pipeline_id=pipeline_id,
+                corpus_name=unique_corpus_name(pipeline_id, used_names),
+                export_dir=export_dir,
+                seed_globs=list(cfg.get("seed_globs") or []),
+                compile_inputs=list(cfg.get("compile_inputs") or []),
+            )
+        )
+    plans.sort(key=lambda p: p.corpus_name)
+    return plans
+
+
+def _glob_studio(studio: Path, pattern: str) -> list[Path]:
+    pattern = pattern.replace("\\", "/")
+    if pattern.startswith("/"):
+        pattern = pattern.lstrip("/")
+    if "**" in pattern:
+        return sorted(p for p in studio.glob(pattern) if p.is_file() and not _skip_path(p))
+    return sorted(p for p in studio.glob(pattern) if p.is_file() and not _skip_path(p))
+
+
+def discover_compile_only_plans(
+    studio: Path,
+    *,
+    compile_inputs_glob: str | None,
+    pipeline_ids: set[str] | None,
+    existing_pipeline_ids: set[str],
+) -> list[CorpusIngestPlan]:
+    """Plans for pipelines that need etl_to_dbt export before ingest (no pre-built bundle)."""
+    used_names: set[str] = set()
+    plans: list[CorpusIngestPlan] = []
+    seen_source_files: set[Path] = set()
+
+    def add_plan(
+        pipeline_id: str,
+        compile_inputs: list[str],
+        seed_globs: list[str],
+        config_dir: Path,
+    ) -> None:
+        if pipeline_ids is not None and pipeline_id not in pipeline_ids:
+            return
+        if pipeline_id in existing_pipeline_ids:
+            return
+        resolved_inputs: list[str] = []
+        for rel in compile_inputs:
+            path = (config_dir / rel).resolve() if not Path(rel).is_absolute() else Path(rel)
+            if not path.is_file():
+                path = (studio / rel).resolve()
+            if path.is_file() and path not in seen_source_files:
+                seen_source_files.add(path)
+                resolved_inputs.append(str(path.relative_to(studio)))
+        if not resolved_inputs:
+            return
+        plans.append(
+            CorpusIngestPlan(
+                pipeline_id=pipeline_id,
+                corpus_name=unique_corpus_name(pipeline_id, used_names),
+                export_dir=None,
+                seed_globs=seed_globs,
+                compile_inputs=resolved_inputs,
+            )
+        )
+
+    if compile_inputs_glob:
+        for source_file in _glob_studio(studio, compile_inputs_glob):
+            cfg = load_ingest_config(source_file.parent)
+            pid = cfg.get("pipeline_id") or infa.pipeline_id_for_fixture(studio, source_file)
+            inputs = cfg.get("compile_inputs") or [str(source_file.relative_to(studio))]
+            add_plan(
+                pid,
+                list(inputs),
+                list(cfg.get("seed_globs") or []),
+                source_file.parent,
+            )
+
+    for config_name in INGEST_CONFIG_NAMES:
+        for config_path in studio.rglob(config_name):
+            if _skip_path(config_path):
+                continue
+            cfg = load_ingest_config(config_path.parent)
+            if not cfg.get("compile_inputs"):
+                continue
+            pid = cfg.get("pipeline_id")
+            if not pid:
+                continue
+            add_plan(
+                pid,
+                list(cfg["compile_inputs"]),
+                list(cfg.get("seed_globs") or []),
+                config_path.parent,
+            )
+
+    for spec in load_studio_compile_defaults():
+        pid = spec.get("pipeline_id")
+        if not pid:
+            continue
+        add_plan(
+            pid,
+            list(spec.get("compile_inputs") or []),
+            list(spec.get("seed_globs") or []),
+            studio,
+        )
+
+    plans.sort(key=lambda p: p.corpus_name)
+    return plans
+
+
+def discover_informatica_ingest_plans(
+    studio: Path,
+    pipeline_ids: set[str] | None,
+    existing_pipeline_ids: set[str],
+) -> list[CorpusIngestPlan]:
+    used_names: set[str] = set()
+    plans: list[CorpusIngestPlan] = []
+    for xml_path in infa.iter_informatica_fixture_paths(studio):
+        pipeline_id = infa.pipeline_id_for_fixture(studio, xml_path)
+        if pipeline_ids is not None and pipeline_id not in pipeline_ids:
+            continue
+        if pipeline_id in existing_pipeline_ids:
+            continue
+        rel = str(xml_path.relative_to(studio))
+        plans.append(
+            CorpusIngestPlan(
+                pipeline_id=pipeline_id,
+                corpus_name=unique_corpus_name(pipeline_id, used_names),
+                export_dir=None,
+                compile_inputs=[rel],
+                fixture_namespace=infa.FIXTURE_NAMESPACE,
+            )
+        )
+    plans.sort(key=lambda p: p.corpus_name)
+    return plans
+
+
+def fixture_dest(plan: CorpusIngestPlan) -> Path:
+    if plan.fixture_namespace:
+        return FIXTURES / plan.fixture_namespace / plan.corpus_name
+    return FIXTURES / plan.corpus_name
+
+
+def fixture_seeds_relpath(plan: CorpusIngestPlan) -> str:
+    if plan.fixture_namespace:
+        return f"tests/fixtures/{plan.fixture_namespace}/{plan.corpus_name}/seeds.sql"
+    return f"tests/fixtures/{plan.corpus_name}/seeds.sql"
+
+
+def explain_no_export_corpora(studio: Path) -> None:
+    manifests = list(iter_studio_manifests(studio))
+    print(f"Scanned {len(manifests)} manifest.json file(s) under {studio}", file=sys.stderr)
+    for manifest_path in manifests:
+        rel = manifest_path.relative_to(studio)
+        try:
+            data = json.loads(manifest_path.read_text())
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"  skipped {rel}: unreadable ({exc})", file=sys.stderr)
+            continue
+        pipeline_id = data.get("pipeline_id")
+        has_models = (manifest_path.parent / "models").is_dir()
+        has_raw = bool(data.get("raw_dbt_models"))
+        if pipeline_id and (has_models or has_raw):
+            print(f"  eligible: {rel} (pipeline_id={pipeline_id})", file=sys.stderr)
+            continue
+        reasons: list[str] = []
+        if not pipeline_id:
+            reasons.append("no pipeline_id")
+        if not has_models and not has_raw:
+            reasons.append("no models/ directory and no raw_dbt_models")
+        print(f"  skipped {rel}: {'; '.join(reasons)}", file=sys.stderr)
+    print(
+        "\nETL-Migration-Studio typically does not commit pre-built remodel export bundles "
+        "(manifest.json + models/*.sql + seeds.sql).\n"
+        "Re-run with --compile-missing to build from legacy sources listed in "
+        f"{STUDIO_COMPILE_DEFAULTS.relative_to(ROOT)} and/or ingest_config.json beside "
+        "compile inputs in Studio.\n"
+        "Until then, keep using the corpora already under tests/fixtures/.",
+        file=sys.stderr,
+    )
 
 
 def resolve_studio_root(explicit: str | None) -> Path | None:
@@ -67,9 +319,7 @@ def resolve_studio_root(explicit: str | None) -> Path | None:
 
 
 def find_export_bundle(studio: Path, pipeline_id: str) -> Path | None:
-    for manifest in studio.rglob("manifest.json"):
-        if "node_modules" in manifest.parts or ".git" in manifest.parts:
-            continue
+    for manifest in iter_studio_manifests(studio):
         try:
             data = json.loads(manifest.read_text())
         except (json.JSONDecodeError, OSError):
@@ -88,21 +338,40 @@ def first_existing(studio: Path, relative_paths: list[str]) -> Path | None:
     return None
 
 
-def compile_export(studio: Path, source_file: Path, out_dir: Path) -> None:
+STUDIO_COMPILE_EXPORT = ROOT / "scripts" / "studio_compile_export.py"
+
+
+def compile_export(
+    studio: Path,
+    source_file: Path,
+    out_dir: Path,
+    *,
+    pipeline_id: str,
+) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    attempts = [
-        [sys.executable, "-m", "etl_to_dbt.api", "export", str(source_file), "-o", str(out_dir)],
-        [sys.executable, "-m", "etl_to_dbt.api", str(source_file), "--output", str(out_dir)],
-        [sys.executable, "-m", "etl_to_dbt.api", str(source_file), str(out_dir)],
+    cmd = [
+        sys.executable,
+        str(STUDIO_COMPILE_EXPORT),
+        "--studio-root",
+        str(studio),
+        "--source",
+        str(source_file),
+        "--pipeline-id",
+        pipeline_id,
+        "--out-dir",
+        str(out_dir),
     ]
-    errors: list[str] = []
-    for cmd in attempts:
-        try:
-            subprocess.run(cmd, cwd=studio, check=True, capture_output=True, text=True)
-            return
-        except subprocess.CalledProcessError as exc:
-            errors.append(f"{' '.join(cmd)}:\n{exc.stderr or exc.stdout}")
-    raise RuntimeError("etl_to_dbt export failed:\n" + "\n---\n".join(errors))
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as exc:
+        detail = (exc.stderr or exc.stdout or "").strip()
+        raise RuntimeError(
+            f"Studio compile export failed for {source_file}:\n{detail}"
+        ) from exc
+    if not (out_dir / "manifest.json").is_file():
+        raise RuntimeError(
+            f"Studio compile export did not write manifest.json under {out_dir}"
+        )
 
 
 def find_seed_sql(studio: Path, seed_globs: list[str], export_dir: Path) -> Path | None:
@@ -116,15 +385,15 @@ def find_seed_sql(studio: Path, seed_globs: list[str], export_dir: Path) -> Path
     return None
 
 
-def rewrite_manifest_seeds_path(manifest_path: Path, corpus_name: str) -> None:
+def rewrite_manifest_seeds_path(manifest_path: Path, seeds_relpath: str) -> None:
     data = json.loads(manifest_path.read_text())
     parity = data.get("parity_context") or {}
-    parity["seeds_sql"] = f"tests/fixtures/{corpus_name}/seeds.sql"
+    parity["seeds_sql"] = seeds_relpath
     data["parity_context"] = parity
     manifest_path.write_text(json.dumps(data, indent=2) + "\n")
 
 
-def copy_corpus_tree(src: Path, dest: Path, corpus_name: str) -> None:
+def copy_corpus_tree(src: Path, dest: Path, seeds_relpath: str) -> None:
     if dest.exists():
         shutil.rmtree(dest)
     dest.mkdir(parents=True)
@@ -132,41 +401,53 @@ def copy_corpus_tree(src: Path, dest: Path, corpus_name: str) -> None:
     models_src = src / "models"
     if models_src.is_dir():
         shutil.copytree(models_src, dest / "models")
-    rewrite_manifest_seeds_path(dest / "manifest.json", corpus_name)
+    rewrite_manifest_seeds_path(dest / "manifest.json", seeds_relpath)
 
 
-def ingest_corpus(studio: Path, corpus_name: str, spec: dict, *, compile_missing: bool) -> dict:
-    pipeline_id = spec["pipeline_id"]
-    export_dir = find_export_bundle(studio, pipeline_id)
+def ingest_corpus(studio: Path, plan: CorpusIngestPlan, *, compile_missing: bool) -> dict:
+    export_dir = plan.export_dir
     source_used: str | None = None
 
-    if export_dir is None and compile_missing:
-        source_file = first_existing(studio, spec["compile_inputs"])
+    if export_dir is None and compile_missing and plan.compile_inputs:
+        source_file = first_existing(studio, plan.compile_inputs)
         if source_file is None:
             raise FileNotFoundError(
-                f"No pre-built export or compile input found for {corpus_name} ({pipeline_id})"
+                f"No compile input found for {plan.corpus_name} ({plan.pipeline_id}): "
+                f"{plan.compile_inputs}"
             )
-        build_dir = studio / ".remodel_engine_exports" / corpus_name
-        compile_export(studio, source_file, build_dir)
-        export_dir = find_export_bundle(studio, pipeline_id) or build_dir
+        build_dir = studio / ".remodel_engine_exports" / plan.corpus_name
+        compile_export(
+            studio,
+            source_file,
+            build_dir,
+            pipeline_id=plan.pipeline_id,
+        )
+        export_dir = find_export_bundle(studio, plan.pipeline_id) or build_dir
         source_used = str(source_file.relative_to(studio))
 
     if export_dir is None:
-        raise FileNotFoundError(f"No export bundle found for pipeline_id={pipeline_id}")
+        raise FileNotFoundError(f"No export bundle found for pipeline_id={plan.pipeline_id}")
 
-    dest = FIXTURES / corpus_name
-    copy_corpus_tree(export_dir, dest, corpus_name)
+    manifest_path = export_dir / "manifest.json"
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            f"Export bundle at {export_dir} is missing manifest.json "
+            f"(pipeline_id={plan.pipeline_id})"
+        )
 
-    seeds_src = find_seed_sql(studio, spec["seed_globs"], export_dir)
+    dest = fixture_dest(plan)
+    copy_corpus_tree(export_dir, dest, fixture_seeds_relpath(plan))
+
+    seeds_src = find_seed_sql(studio, plan.seed_globs, export_dir)
     if seeds_src is not None:
         shutil.copy2(seeds_src, dest / "seeds.sql")
     elif not (dest / "seeds.sql").is_file():
-        raise FileNotFoundError(f"No seeds.sql for {corpus_name} under studio or export bundle")
+        raise FileNotFoundError(f"No seeds.sql for {plan.corpus_name} under studio or export bundle")
 
     model_count = len(list((dest / "models").glob("*.sql"))) if (dest / "models").is_dir() else 0
     return {
-        "corpus": corpus_name,
-        "pipeline_id": pipeline_id,
+        "corpus": plan.corpus_name,
+        "pipeline_id": plan.pipeline_id,
         "source_export": str(export_dir.relative_to(studio)),
         "compile_source": source_used,
         "model_sql_files": model_count,
@@ -182,9 +463,45 @@ def main() -> int:
     parser.add_argument(
         "--compile-missing",
         action="store_true",
-        help="Run python -m etl_to_dbt.api when a pre-built export bundle is not found",
+        help=(
+            "Compile legacy sources via ETL-Migration-Studio (parse + convert) when no "
+            "pre-built export bundle is found"
+        ),
+    )
+    parser.add_argument(
+        "--compile-inputs-glob",
+        metavar="GLOB",
+        help=(
+            "When used with --compile-missing, studio-relative glob of compile inputs "
+            "(e.g. 'fixtures/**/*.dtsx'). Optional ingest_config.json beside each input "
+            "may set pipeline_id, compile_inputs, and seed_globs."
+        ),
+    )
+    parser.add_argument(
+        "--pipeline-id",
+        action="append",
+        dest="pipeline_ids",
+        metavar="ID",
+        help="Restrict ingest to one or more pipeline_id values (repeatable)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="List discovered corpora without copying or deleting tests/fixtures/*",
+    )
+    parser.add_argument(
+        "--all-informatica",
+        action="store_true",
+        help=(
+            "With --compile-missing, compile every Informatica XML under Studio fixtures/ "
+            f"into tests/fixtures/{infa.FIXTURE_NAMESPACE}/ (excludes workflow-only negatives)."
+        ),
     )
     args = parser.parse_args()
+
+    if args.all_informatica and not args.compile_missing:
+        print("--all-informatica requires --compile-missing", file=sys.stderr)
+        return 2
 
     studio = resolve_studio_root(args.studio_root)
     if studio is None:
@@ -195,13 +512,49 @@ def main() -> int:
         )
         return 2
 
+    pipeline_filter = set(args.pipeline_ids) if args.pipeline_ids else None
+
     print(f"Using studio root: {studio}")
+    if args.all_informatica:
+        plans = discover_informatica_ingest_plans(studio, pipeline_filter, set())
+    else:
+        plans = discover_export_corpora(studio, pipeline_filter)
+        if not plans and not args.compile_missing:
+            print("No export corpora discovered.", file=sys.stderr)
+            explain_no_export_corpora(studio)
+            return 1
+
+        if args.compile_missing:
+            discovered_ids = {p.pipeline_id for p in plans}
+            compile_plans = discover_compile_only_plans(
+                studio,
+                compile_inputs_glob=args.compile_inputs_glob,
+                pipeline_ids=pipeline_filter,
+                existing_pipeline_ids=discovered_ids,
+            )
+            plans = sorted(plans + compile_plans, key=lambda p: p.corpus_name)
+
+    if not plans:
+        print("No corpora matched the given filters.", file=sys.stderr)
+        if pipeline_filter:
+            print(f"  --pipeline-id filter: {sorted(pipeline_filter)}", file=sys.stderr)
+        return 1
+
+    if args.dry_run:
+        for plan in plans:
+            origin = (
+                str(plan.export_dir.relative_to(studio))
+                if plan.export_dir is not None
+                else f"compile via {plan.compile_inputs}"
+            )
+            print(f"  {plan.corpus_name} ({plan.pipeline_id}) <- {origin}")
+        print(f"Dry run: {len(plans)} corpus/corpora; no files written.")
+        return 0
+
     provenance: list[dict] = []
-    for corpus_name, spec in CORPUS_SPECS.items():
-        print(f"Ingesting {corpus_name}...")
-        provenance.append(
-            ingest_corpus(studio, corpus_name, spec, compile_missing=args.compile_missing)
-        )
+    for plan in plans:
+        print(f"Ingesting {plan.corpus_name} (pipeline_id={plan.pipeline_id})...")
+        provenance.append(ingest_corpus(studio, plan, compile_missing=args.compile_missing))
 
     out = FIXTURES / ".fixture_provenance.json"
     out.write_text(json.dumps({"studio_root": str(studio), "corpora": provenance}, indent=2) + "\n")

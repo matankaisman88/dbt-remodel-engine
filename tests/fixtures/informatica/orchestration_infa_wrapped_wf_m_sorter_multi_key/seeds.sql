@@ -1,0 +1,8 @@
+-- Auto-generated DuckDB seed for Airflow dbt runs.
+CREATE SCHEMA IF NOT EXISTS "dbo";
+CREATE TABLE IF NOT EXISTS dbo.src_leaderboard(PLAYER VARCHAR, SCORE DOUBLE, "LEVEL" VARCHAR, TIMESTAMP_COL VARCHAR);
+INSERT INTO "dbo"."src_leaderboard" ("PLAYER", "SCORE", "LEVEL", "TIMESTAMP_COL") VALUES ('player_2', 12.3400004, 'level_2', '2025-01-01 10:00:00');
+INSERT INTO "dbo"."src_leaderboard" ("PLAYER", "SCORE", "LEVEL", "TIMESTAMP_COL") VALUES ('player_3', 12.3400006, 'level_3', '2025-02-02 10:00:00');
+INSERT INTO "dbo"."src_leaderboard" ("PLAYER", "SCORE", "LEVEL", "TIMESTAMP_COL") VALUES ('player_4', 12.3400001, 'level_4', '2025-03-03 10:00:00');
+INSERT INTO "dbo"."src_leaderboard" ("PLAYER", "SCORE", "LEVEL", "TIMESTAMP_COL") VALUES (NULL, NULL, NULL, '2025-04-04 10:00:00');
+CREATE TABLE IF NOT EXISTS dbo.tgt_leaderboard_sorted(PLAYER VARCHAR, SCORE VARCHAR, "LEVEL" VARCHAR, TIMESTAMP_COL VARCHAR);

@@ -1,0 +1,64 @@
+{
+  "pipeline_id": "orchestration_infa_synthetic_nonconforming_names",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 3,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "SRC_ROW",
+        "label": "SRC_ROW",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "SQ_ROW",
+        "label": "SQ_ROW",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "TGT_ROW",
+        "label": "TGT_ROW",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "SRC_ROW",
+        "target": "SQ_ROW"
+      },
+      {
+        "source": "SQ_ROW",
+        "target": "TGT_ROW"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_row": {
+      "target_name": "ROW",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_synthetic_nonconforming_names/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_row",
+      "file": "tgt_row.sql",
+      "materialization": "view"
+    }
+  ]
+}

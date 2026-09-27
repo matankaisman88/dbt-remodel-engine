@@ -1,0 +1,345 @@
+{
+  "pipeline_id": "orchestration_infa_wf_enterprise_daily_run",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 25,
+  "legacy_graph": {
+    "nodes": [
+      {
+        "id": "m_aggregator_multi_groupby:SRC_SALES_DETAIL",
+        "label": "SRC_SALES_DETAIL",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator_multi_groupby:SQ_SALES_DETAIL",
+        "label": "SQ_SALES_DETAIL",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_aggregator_multi_groupby:TGT_SALES_ROLLUP",
+        "label": "TGT_SALES_ROLLUP",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_aggregator_multi_groupby:AGG_MULTI_GROUP",
+        "label": "AGG_MULTI_GROUP",
+        "meta": {
+          "type": "AGGREGATOR"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:SRC_TXN",
+        "label": "SRC_TXN",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:SQ_TXN",
+        "label": "SQ_TXN",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:TGT_TXN_ENRICHED",
+        "label": "TGT_TXN_ENRICHED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_CUST",
+        "label": "LKP_CUST",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_REGION",
+        "label": "LKP_REGION",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_COUNTRY",
+        "label": "LKP_COUNTRY",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_CURRENCY",
+        "label": "LKP_CURRENCY",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_deep_lookup_chain:LKP_FXRATE",
+        "label": "LKP_FXRATE",
+        "meta": {
+          "type": "LOOKUP"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:SRC_CLAIMS",
+        "label": "SRC_CLAIMS",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:SQ_CLAIMS",
+        "label": "SQ_CLAIMS",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:TGT_CLAIMS_FLAGGED",
+        "label": "TGT_CLAIMS_FLAGGED",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:FIL_ACTIVE",
+        "label": "FIL_ACTIVE",
+        "meta": {
+          "type": "FILTER"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:RTR_HIGH_LOW",
+        "label": "RTR_HIGH_LOW",
+        "meta": {
+          "type": "ROUTER"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:EXP_HIGH_FLAG",
+        "label": "EXP_HIGH_FLAG",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:EXP_LOW_FLAG",
+        "label": "EXP_LOW_FLAG",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS",
+        "label": "UN_FLAGGED_CLAIMS",
+        "meta": {
+          "type": "UNION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:SRC_CUSTOMER_DIM",
+        "label": "SRC_CUSTOMER_DIM",
+        "meta": {
+          "type": "SOURCE_DEFINITION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:SQ_CUSTOMER_DIM",
+        "label": "SQ_CUSTOMER_DIM",
+        "meta": {
+          "type": "SOURCE_QUALIFIER"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:TGT_DIM_CUSTOMER",
+        "label": "TGT_DIM_CUSTOMER",
+        "meta": {
+          "type": "TARGET_DEFINITION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:EXP_SCD_DATES",
+        "label": "EXP_SCD_DATES",
+        "meta": {
+          "type": "EXPRESSION"
+        }
+      },
+      {
+        "id": "m_informatica_scd_type2:UPD_SCD",
+        "label": "UPD_SCD",
+        "meta": {
+          "type": "UPDATE_STRATEGY"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "m_aggregator_multi_groupby:SRC_SALES_DETAIL",
+        "target": "m_aggregator_multi_groupby:SQ_SALES_DETAIL"
+      },
+      {
+        "source": "m_aggregator_multi_groupby:SQ_SALES_DETAIL",
+        "target": "m_aggregator_multi_groupby:AGG_MULTI_GROUP"
+      },
+      {
+        "source": "m_aggregator_multi_groupby:AGG_MULTI_GROUP",
+        "target": "m_aggregator_multi_groupby:TGT_SALES_ROLLUP"
+      },
+      {
+        "source": "m_deep_lookup_chain:SRC_TXN",
+        "target": "m_deep_lookup_chain:SQ_TXN"
+      },
+      {
+        "source": "m_deep_lookup_chain:SQ_TXN",
+        "target": "m_deep_lookup_chain:LKP_CUST"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CUST",
+        "target": "m_deep_lookup_chain:LKP_REGION"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_REGION",
+        "target": "m_deep_lookup_chain:LKP_COUNTRY"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_COUNTRY",
+        "target": "m_deep_lookup_chain:LKP_CURRENCY"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CURRENCY",
+        "target": "m_deep_lookup_chain:LKP_FXRATE"
+      },
+      {
+        "source": "m_deep_lookup_chain:SQ_TXN",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CUST",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_REGION",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_COUNTRY",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_CURRENCY",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_deep_lookup_chain:LKP_FXRATE",
+        "target": "m_deep_lookup_chain:TGT_TXN_ENRICHED"
+      },
+      {
+        "source": "m_filter_router_union_faninout:SRC_CLAIMS",
+        "target": "m_filter_router_union_faninout:SQ_CLAIMS"
+      },
+      {
+        "source": "m_filter_router_union_faninout:SQ_CLAIMS",
+        "target": "m_filter_router_union_faninout:FIL_ACTIVE"
+      },
+      {
+        "source": "m_filter_router_union_faninout:FIL_ACTIVE",
+        "target": "m_filter_router_union_faninout:RTR_HIGH_LOW"
+      },
+      {
+        "source": "m_filter_router_union_faninout:RTR_HIGH_LOW",
+        "target": "m_filter_router_union_faninout:EXP_HIGH_FLAG"
+      },
+      {
+        "source": "m_filter_router_union_faninout:RTR_HIGH_LOW",
+        "target": "m_filter_router_union_faninout:EXP_LOW_FLAG"
+      },
+      {
+        "source": "m_filter_router_union_faninout:EXP_HIGH_FLAG",
+        "target": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS"
+      },
+      {
+        "source": "m_filter_router_union_faninout:EXP_LOW_FLAG",
+        "target": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS"
+      },
+      {
+        "source": "m_filter_router_union_faninout:UN_FLAGGED_CLAIMS",
+        "target": "m_filter_router_union_faninout:TGT_CLAIMS_FLAGGED"
+      },
+      {
+        "source": "m_informatica_scd_type2:SRC_CUSTOMER_DIM",
+        "target": "m_informatica_scd_type2:SQ_CUSTOMER_DIM"
+      },
+      {
+        "source": "m_informatica_scd_type2:SQ_CUSTOMER_DIM",
+        "target": "m_informatica_scd_type2:EXP_SCD_DATES"
+      },
+      {
+        "source": "m_informatica_scd_type2:EXP_SCD_DATES",
+        "target": "m_informatica_scd_type2:UPD_SCD"
+      },
+      {
+        "source": "m_informatica_scd_type2:UPD_SCD",
+        "target": "m_informatica_scd_type2:TGT_DIM_CUSTOMER"
+      }
+    ]
+  },
+  "legacy_targets": {
+    "tgt_sales_rollup": {
+      "target_name": "SALES_ROLLUP",
+      "last_transformation_type": "target"
+    },
+    "tgt_txn_enriched": {
+      "target_name": "TXN_ENRICHED",
+      "last_transformation_type": "target"
+    },
+    "tgt_claims_flagged": {
+      "target_name": "CLAIMS_FLAGGED",
+      "last_transformation_type": "target"
+    },
+    "tgt_dim_customer": {
+      "target_name": "DIM_CUSTOMER",
+      "last_transformation_type": "target"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wf_enterprise_daily_run/seeds.sql",
+    "source_table_map": {},
+    "model_table_map": {}
+  },
+  "raw_dbt_models": [
+    {
+      "model_name": "tgt_sales_rollup",
+      "file": "tgt_sales_rollup.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_txn_enriched",
+      "file": "tgt_txn_enriched.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_claims_flagged",
+      "file": "tgt_claims_flagged.sql",
+      "materialization": "view"
+    },
+    {
+      "model_name": "tgt_dim_customer",
+      "file": "tgt_dim_customer.sql",
+      "materialization": "view"
+    }
+  ]
+}
