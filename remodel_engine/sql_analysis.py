@@ -13,6 +13,21 @@ SOURCE_PATTERN = re.compile(
     r"\{\{\s*source\s*\(\s*['\"]([^'\"]+)['\"]\s*,\s*['\"]([^'\"]+)['\"]\s*\)\s*\}\}",
     re.IGNORECASE,
 )
+VAR_PATTERN = re.compile(
+    r"\{\{\s*var\s*\(\s*['\"]([^'\"]+)['\"]\s*(?:,\s*[^)]+)?\s*\)\s*\}\}",
+    re.IGNORECASE,
+)
+_THIS_PATTERN = re.compile(r"\{\{\s*this\s*\}\}", re.IGNORECASE)
+_IS_INCREMENTAL_BLOCK = re.compile(
+    r"\{%\s*if\s+is_incremental\s*\(\s*\)\s*%\}.*?\{%\s*endif\s*%\}",
+    re.DOTALL | re.IGNORECASE,
+)
+
+# Defaults aligned with etl_to_dbt_airflow dbt_project.yml parity seeds.
+_PARITY_VAR_DEFAULTS: dict[str, str] = {
+    "BatchId": "1",
+    "LastDeltaWatermark": "1900-01-01",
+}
 
 WINDOW_FUNCS = (
     "ROW_NUMBER",
@@ -335,6 +350,17 @@ def cte_window_consumed_in_multiple_ways(full_sql: str, cte: CteDefinition) -> b
     return count_cte_consumers(full_sql, cte.name) > 1
 
 
+def _parity_var_sql_literal(var_name: str) -> str:
+    if var_name in _PARITY_VAR_DEFAULTS:
+        return _PARITY_VAR_DEFAULTS[var_name]
+    lowered = var_name.lower()
+    if "watermark" in lowered or lowered.endswith("date") or "timestamp" in lowered:
+        return "1900-01-01"
+    if lowered.endswith("id"):
+        return "1"
+    return "NULL"
+
+
 def compile_dbt_sql(
     sql: str,
     model_table_map: dict[str, str],
@@ -355,8 +381,14 @@ def compile_dbt_sql(
             raise KeyError(f"Unknown source: {key}")
         return source_table_map[key]
 
+    def var_repl(match: re.Match[str]) -> str:
+        return _parity_var_sql_literal(match.group(1))
+
     out = REF_PATTERN.sub(ref_repl, out)
     out = SOURCE_PATTERN.sub(source_repl, out)
+    out = VAR_PATTERN.sub(var_repl, out)
+    out = _IS_INCREMENTAL_BLOCK.sub("", out)
+    out = _THIS_PATTERN.sub("__dbt_this__", out)
     out = _DBT_CONTROL.sub("", out)
     out = re.sub(r"\{\{.*?\}\}", "", out, flags=re.DOTALL)
     out = re.sub(r"\{#.*?#\}", "", out, flags=re.DOTALL)
