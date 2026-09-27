@@ -20,13 +20,14 @@ Together this preserves data and null-pattern parity across decomposed models wi
 
 ### Rule #2 risk assessment and layer synthesis
 
-Layer classification (`layer_synthesizer.py`) and parity grain gating (`sql_analysis.py`, `parity_gate.py`) are decoupled to reduce false `needs_manual_review` flags:
+Layer classification (`layer_synthesizer.py`) and parity grain gating (`sql_analysis.py`, `parity_gate.py`) are decoupled to eliminate false `needs_manual_review` flags:
 
 - **Layer routing:** Scalar expressions, projections, and standard filters on `ref()` upstreams classify as `intermediate` when rule #2 matches (`refactor_rules.assess_rule2`).
 - **Benign transforms:** Single-ref work, equijoins, and standard deduplication (`ROW_NUMBER() = 1` / `QUALIFY`) pass grain evaluation without manual review.
-- **Targeted grain gating:** Manual review is reserved for grain-altering constructs: top-level `GROUP BY`, asymmetric joins (`FULL` / `RIGHT` / `CROSS`), non-equi or fuzzy join predicates, unpinned window functions beyond standard dedup, and complex `CASE` (deep nesting or subqueries in `WHEN` / `THEN` via `has_complex_case`).
+- **Active intermediate parity:** Unflagged decomposed intermediate models run pre- vs post-refactor parity checks (`parity_check.status == "pass"`), eliminating ambiguous `skipped` states in downstream UIs.
+- **Targeted grain gating:** Manual review is strictly reserved for grain-altering constructs: top-level `GROUP BY`, asymmetric joins (`FULL` / `RIGHT` / `CROSS`), non-equi or fuzzy join predicates, unpinned window functions, and complex `CASE` (deep nesting or subqueries in `WHEN` / `THEN` via `has_complex_case`).
 
-For SQL with `ref()` upstreams, the parity gate delegates grain checks to the same rule #2 assessment; other models use `assess_grain_risk` directly.
+For SQL with `ref()` upstreams, the parity gate delegates grain checks to the unified `assess_rule2` assessment; other models use `assess_grain_risk` directly.
 
 ### Integration boundaries (headless engine)
 
