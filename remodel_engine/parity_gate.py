@@ -60,6 +60,30 @@ def _table_columns(conn: duckdb.DuckDBPyConnection, table: str) -> list[str]:
     return [row[0] for row in conn.execute(f"DESCRIBE {table}").fetchall()]
 
 
+def verify_no_physical_data_loss(
+    raw_rows: list[dict[str, Any]],
+    audit_model_rows: list[dict[str, Any]],
+) -> ParityCheckResult:
+    """Assert every old_key from every old_table appears in the audit model output."""
+    expected = {(str(r["old_key"]), str(r["old_table"])) for r in raw_rows}
+    if not expected:
+        return ParityCheckResult(status="skipped", row_count_match=True)
+    seen = {
+        (str(r["old_key"]), str(r["old_table"]))
+        for r in audit_model_rows
+        if r.get("old_key") is not None and r.get("old_table") is not None
+    }
+    missing = expected - seen
+    if missing:
+        sample = sorted(missing)[:5]
+        return ParityCheckResult(
+            status="fail",
+            row_count_match=False,
+            error=f"audit missing {len(missing)} raw keys; sample={sample}",
+        )
+    return ParityCheckResult(status="pass", row_count_match=True)
+
+
 def run_parity_gate(
     *,
     model_name: str,

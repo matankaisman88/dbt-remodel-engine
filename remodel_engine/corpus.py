@@ -80,6 +80,7 @@ def load_corpus_manifest(path: Path) -> RemodelRequest:
         legacy_targets=data.get("legacy_targets", {}),
         lookup_rewrites=data.get("lookup_rewrites", []),
         shadowed_lookup_renames=data.get("shadowed_lookup_renames", []),
+        entity_consolidations=data.get("entity_consolidations", []),
         parity_context=_resolve_parity_context(data.get("parity_context"), path),
         legacy_transformations_count=data.get("legacy_transformations_count"),
         legacy_graph_nodes=data.get("legacy_graph", {}).get("nodes", []),

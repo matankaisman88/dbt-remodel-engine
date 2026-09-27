@@ -159,6 +159,14 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+def _expected_remodeled_model_count(req) -> int:
+    total = len(req.raw_dbt_models)
+    for spec in req.entity_consolidations:
+        old_tables = spec.get("old_tables") or []
+        total += 1 + len(old_tables) + 1  # crosswalk + compat views + audit
+    return total
+
+
 @pytest.mark.parametrize(
     "manifest_path",
     list(_manifest_params()),
@@ -172,7 +180,7 @@ def test_informatica_fixture_corpus_remodels(manifest_path: Path) -> None:
     resp = RemodelEngine().remodel(req)
     assert resp.pipeline_id == req.pipeline_id
     assert resp.remodeled_models
-    assert len(resp.remodeled_models) == len(req.raw_dbt_models)
+    assert len(resp.remodeled_models) == _expected_remodeled_model_count(req)
     assert resp.status == "success", (
         f"{manifest_path.parent.name}: expected success, got {resp.status} — "
         f"model statuses: {[(m.model_name, m.parity_check.status, m.parity_check.error) for m in resp.remodeled_models]}"
