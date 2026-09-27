@@ -110,6 +110,7 @@ class RemodelEngine:
                     )
 
             for item in working:
+                pre_refactor_sql = item.sql
                 refactored = collapse_eligible_ctes(
                     item.sql, enabled=request.preferences.collapse_ctes
                 )
@@ -209,6 +210,44 @@ class RemodelEngine:
                         any_parity_fail = True
                     elif result.status == "needs_manual_review":
                         manual_review += 1
+                elif (
+                    parity_ctx
+                    and conn is not None
+                    and request.preferences.physical_decompose
+                    and not item.is_mart
+                    and not flagged
+                    and classification_layer == Layer.INTERMEDIATE.value
+                ):
+                    result = run_parity_gate(
+                        model_name=item.name.replace(".", "_"),
+                        raw_sql=pre_refactor_sql,
+                        remodeled_sql=final_sql,
+                        context=ParityContext(
+                            model_table_map=runtime_table_map,
+                            source_table_map=parity_ctx.source_table_map,
+                            seeds_sql=parity_ctx.seeds_sql,
+                        ),
+                        conn=conn,
+                        gate_grain_risk=True,
+                    )
+                    parity = ParityCheck(
+                        status=result.status,
+                        row_count_match=result.row_count_match,
+                        column_diff=[d.model_dump() for d in result.column_diff],
+                        error=result.error,
+                    )
+                    if not explain_ok:
+                        parity = ParityCheck(
+                            status="fail",
+                            row_count_match=False,
+                            error=f"explain_gate: {explain_msg}",
+                        )
+                    if result.status == "fail":
+                        any_parity_fail = True
+                    elif result.status == "needs_manual_review":
+                        manual_review += 1
+                    for audit in refactored.merge_audits:
+                        audit.verified_by_parity = result.status == "pass"
                 elif not parity_ctx:
                     parity = ParityCheck(status="skipped", error="no parity_context provided")
 

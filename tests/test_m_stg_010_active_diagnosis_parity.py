@@ -22,8 +22,22 @@ def test_m_stg_010_active_diagnosis_marts_parity() -> None:
     marts = [
         m
         for m in resp.remodeled_models
-        if m.parity_check.status != "skipped"
+        if m.source_raw_model is not None
     ]
     assert len(marts) == 3
     assert all(m.parity_check.status == "pass" for m in marts)
     assert resp.status in {"success", "needs_manual_review"}
+
+
+def test_m_stg_010_benign_intermediate_expression_models_parity_pass() -> None:
+    req = load_corpus_manifest(MANIFEST)
+    resp = RemodelEngine().remodel(req)
+    benign = [
+        m
+        for m in resp.remodeled_models
+        if m.layer == "intermediate"
+        and not m.flagged
+        and "projection/filter/expression" in m.classification_reason
+    ]
+    assert benign, "expected decomposed expression intermediate models"
+    assert all(m.parity_check.status == "pass" for m in benign)

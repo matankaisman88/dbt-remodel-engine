@@ -8,7 +8,28 @@ from typing import Any
 import duckdb
 from pydantic import BaseModel, Field
 
-from remodel_engine.sql_analysis import assess_grain_risk, compile_dbt_sql
+from remodel_engine.refactor_rules import assess_rule2
+from remodel_engine.sql_analysis import analyze_sql, assess_grain_risk, compile_dbt_sql
+
+
+def grain_risk_requires_manual_review(sql: str) -> tuple[bool, str | None]:
+    """
+    Parity grain gate — aligned with rule #2 classification.
+
+    Benign single-ref projections, filters, and expression transforms do not block
+    parity; only grain-changing constructs trigger manual review.
+    """
+    analysis = analyze_sql(sql)
+    if analysis.refs:
+        rule2 = assess_rule2(sql)
+        if rule2.needs_manual_review:
+            reason = rule2.classification_reason
+            if reason.startswith("rule #2 grain risk: "):
+                reason = reason[len("rule #2 grain risk: ") :]
+            return True, reason
+        return False, None
+    risky, reason = assess_grain_risk(sql)
+    return risky, reason
 
 
 class ColumnDiff(BaseModel):
@@ -55,7 +76,7 @@ def run_parity_gate(
 
     try:
         if gate_grain_risk:
-            risky, risk_reason = assess_grain_risk(remodeled_sql)
+            risky, risk_reason = grain_risk_requires_manual_review(remodeled_sql)
             if risky:
                 return ParityCheckResult(
                     status="needs_manual_review",
