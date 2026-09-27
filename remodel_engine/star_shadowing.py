@@ -14,120 +14,204 @@ from __future__ import annotations
 
 import re
 
-_FROM_PRIMARY_ALIAS = re.compile(
-    r"\bFROM\s+(?:\{\{\s*ref\s*\([^)]+\)\s*\}\}|"
-    r"\{\{\s*source\s*\([^)]+\)\s*\}\}|[\w.\"]+)\s+"
-    r"(?P<alias>[a-zA-Z_][\w]*)\b",
-    re.IGNORECASE,
-)
-_TRAILING_STAR = re.compile(
-    r",\s*(?P<alias>[a-zA-Z_][\w]*)\.\*\s*(?=\s+FROM\b)",
-    re.IGNORECASE | re.DOTALL,
-)
-_SHADOW_CANDIDATE = re.compile(
-    r"^\s*(?P<table>[a-zA-Z_][\w]*)\.(?P<col>[a-zA-Z_][\w]*)\s+AS\s+(?P<out>[a-zA-Z_][\w]*)\s*,?\s*$",
-    re.IGNORECASE,
-)
-_COALESCE_DIM_PAIR = re.compile(
-    r"COALESCE\(\s*(?P<dim>[A-Za-z_][\w]*_DIM)\s*,\s*(?P<pk>[A-Za-z_][\w]*)\s*\)",
-    re.IGNORECASE,
-)
+import sqlglot
+from sqlglot import exp
+from sqlglot.errors import ParseError
+
+_JINJA_PLACEHOLDER = re.compile(r"\{\{[^}]+\}\}")
 _RATE_PLAN_LKP_REF = re.compile(r"\blkp_lkp_ref_dim_rate_plan\b", re.IGNORECASE)
 
 
-def fix_star_shadowing_for_ctas(sql: str) -> str:
+def fix_star_shadowing_for_ctas(sql: str, *, dialect: str = "duckdb") -> str:
     """Harmonize star-shadowed join projections for DuckDB CTAS."""
     body = sql.strip()
     if not body:
         return sql
 
-    if _RATE_PLAN_LKP_REF.search(body):
-        body = _rename_rate_plan_lookup_projection(body)
+    try:
+        parse_sql, jinja_map = _jinja_to_parse_placeholders(body)
+        ast = sqlglot.parse_one(parse_sql, read=dialect)
+    except ParseError:
+        return _ensure_trailing_newline(sql)
 
-    body = _drop_shadowed_join_columns(body)
-    body = _expand_rate_plan_pk_coalesce(body)
-    return body if body.endswith("\n") else body + "\n"
-
-
-def _rename_rate_plan_lookup_projection(body: str) -> str:
-    lines = body.splitlines()
-    out: list[str] = []
-    for line in lines:
-        match = _SHADOW_CANDIDATE.match(line)
-        if (
-            match
-            and match.group("col") == match.group("out") == "RATE_PLAN_PK"
-            and match.group("table").lower() != "base"
-        ):
-            out.append(
-                line.replace(
-                    f"{match.group('table')}.RATE_PLAN_PK AS RATE_PLAN_PK",
-                    f"{match.group('table')}.RATE_PLAN_PK AS RATE_PLAN_PK_LKP",
-                )
-            )
-            continue
-        out.append(line)
-    return "\n".join(out)
-
-
-def _drop_shadowed_join_columns(body: str) -> str:
-    if ".*" not in body:
-        return body
-
-    star_match = _TRAILING_STAR.search(body)
-    if not star_match:
-        return body
-    star_alias = star_match.group("alias")
-
-    from_match = _FROM_PRIMARY_ALIAS.search(body)
-    if not from_match or from_match.group("alias").lower() != star_alias.lower():
-        return body
-
-    select_start = re.search(r"\bSELECT\b", body, re.IGNORECASE)
-    from_start = re.search(r"\bFROM\b", body, re.IGNORECASE)
-    if not select_start or not from_start or from_start.start() <= select_start.end():
-        return body
-
-    select_list = body[select_start.end() : from_start.start()]
-    lines = select_list.splitlines()
-    kept: list[str] = []
     changed = False
-    for line in lines:
-        match = _SHADOW_CANDIDATE.match(line)
-        if (
-            match
-            and match.group("table").lower() != star_alias.lower()
-            and match.group("col") == match.group("out")
-            and _star_table_references_column(
-                select_list, star_alias, match.group("col")
-            )
-        ):
-            changed = True
-            continue
-        kept.append(line)
+    if isinstance(ast, exp.Select):
+        ast, harmonized = harmonize_bind_select_ast(
+            ast,
+            has_rate_plan_lkp=bool(_RATE_PLAN_LKP_REF.search(body)),
+        )
+        changed |= harmonized
+
+    ast, coalesce_changed = rewrite_coalesce_bindings_ast(ast)
+    changed |= coalesce_changed
 
     if not changed:
-        return body
+        return _ensure_trailing_newline(sql)
 
-    new_select = "\n".join(kept)
-    return (
-        body[: select_start.end()]
-        + new_select
-        + body[from_start.start() :]
-    )
+    out = _restore_jinja_placeholders(ast.sql(dialect=dialect), jinja_map)
+    return _ensure_trailing_newline(out)
 
 
-def _expand_rate_plan_pk_coalesce(body: str) -> str:
+def harmonize_bind_select_ast(
+    select: exp.Select,
+    *,
+    has_rate_plan_lkp: bool,
+) -> tuple[exp.Select, bool]:
+    """Rewrite bind SELECT projections for trailing ``base.*`` star shadowing."""
+    star_alias = _trailing_star_alias(select)
+    if not star_alias:
+        return select, False
+
+    primary_alias = _primary_from_alias(select)
+    if not primary_alias or primary_alias.lower() != star_alias.lower():
+        return select, False
+
+    changed = False
+    kept: list[exp.Expression] = []
+    for expression in select.expressions:
+        if isinstance(expression, exp.Alias):
+            shadow = _shadow_candidate_alias(expression)
+            if shadow is not None:
+                table_alias, column_name, output_name = shadow
+                if (
+                    has_rate_plan_lkp
+                    and column_name.upper() == "RATE_PLAN_PK"
+                    and output_name.upper() == "RATE_PLAN_PK"
+                    and table_alias.lower() != "base"
+                ):
+                    expression.set("alias", exp.to_identifier("RATE_PLAN_PK_LKP"))
+                    kept.append(expression)
+                    changed = True
+                    continue
+
+                if (
+                    table_alias.lower() != star_alias.lower()
+                    and _select_references_column(select, star_alias, column_name)
+                ):
+                    changed = True
+                    continue
+
+        kept.append(expression)
+
+    if changed:
+        select.set("expressions", kept)
+    return select, changed
+
+
+def rewrite_coalesce_bindings_ast(
+    root: exp.Expression,
+) -> tuple[exp.Expression, bool]:
+    """Expand ``COALESCE(<STEM>_DIM, <STEM>)`` to include ``<STEM>_LKP`` when matched."""
+    changed = False
+
+    def _transform(node: exp.Expression) -> exp.Expression:
+        nonlocal changed
+        if not isinstance(node, exp.Coalesce):
+            return node
+
+        dim = node.this
+        if not isinstance(dim, exp.Column) or not dim.name:
+            return node
+        if dim.name.upper() != "RATE_PLAN_PK_DIM":
+            return node
+
+        args = list(node.expressions)
+        if len(args) != 1 or not isinstance(args[0], exp.Column):
+            return node
+        pk = args[0]
+        if pk.name.upper() != "RATE_PLAN_PK" or pk.table:
+            return node
+
+        changed = True
+        return exp.Coalesce(
+            this=dim.copy(),
+            expressions=[exp.column("RATE_PLAN_PK_LKP"), pk.copy()],
+        )
+
+    return root.transform(_transform, copy=True), changed
+
+
+def _jinja_to_parse_placeholders(sql: str) -> tuple[str, dict[str, str]]:
+    mapping: dict[str, str] = {}
+    counter = 0
+
     def repl(match: re.Match[str]) -> str:
-        dim = match.group("dim")
-        pk = match.group("pk")
-        if dim.upper() != "RATE_PLAN_PK_DIM" or pk.upper() != "RATE_PLAN_PK":
-            return match.group(0)
-        return f"COALESCE({dim}, RATE_PLAN_PK_LKP, {pk})"
+        nonlocal counter
+        key = f"__JINJA_{counter}__"
+        mapping[key] = match.group(0)
+        counter += 1
+        return key
 
-    return _COALESCE_DIM_PAIR.sub(repl, body)
+    return _JINJA_PLACEHOLDER.sub(repl, sql), mapping
 
 
-def _star_table_references_column(select_list: str, star_alias: str, column: str) -> bool:
-    pattern = rf"\b{re.escape(star_alias)}\.{re.escape(column)}\b"
-    return re.search(pattern, select_list, re.IGNORECASE) is not None
+def _restore_jinja_placeholders(sql: str, mapping: dict[str, str]) -> str:
+    out = sql
+    for key, original in mapping.items():
+        out = out.replace(key, original)
+    return out
+
+
+def _ensure_trailing_newline(sql: str) -> str:
+    if sql.endswith("\n"):
+        return sql
+    return sql + "\n"
+
+
+def _primary_from_alias(select: exp.Select) -> str | None:
+    from_clause = select.find(exp.From)
+    if not from_clause or not isinstance(from_clause.this, exp.Table):
+        return None
+    return from_clause.this.alias_or_name
+
+
+def _trailing_star_alias(select: exp.Select) -> str | None:
+    if not select.expressions:
+        return None
+    last = select.expressions[-1]
+    if not _is_qualified_star(last):
+        return None
+    assert isinstance(last, exp.Column)
+    return last.table
+
+
+def _is_qualified_star(expression: exp.Expression) -> bool:
+    if isinstance(expression, exp.Column) and isinstance(expression.this, exp.Star):
+        return bool(expression.table)
+    return False
+
+
+def _shadow_candidate_alias(
+    alias: exp.Alias,
+) -> tuple[str, str, str] | None:
+    if not isinstance(alias.this, exp.Column):
+        return None
+    column = alias.this
+    table_alias = column.table
+    column_name = column.name
+    output_name = alias.alias
+    if not table_alias or not column_name or not output_name:
+        return None
+    if column_name.upper() != output_name.upper():
+        return None
+    return table_alias, column_name, output_name
+
+
+def _select_references_column(
+    select: exp.Select,
+    table_alias: str,
+    column: str,
+) -> bool:
+    target_table = table_alias.lower()
+    target_column = column.upper()
+    for expression in select.expressions:
+        for node in expression.walk():
+            if isinstance(node, exp.Column) and isinstance(node.this, exp.Identifier):
+                if (
+                    node.table
+                    and node.table.lower() == target_table
+                    and node.name
+                    and node.name.upper() == target_column
+                ):
+                    return True
+    return False
