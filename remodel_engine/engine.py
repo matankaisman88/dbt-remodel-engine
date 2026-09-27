@@ -174,6 +174,8 @@ class RemodelEngine:
                         )
                     if result.status == "fail":
                         any_parity_fail = True
+                    elif result.status == "needs_manual_review":
+                        manual_review += 1
                     for audit in refactored.merge_audits:
                         audit.verified_by_parity = result.status == "pass"
                 elif parity_ctx and conn is not None and not request.preferences.physical_decompose:
@@ -184,6 +186,7 @@ class RemodelEngine:
                         remodeled_sql=final_sql,
                         context=parity_ctx,
                         conn=conn,
+                        gate_grain_risk=classification_layer == Layer.INTERMEDIATE.value,
                     )
                     parity = ParityCheck(
                         status=result.status,
@@ -199,6 +202,8 @@ class RemodelEngine:
                         )
                     if result.status == "fail":
                         any_parity_fail = True
+                    elif result.status == "needs_manual_review":
+                        manual_review += 1
                 elif not parity_ctx:
                     parity = ParityCheck(status="skipped", error="no parity_context provided")
 

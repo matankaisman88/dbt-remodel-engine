@@ -57,11 +57,24 @@ def test_marts_legacy_target_when_not_staging_eligible():
     assert result.suggested_name == "dim_tgt_dim"
 
 
-def test_fail_closed_ref_only_no_transform_signals():
+def test_ref_only_projection_classifies_as_intermediate():
     sql = "SELECT customer_id FROM {{ ref('raw_stg_customers') }}"
     result = classify_model("raw_passthrough", sql)
+    assert result.layer == Layer.INTERMEDIATE
+    assert not result.flagged
+    assert "projection/filter/expression" in result.classification_reason
+
+
+def test_rule2_grain_risk_full_outer_join():
+    sql = """
+    SELECT a.id, b.id
+    FROM {{ ref('raw_stg_customers') }} a
+    FULL OUTER JOIN {{ ref('raw_stg_orders') }} b ON a.id = b.customer_id
+    """
+    result = classify_model("raw_risky_join", sql)
     assert result.layer == Layer.NEEDS_MANUAL_REVIEW
     assert result.flagged
+    assert "grain risk" in result.classification_reason
 
 
 def test_fail_closed_unknown_mart_transformation_type():

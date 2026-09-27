@@ -33,6 +33,32 @@ JOIN_PATTERN = re.compile(r"\b(?:INNER|LEFT|RIGHT|FULL|CROSS)?\s*JOIN\b", re.IGN
 GROUP_BY_PATTERN = re.compile(r"\bGROUP\s+BY\b", re.IGNORECASE)
 AGG_PATTERN = re.compile(r"\b(SUM|COUNT|AVG|MIN|MAX)\s*\(", re.IGNORECASE)
 CASE_PATTERN = re.compile(r"\bCASE\b", re.IGNORECASE)
+_WINDOW_OVER_PATTERN = re.compile(
+    r"\b(ROW_NUMBER|RANK|DENSE_RANK|NTILE|LAG|LEAD|FIRST_VALUE|LAST_VALUE)\s*\("
+    r"[\s\S]*?\)\s*OVER\s*\(",
+    re.IGNORECASE,
+)
+_RISKY_JOIN_PATTERN = re.compile(
+    r"\b(?:FULL|RIGHT|CROSS)\s+(?:OUTER\s+)?JOIN\b",
+    re.IGNORECASE,
+)
+_NON_EQUI_JOIN_ON_PATTERN = re.compile(
+    r"\bJOIN\b[\s\S]{0,400}?\bON\b[\s\S]{0,400}?(?:\bOR\b|<>|!=|>|<|\bBETWEEN\b|\bLIKE\b)",
+    re.IGNORECASE,
+)
+_DEDUP_RN_FILTER_PATTERN = re.compile(
+    r"(?:\bQUALIFY\b[\s\S]{0,120}?\bRN\w*\s*=\s*1\b|\bWHERE\b[\s\S]{0,200}?\bRN\w*\s*=\s*1\b)",
+    re.IGNORECASE,
+)
+_SUBQUERY_IN_CASE_PATTERN = re.compile(
+    r"\bCASE\b[\s\S]*?\bWHEN\b[\s\S]*?\(\s*SELECT\b",
+    re.IGNORECASE,
+)
+_EXPRESSION_FUNC_PATTERN = re.compile(
+    r"\b(?:upper|lower|trim|coalesce|cast|substring|regexp|concat|nvl|nullif|ifnull|"
+    r"to_char|to_date|replace|split_part|md5|hash)\s*\(",
+    re.IGNORECASE,
+)
 _DBT_CONTROL = re.compile(r"\{%.*?%\}", re.DOTALL)
 
 CTE_BLOCK_PATTERN = re.compile(
@@ -84,11 +110,137 @@ def analyze_sql(sql: str) -> SqlAnalysis:
         refs=extract_refs(sql),
         sources=extract_sources(sql),
         has_join=bool(JOIN_PATTERN.search(bare)),
-        has_window=bool(WINDOW_PATTERN.search(bare)),
+        has_window=bool(WINDOW_PATTERN.search(bare) or _WINDOW_OVER_PATTERN.search(bare)),
         has_aggregation=bool(GROUP_BY_PATTERN.search(bare) or AGG_PATTERN.search(bare)),
         has_case=bool(CASE_PATTERN.search(bare)),
         ctes=parse_ctes(sql),
     )
+
+
+def is_ref_column_passthrough(sql: str) -> bool:
+    """
+    True when SQL only projects from a single ref() without expressions or grain-changing ops.
+
+    Used to let mart target models fall through to rule #3 instead of rule #2.
+    """
+    analysis = analyze_sql(sql)
+    if not analysis.refs or len(analysis.refs) > 1:
+        return False
+    if (
+        analysis.has_join
+        or analysis.has_window
+        or analysis.has_case
+        or has_risky_aggregation(sql)
+    ):
+        return False
+    bare = strip_jinja_comments(sql)
+    return not _EXPRESSION_FUNC_PATTERN.search(bare)
+
+
+def max_case_nesting_depth(sql: str) -> int:
+    """Maximum nested CASE depth (END closes one CASE)."""
+    bare = strip_jinja_comments(sql).upper()
+    depth = 0
+    max_depth = 0
+    idx = 0
+    while idx < len(bare):
+        if bare.startswith("CASE", idx) and (idx == 0 or not bare[idx - 1].isalnum()):
+            depth += 1
+            max_depth = max(max_depth, depth)
+            idx += 4
+            continue
+        if bare.startswith("END", idx) and (idx == 0 or not bare[idx - 1].isalnum()):
+            depth = max(0, depth - 1)
+            idx += 3
+            continue
+        idx += 1
+    return max_depth
+
+
+def has_complex_case(sql: str) -> bool:
+    bare = strip_jinja_comments(sql)
+    if not CASE_PATTERN.search(bare):
+        return False
+    if max_case_nesting_depth(sql) > 3:
+        return True
+    return bool(_SUBQUERY_IN_CASE_PATTERN.search(bare))
+
+
+def has_risky_join(sql: str) -> bool:
+    bare = strip_jinja_comments(sql)
+    if not JOIN_PATTERN.search(bare):
+        return False
+    if _RISKY_JOIN_PATTERN.search(bare):
+        return True
+    return bool(_NON_EQUI_JOIN_ON_PATTERN.search(bare))
+
+
+def is_standard_dedup_window(sql: str) -> bool:
+    bare = strip_jinja_comments(sql)
+    upper = bare.upper()
+    if "ROW_NUMBER" not in upper or not _WINDOW_OVER_PATTERN.search(bare):
+        return False
+    return bool(_DEDUP_RN_FILTER_PATTERN.search(bare))
+
+
+def has_risky_window(sql: str) -> bool:
+    bare = strip_jinja_comments(sql)
+    if not _WINDOW_OVER_PATTERN.search(bare):
+        return False
+    upper = bare.upper()
+    if is_standard_dedup_window(sql):
+        other_ranking = any(
+            token in upper
+            for token in ("LAG(", "LEAD(", "NTILE(", "RANK(", "DENSE_RANK(")
+        )
+        return other_ranking
+    return True
+
+
+def has_risky_aggregation(sql: str) -> bool:
+    bare = strip_jinja_comments(sql)
+    return bool(GROUP_BY_PATTERN.search(bare))
+
+
+def assess_grain_risk(sql: str) -> tuple[bool, str | None]:
+    """
+    Return (needs_manual_review, reason) for transforms that may change grain or row counts.
+    """
+    reasons: list[str] = []
+    if has_risky_join(sql):
+        reasons.append("non-standard join (FULL/RIGHT/CROSS, OR, inequality, or fuzzy predicate)")
+    if has_complex_case(sql):
+        reasons.append("complex CASE (deep nesting or subquery in WHEN/THEN)")
+    if has_risky_window(sql):
+        reasons.append("window function beyond standard ROW_NUMBER dedup (rn = 1)")
+    if has_risky_aggregation(sql):
+        reasons.append("aggregation or GROUP BY that may change grain")
+    if not reasons:
+        return False, None
+    return True, "; ".join(reasons)
+
+
+def rule2_transform_summary(sql: str, analysis: SqlAnalysis | None = None) -> str:
+    """Human-readable summary of why SQL qualifies as intermediate under rule #2."""
+    analysis = analysis or analyze_sql(sql)
+    parts: list[str] = []
+    if analysis.has_join and not has_risky_join(sql):
+        parts.append("lookup join")
+    elif analysis.has_join:
+        parts.append("join")
+    if analysis.has_window:
+        parts.append("window" if has_risky_window(sql) else "dedup window")
+    if analysis.has_aggregation and not has_risky_aggregation(sql):
+        parts.append("scalar aggregation")
+    elif analysis.has_aggregation:
+        parts.append("aggregation")
+    if analysis.has_case and not has_complex_case(sql):
+        parts.append("CASE")
+    elif analysis.has_case:
+        parts.append("complex CASE")
+    if not parts:
+        parts.append("projection/filter/expression")
+    return ", ".join(parts)
 
 
 def parse_ctes(sql: str) -> list[CteDefinition]:

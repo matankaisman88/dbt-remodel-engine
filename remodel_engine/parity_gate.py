@@ -8,7 +8,7 @@ from typing import Any
 import duckdb
 from pydantic import BaseModel, Field
 
-from remodel_engine.sql_analysis import compile_dbt_sql
+from remodel_engine.sql_analysis import assess_grain_risk, compile_dbt_sql
 
 
 class ColumnDiff(BaseModel):
@@ -47,12 +47,21 @@ def run_parity_gate(
     context: ParityContext,
     conn: duckdb.DuckDBPyConnection | None = None,
     sample_limit: int = 5,
+    gate_grain_risk: bool = False,
 ) -> ParityCheckResult:
     owns_conn = conn is None
     if conn is None:
         conn = duckdb.connect(":memory:")
 
     try:
+        if gate_grain_risk:
+            risky, risk_reason = assess_grain_risk(remodeled_sql)
+            if risky:
+                return ParityCheckResult(
+                    status="needs_manual_review",
+                    trace_rule=risk_reason,
+                )
+
         try:
             conn.execute(context.seeds_sql)
         except duckdb.Error:

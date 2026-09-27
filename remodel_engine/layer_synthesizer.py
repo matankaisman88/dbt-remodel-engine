@@ -6,6 +6,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+from remodel_engine.refactor_rules import assess_rule2
 from remodel_engine.sql_analysis import analyze_sql
 
 class Layer(str, Enum):
@@ -80,21 +81,23 @@ def classify_model(
                 classification_reason=f"matched rule #1: {detail}",
             )
 
-    # Rule 2 — Intermediate
-    if analysis.refs and (
-        analysis.has_join
-        or analysis.has_window
-        or analysis.has_aggregation
-        or analysis.has_case
-    ):
-        return ClassificationResult(
-            layer=Layer.INTERMEDIATE,
-            model_name=model_name,
-            suggested_name=_with_prefix(model_name, "int_"),
-            classification_reason=(
-                "matched rule #2: ref() upstream with join/window/aggregation/CASE"
-            ),
-        )
+    # Rule 2 — Intermediate (grain-risk gated via assess_rule2)
+    if analysis.refs:
+        rule2 = assess_rule2(sql)
+        if rule2.layer_intermediate:
+            return ClassificationResult(
+                layer=Layer.INTERMEDIATE,
+                model_name=model_name,
+                suggested_name=_with_prefix(model_name, "int_"),
+                classification_reason=rule2.classification_reason,
+            )
+        if rule2.needs_manual_review:
+            return ClassificationResult(
+                layer=Layer.NEEDS_MANUAL_REVIEW,
+                model_name=model_name,
+                classification_reason=rule2.classification_reason,
+                flagged=True,
+            )
 
     # Rule 3 — Marts (1:1 legacy physical target mapping)
     if model_name in legacy_targets:
@@ -124,13 +127,12 @@ def classify_model(
 
     if analysis.refs:
         return ClassificationResult(
-            layer=Layer.NEEDS_MANUAL_REVIEW,
+            layer=Layer.INTERMEDIATE,
             model_name=model_name,
+            suggested_name=_with_prefix(model_name, "int_"),
             classification_reason=(
-                "rule #2 incomplete: has ref() but no join/window/aggregation/CASE — "
-                "cannot classify as intermediate; not a legacy target"
+                "matched rule #2: ref() upstream with projection/filter/expression"
             ),
-            flagged=True,
         )
 
     if analysis.sources and not analysis.refs:

@@ -9,10 +9,58 @@ from pydantic import BaseModel, Field
 
 from remodel_engine.sql_analysis import (
     analyze_sql,
+    assess_grain_risk,
     cte_is_filter_or_projection_only,
     cte_window_consumed_in_multiple_ways,
+    is_ref_column_passthrough,
     parse_ctes,
+    rule2_transform_summary,
 )
+
+
+@dataclass
+class Rule2Assessment:
+    layer_intermediate: bool
+    needs_manual_review: bool
+    classification_reason: str
+
+
+def assess_rule2(sql: str) -> Rule2Assessment:
+    """
+    Rule #2 — intermediate models with ref() upstream.
+
+    Low-risk joins, dedup windows, simple CASE, and ref projections pass as intermediate.
+    Grain-changing or ambiguous transforms fail closed to manual review.
+    """
+    analysis = analyze_sql(sql)
+    if not analysis.refs:
+        return Rule2Assessment(
+            layer_intermediate=False,
+            needs_manual_review=False,
+            classification_reason="rule #2: no ref() upstream",
+        )
+
+    if is_ref_column_passthrough(sql):
+        return Rule2Assessment(
+            layer_intermediate=False,
+            needs_manual_review=False,
+            classification_reason="rule #2: ref column passthrough (defer to mart rule or fail-closed)",
+        )
+
+    risky, risk_reason = assess_grain_risk(sql)
+    if risky:
+        return Rule2Assessment(
+            layer_intermediate=False,
+            needs_manual_review=True,
+            classification_reason=f"rule #2 grain risk: {risk_reason}",
+        )
+
+    summary = rule2_transform_summary(sql, analysis)
+    return Rule2Assessment(
+        layer_intermediate=True,
+        needs_manual_review=False,
+        classification_reason=f"matched rule #2: ref() upstream with {summary}",
+    )
 
 
 class CteMergeAudit(BaseModel):

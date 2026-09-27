@@ -74,9 +74,6 @@ _CORPUS_XFAIL: dict[str, str] = {
     "informatica_xml_transform_pipeline": (
         "parity: exported SQL references RAW_DATE not present in dbo.src_customers seed columns"
     ),
-    "informatica_xml_update_strategy_pipeline": (
-        "parity: explain_gate — dbt {% if is_incremental() %} Jinja not stripped for DuckDB EXPLAIN"
-    ),
     "orchestration_infa_wf_enterprise_daily_run": (
         "parity: composite enterprise workflow — missing ref seeds, router CTEs, incremental Jinja"
     ),
@@ -136,9 +133,6 @@ _CORPUS_XFAIL: dict[str, str] = {
     ),
     "orchestration_infa_wrapped_wf_m_transforms": (
         "parity: exported SQL references RAW_DATE not present in dbo.src_customers seed columns"
-    ),
-    "orchestration_infa_wrapped_wf_m_update_strategy": (
-        "parity: explain_gate — dbt {% if is_incremental() %} Jinja not stripped for DuckDB EXPLAIN"
     ),
     "orchestration_infa_wrapped_wf_m_with_unsupported": (
         "parity: explain_gate — export placeholder FROM /* missing_upstream */"

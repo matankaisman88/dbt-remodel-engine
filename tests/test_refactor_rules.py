@@ -1,6 +1,7 @@
 from remodel_engine.refactor_rules import (
     LookupRewriteSpec,
     apply_lookup_window_rewrite,
+    assess_rule2,
     collapse_eligible_ctes,
 )
 
@@ -31,6 +32,24 @@ SELECT * FROM a JOIN b USING (id)
 """
     result = collapse_eligible_ctes(sql, enabled=True)
     assert any("forbidden merge" in m for m in result.blocked_merges)
+
+
+def test_assess_rule2_ref_projection_is_intermediate():
+    sql = "SELECT id, UPPER(name) AS name FROM {{ ref('stg_x') }}"
+    result = assess_rule2(sql)
+    assert result.layer_intermediate
+    assert not result.needs_manual_review
+
+
+def test_assess_rule2_group_by_needs_manual_review():
+    sql = """
+    SELECT customer_id, COUNT(*) AS n
+    FROM {{ ref('stg_orders') }}
+    GROUP BY customer_id
+    """
+    result = assess_rule2(sql)
+    assert result.needs_manual_review
+    assert "GROUP BY" in result.classification_reason
 
 
 def test_lookup_rewrite_fail_closed_on_ambiguous_policy():

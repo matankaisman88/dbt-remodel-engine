@@ -187,7 +187,11 @@ def physical_decompose_batch(
             mart_select,
             legacy_targets=legacy_targets,
         )
-        layer = mart_layer.layer.value if mart_layer.layer != Layer.NEEDS_MANUAL_REVIEW else Layer.MARTS.value
+        layer = (
+            Layer.NEEDS_MANUAL_REVIEW.value
+            if mart_layer.layer == Layer.NEEDS_MANUAL_REVIEW
+            else Layer.MARTS.value
+        )
         emitted[mart_name] = PhysicalModel(
             model_name=mart_name,
             relative_path=_layer_path(layer, mart_name),
