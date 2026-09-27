@@ -10,11 +10,13 @@ There is **no UI** in this repository.
 
 Physical decomposition materializes models with `CREATE TABLE AS`. Analytical engines (DuckDB, Snowflake, BigQuery) then disambiguate duplicate column names (e.g. `COL` and `COL_1`) when a bind `SELECT` lists `join.COL AS COL` before `base.*`, while monolithic inline CTEs resolve `COALESCE(<COL>_DIM, <COL>)` using Informatica-style projection order.
 
-`remodel_engine/star_shadowing.py` harmonizes bindings when `physical_decompose` is enabled:
+`remodel_engine/star_shadowing.py` harmonizes bindings when `physical_decompose` is enabled. Rewrites use **sqlglot** AST transforms (`harmonize_bind_select_ast`, `rewrite_coalesce_bindings_ast`) instead of regex: SQL is parsed with `sqlglot.parse_one(..., read="duckdb")` after swapping `{{ ... }}` Jinja for parse placeholders (restored on output). On parse failure, the original SQL is returned unchanged.
 
-- **Shadowed join columns:** Drops redundant `join.COL AS COL` projections when the same name is already provided by trailing `base.*`, so downstream references bind to the base attribute without CTAS suffix drift.
-- **Rate-plan lookups:** For `lkp_lkp_ref_dim_rate_plan` binds, renames the join PK to `RATE_PLAN_PK_LKP` and expands `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK)` to `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK_LKP, RATE_PLAN_PK)` so lookup values survive materialization.
+- **Shadowed join columns:** Drops redundant `join.COL AS COL` projections when trailing `base.*` shadows the same name and `base.COL` already appears elsewhere in the bind list, so downstream references bind to the base attribute without CTAS suffix drift.
+- **Rate-plan lookups:** For `lkp_lkp_ref_dim_rate_plan` binds, renames the join PK to `RATE_PLAN_PK_LKP`. Downstream models expand `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK)` to `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK_LKP, RATE_PLAN_PK)` **only when** the immediate upstream ref already exposes `RATE_PLAN_PK_LKP` (parity materialization introspects ref column names per model in topological order).
 - **Renamed lookups:** Intentionally distinct aliases (e.g. `DIAGNOSIS_PK_LOOKUP`) are left unchanged.
+
+When `parity_context` is absent, star-shadowing runs once per model without upstream column gating (COALESCE is not expanded unless callers pass `source_has_rate_plan_lkp=True` to `fix_star_shadowing_for_ctas`).
 
 Together this preserves data and null-pattern parity across decomposed models without hand-editing exported SQL.
 
@@ -42,7 +44,7 @@ This repository is a **headless compiler and transformation library** only:
 | --- | --- |
 | `remodel_engine/engine.py` | End-to-end orchestration (decompose → refactor → classify → parity) |
 | `remodel_engine/physical_decomposer.py` | Split monolithic SQL into layered physical models with `{{ ref() }}` linkage |
-| `remodel_engine/star_shadowing.py` | CTAS star-shadow harmonization (bind `SELECT` rewrite + COALESCE binding) |
+| `remodel_engine/star_shadowing.py` | CTAS star-shadow harmonization via sqlglot AST (bind `SELECT` prune/rename + gated COALESCE rewrite) |
 | `remodel_engine/sql_analysis.py` | Static SQL analysis (refs/sources, CTE parse, grain-risk heuristics) |
 | `remodel_engine/layer_synthesizer.py` | Layer rules (staging → intermediate → marts → fail-closed) |
 | `remodel_engine/refactor_rules.py` | CTE merge safety gates, lookup/window rewrite, rule #2 assessment |

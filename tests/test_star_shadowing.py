@@ -44,6 +44,33 @@ FROM {{ ref('int_exp_bind') }} base
     assert "COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK_LKP, RATE_PLAN_PK)" in fixed_exp
 
 
+def test_decomposed_rate_plan_ref_keeps_lookup_and_expands_qualified_coalesce() -> None:
+    bind_sql = """
+SELECT
+    base.RATE_PLAN_PK AS RATE_PLAN_PK_DIM,
+    u4.RATE_PLAN_PK AS RATE_PLAN_PK,
+    base.*
+FROM {{ ref('int_exp_fields') }} base
+LEFT JOIN {{ ref('int_lkp_ref_dim_rate_plan') }} u4 ON base.RATE_PLAN_CODE = u4.RATE_PLAN_CODE
+"""
+    fixed_bind = fix_star_shadowing_for_ctas(bind_sql)
+    assert "u4.RATE_PLAN_PK AS RATE_PLAN_PK_LKP" in fixed_bind
+
+    exp_sql = """
+SELECT
+    COALESCE(base.RATE_PLAN_PK_DIM, base.RATE_PLAN_PK) AS RATE_PLAN_PK_OUT
+FROM {{ ref('int_exp_prep') }} base
+"""
+    fixed_exp = fix_star_shadowing_for_ctas(
+        exp_sql,
+        source_has_rate_plan_lkp=True,
+    )
+    assert (
+        "COALESCE(base.RATE_PLAN_PK_DIM, base.RATE_PLAN_PK_LKP, base.RATE_PLAN_PK)"
+        in fixed_exp
+    )
+
+
 def test_keeps_renamed_columns() -> None:
     sql = """
 SELECT

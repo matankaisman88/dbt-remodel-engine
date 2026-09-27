@@ -19,7 +19,7 @@ from sqlglot import exp
 from sqlglot.errors import ParseError
 
 _JINJA_PLACEHOLDER = re.compile(r"\{\{[^}]+\}\}")
-_RATE_PLAN_LKP_REF = re.compile(r"\blkp_lkp_ref_dim_rate_plan\b", re.IGNORECASE)
+_RATE_PLAN_LKP_REF = re.compile(r"ref_dim_rate_plan\b", re.IGNORECASE)
 
 
 def fix_star_shadowing_for_ctas(
@@ -132,13 +132,17 @@ def rewrite_coalesce_bindings_ast(
         if len(args) != 1 or not isinstance(args[0], exp.Column):
             return node
         pk = args[0]
-        if pk.name.upper() != "RATE_PLAN_PK" or pk.table:
+        if pk.name.upper() != "RATE_PLAN_PK":
             return node
+
+        lkp = exp.column("RATE_PLAN_PK_LKP")
+        if pk.table:
+            lkp.set("table", exp.to_identifier(pk.table))
 
         changed = True
         return exp.Coalesce(
             this=dim.copy(),
-            expressions=[exp.column("RATE_PLAN_PK_LKP"), pk.copy()],
+            expressions=[lkp, pk.copy()],
         )
 
     return root.transform(_transform, copy=True), changed
