@@ -42,12 +42,19 @@ def _reset_dir(path: Path) -> Path:
     return path
 
 
-def _write_layered_models(out_dir: Path, raw_entries: list[dict], raw_models_dir: Path) -> None:
+def _write_layered_models(
+    out_dir: Path,
+    raw_entries: list[dict],
+    raw_models_dir: Path,
+    *,
+    project_name: str,
+) -> None:
     """Decompose monoliths and write ``models/staging|intermediate|marts/*.sql``."""
     if str(ENGINE_ROOT) not in sys.path:
         sys.path.insert(0, str(ENGINE_ROOT))
 
     from remodel_engine.layer_synthesizer import LegacyTargetMeta
+    from remodel_engine.layered_dbt_config import write_layered_dbt_project
     from remodel_engine.physical_decomposer import physical_decompose_batch, write_physical_models
 
     raw_payload = [
@@ -71,6 +78,7 @@ def _write_layered_models(out_dir: Path, raw_entries: list[dict], raw_models_dir
     written = write_physical_models(decomposed.models, out_dir)
     if not written:
         raise RuntimeError(f"physical_decompose produced no model files under {models_dir}")
+    write_layered_dbt_project(out_dir, project_name=project_name)
 
 
 def compile_bundle(
@@ -164,7 +172,7 @@ def compile_bundle(
     if not raw_entries:
         raise RuntimeError(f"No dbt models produced from {source_file}")
 
-    _write_layered_models(out_dir, raw_entries, raw_models_dir)
+    _write_layered_models(out_dir, raw_entries, raw_models_dir, project_name=pipeline_id)
 
     merged_sources_yml = None
     for piece in converted.mappings:

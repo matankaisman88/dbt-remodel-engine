@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from remodel_engine.layer_synthesizer import Layer, LegacyTargetMeta, classify_model
+from remodel_engine.layered_dbt_config import sanitize_layered_model_sql
 from remodel_engine.sql_analysis import analyze_sql, parse_ctes, split_dbt_header_and_body
 
 _REF_RAW_MODEL_RE = re.compile(
@@ -216,7 +217,22 @@ def physical_decompose_batch(
             classification_reason=mart_layer.classification_reason,
         )
 
-    models = sorted(emitted.values(), key=lambda m: m.relative_path)
+    models = sorted(
+        [
+            PhysicalModel(
+                model_name=m.model_name,
+                relative_path=m.relative_path,
+                sql=sanitize_layered_model_sql(m.sql),
+                layer=m.layer,
+                materialization=m.materialization,
+                source_raw_model=m.source_raw_model,
+                is_mart=m.is_mart,
+                classification_reason=m.classification_reason,
+            )
+            for m in emitted.values()
+        ],
+        key=lambda m: m.relative_path,
+    )
     return DecomposeResult(
         models=models,
         shared_models_extracted=shared_extracted,
@@ -234,7 +250,8 @@ def write_physical_models(models: list[PhysicalModel], corpus_root: Path) -> lis
             rel = Path(_layer_path(model.layer, model.model_name))
         dest = corpus_root / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        sql = model.sql if model.sql.endswith("\n") else f"{model.sql}\n"
+        sql = sanitize_layered_model_sql(model.sql)
+        sql = sql if sql.endswith("\n") else f"{sql}\n"
         dest.write_text(sql, encoding="utf-8")
         written.append(dest)
     return written
