@@ -98,7 +98,7 @@ def main() -> None:
                 f"{model.classification_reason} | {merges} |"
             )
             if model.parity_check.status == "fail":
-                detail = json.dumps(model.parity_check.model_dump(), indent=2)
+                detail = json.dumps(model.parity_check.model_dump(), indent=2, default=str)
                 failures.append(f"**{resp.pipeline_id} / {model.model_name}**\n\n```json\n{detail}\n```")
             if model.layer == Layer.NEEDS_MANUAL_REVIEW.value or model.flagged:
                 manual.append(
@@ -119,7 +119,7 @@ def main() -> None:
     lines.append("")
 
     out = ROOT / "remodeling_verification_report.md"
-    out.write_text("\n".join(lines))
+    out.write_text("\n".join(lines), encoding="utf-8")
     print(f"Wrote {out}")
 
 

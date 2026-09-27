@@ -26,6 +26,7 @@ from remodel_engine.schema import (
     RemodelResponse,
     RemodeledModel,
 )
+from remodel_engine.star_shadowing import fix_star_shadowing_for_ctas
 from remodel_engine.sql_analysis import compile_dbt_sql, parse_ctes
 
 
@@ -94,6 +95,10 @@ class RemodelEngine:
             runtime_table_map = dict(parity_ctx.model_table_map)
 
         try:
+            if request.preferences.physical_decompose:
+                for item in working:
+                    item.sql = fix_star_shadowing_for_ctas(item.sql)
+
             if conn is not None and parity_ctx:
                 conn.execute(parity_ctx.seeds_sql)
                 if request.preferences.physical_decompose and working:
