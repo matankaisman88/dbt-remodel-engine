@@ -147,6 +147,7 @@ def compile_bundle(
             "physical_decompose": True,
         },
         "lookup_rewrites": [],
+        "shadowed_lookup_renames": [],
         "parity_context": {
             "seeds_sql": "seeds.sql",
             "source_table_map": {},

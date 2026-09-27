@@ -6,34 +6,45 @@ star expansion as shadowing that join column with ``base.col``. DuckDB CTAS keep
 
 Trailing-star bind harmonization (``harmonize_bind_select_ast``) is a general CTAS rule.
 
-The COALESCE expansion in ``rewrite_coalesce_bindings_ast`` is **not** general CTAS
-shadowing: it is hardcoded to the rate-plan lookup naming convention
-(``RATE_PLAN_PK`` / ``RATE_PLAN_PK_DIM`` / ``RATE_PLAN_PK_LKP`` / ``ref_dim_rate_plan``)
-used by specific real-world fixtures and does not generalize to other lookups.
+Lookup rename + COALESCE expansion is manifest-driven via ``ShadowedLookupRenameSpec``
+(see ``ShadowedLookupRenameSpec`` in ``remodel_engine/schema.py``). When no spec matches the model/SQL, those
+rules are skipped; the trailing-star drop rule remains fully automatic.
 """
 
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 
 import sqlglot
 from sqlglot import exp
 from sqlglot.errors import ParseError
 
+from remodel_engine.schema import ShadowedLookupRenameSpec
+
 _JINJA_PLACEHOLDER = re.compile(r"\{\{[^}]+\}\}")
-_RATE_PLAN_LKP_REF = re.compile(r"ref_dim_rate_plan\b", re.IGNORECASE)
 
 
 def fix_star_shadowing_for_ctas(
     sql: str,
     *,
     dialect: str = "duckdb",
-    source_has_rate_plan_lkp: bool = False,
+    model_name: str | None = None,
+    source_raw_model: str | None = None,
+    shadowed_lookup_renames: Sequence[ShadowedLookupRenameSpec] = (),
+    renamed_column_present: bool = False,
 ) -> str:
     """Harmonize star-shadowed join projections for DuckDB CTAS."""
     body = sql.strip()
     if not body:
         return sql
+
+    model_specs = _shadow_specs_for_model(
+        model_name,
+        source_raw_model,
+        shadowed_lookup_renames,
+    )
+    lookup_spec = _lookup_rename_spec_for_sql(body, model_specs)
 
     try:
         parse_sql, jinja_map = _jinja_to_parse_placeholders(body)
@@ -43,15 +54,23 @@ def fix_star_shadowing_for_ctas(
 
     changed = False
     if isinstance(ast, exp.Select):
-        ast, harmonized = harmonize_bind_select_ast(
-            ast,
-            has_rate_plan_lkp=bool(_RATE_PLAN_LKP_REF.search(body)),
-        )
+        ast, harmonized = harmonize_bind_select_ast(ast, lookup_spec=lookup_spec)
         changed |= harmonized
+
+    coalesce_spec: ShadowedLookupRenameSpec | None = None
+    if renamed_column_present and model_specs:
+        if len(model_specs) == 1:
+            coalesce_spec = model_specs[0]
+        else:
+            upper_body = body.upper()
+            for spec in model_specs:
+                if spec.dim_column.upper() in upper_body:
+                    coalesce_spec = spec
+                    break
 
     ast, coalesce_changed = rewrite_coalesce_bindings_ast(
         ast,
-        source_has_rate_plan_lkp=source_has_rate_plan_lkp,
+        lookup_spec=coalesce_spec,
     )
     changed |= coalesce_changed
 
@@ -62,10 +81,39 @@ def fix_star_shadowing_for_ctas(
     return _ensure_trailing_newline(out)
 
 
+def _shadow_specs_for_model(
+    model_name: str | None,
+    source_raw_model: str | None,
+    specs: Sequence[ShadowedLookupRenameSpec],
+) -> list[ShadowedLookupRenameSpec]:
+    if not specs:
+        return []
+    matched: list[ShadowedLookupRenameSpec] = []
+    for spec in specs:
+        if model_name and (
+            model_name == spec.model_name
+            or model_name.startswith(f"int_{spec.model_name}__")
+        ):
+            matched.append(spec)
+        elif source_raw_model == spec.model_name:
+            matched.append(spec)
+    return matched
+
+
+def _lookup_rename_spec_for_sql(
+    sql: str,
+    model_specs: Sequence[ShadowedLookupRenameSpec],
+) -> ShadowedLookupRenameSpec | None:
+    for spec in model_specs:
+        if re.search(spec.lookup_ref_pattern, sql, flags=re.IGNORECASE):
+            return spec
+    return None
+
+
 def harmonize_bind_select_ast(
     select: exp.Select,
     *,
-    has_rate_plan_lkp: bool,
+    lookup_spec: ShadowedLookupRenameSpec | None = None,
 ) -> tuple[exp.Select, bool]:
     """Rewrite bind SELECT projections for trailing ``base.*`` star shadowing."""
     star_alias = _trailing_star_alias(select)
@@ -83,16 +131,19 @@ def harmonize_bind_select_ast(
             shadow = _shadow_candidate_alias(expression)
             if shadow is not None:
                 table_alias, column_name, output_name = shadow
-                if (
-                    has_rate_plan_lkp
-                    and column_name.upper() == "RATE_PLAN_PK"
-                    and output_name.upper() == "RATE_PLAN_PK"
-                    and table_alias.lower() != "base"
-                ):
-                    expression.set("alias", exp.to_identifier("RATE_PLAN_PK_LKP"))
-                    kept.append(expression)
-                    changed = True
-                    continue
+                if lookup_spec is not None:
+                    if (
+                        column_name.upper() == lookup_spec.base_column.upper()
+                        and output_name.upper() == lookup_spec.base_column.upper()
+                        and table_alias.lower() != "base"
+                    ):
+                        expression.set(
+                            "alias",
+                            exp.to_identifier(lookup_spec.renamed_column),
+                        )
+                        kept.append(expression)
+                        changed = True
+                        continue
 
                 if (
                     table_alias.lower() != star_alias.lower()
@@ -111,13 +162,10 @@ def harmonize_bind_select_ast(
 def rewrite_coalesce_bindings_ast(
     root: exp.Expression,
     *,
-    source_has_rate_plan_lkp: bool = False,
+    lookup_spec: ShadowedLookupRenameSpec | None = None,
 ) -> tuple[exp.Expression, bool]:
-    """Rate-plan only: expand ``COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK)`` with ``RATE_PLAN_PK_LKP``.
-
-    Scoped to the rate-plan lookup column naming convention; not a general CTAS-shadowing rule.
-    """
-    if not source_has_rate_plan_lkp:
+    """Expand ``COALESCE(dim, base)`` with manifest-configured shadowed lookup column."""
+    if lookup_spec is None:
         return root, False
 
     changed = False
@@ -130,17 +178,17 @@ def rewrite_coalesce_bindings_ast(
         dim = node.this
         if not isinstance(dim, exp.Column) or not dim.name:
             return node
-        if dim.name.upper() != "RATE_PLAN_PK_DIM":
+        if dim.name.upper() != lookup_spec.dim_column.upper():
             return node
 
         args = list(node.expressions)
         if len(args) != 1 or not isinstance(args[0], exp.Column):
             return node
         pk = args[0]
-        if pk.name.upper() != "RATE_PLAN_PK":
+        if pk.name.upper() != lookup_spec.base_column.upper():
             return node
 
-        lkp = exp.column("RATE_PLAN_PK_LKP")
+        lkp = exp.column(lookup_spec.renamed_column)
         if pk.table:
             lkp.set("table", exp.to_identifier(pk.table))
 

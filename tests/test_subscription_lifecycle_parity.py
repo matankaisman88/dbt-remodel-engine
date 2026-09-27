@@ -8,7 +8,16 @@ import duckdb
 
 from remodel_engine.corpus import load_corpus_manifest
 from remodel_engine.engine import RemodelEngine
+from remodel_engine.schema import ShadowedLookupRenameSpec
 from remodel_engine.star_shadowing import fix_star_shadowing_for_ctas
+
+_RATE_PLAN_SPEC = ShadowedLookupRenameSpec(
+    model_name="int_exp_bind",
+    dim_column="RATE_PLAN_PK_DIM",
+    base_column="RATE_PLAN_PK",
+    renamed_column="RATE_PLAN_PK_LKP",
+    lookup_ref_pattern="ref_dim_rate_plan",
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "_tmp_compile"
@@ -42,7 +51,11 @@ SELECT
 FROM int_exp_fields base
 LEFT JOIN lkp_lkp_ref_dim_rate_plan u4 ON base.RATE_PLAN_CODE = u4.RATE_PLAN_CODE
 """
-    bind_sql = fix_star_shadowing_for_ctas(bind_sql_raw)
+    bind_sql = fix_star_shadowing_for_ctas(
+        bind_sql_raw,
+        model_name="int_exp_bind",
+        shadowed_lookup_renames=[_RATE_PLAN_SPEC],
+    )
     raw_out = conn.execute(
         f"""
         WITH int_exp_bind AS ({bind_sql_raw}),
@@ -62,7 +75,9 @@ LEFT JOIN lkp_lkp_ref_dim_rate_plan u4 ON base.RATE_PLAN_CODE = u4.RATE_PLAN_COD
 SELECT COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK) AS RATE_PLAN_PK_OUT
 FROM int_exp_bind
 """,
-        source_has_rate_plan_lkp=True,
+        model_name="int_exp_bind",
+        shadowed_lookup_renames=[_RATE_PLAN_SPEC],
+        renamed_column_present=True,
     )
     rem_out = conn.execute(rem_sql).fetchone()[0]
 

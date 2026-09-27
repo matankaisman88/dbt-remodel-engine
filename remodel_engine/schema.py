@@ -13,6 +13,16 @@ class RawDbtModel(BaseModel):
     materialization: str = "view"
 
 
+class ShadowedLookupRenameSpec(BaseModel):
+    """Manifest-driven shadowed lookup column rename + COALESCE expansion for CTAS."""
+
+    model_name: str
+    dim_column: str
+    base_column: str
+    renamed_column: str
+    lookup_ref_pattern: str
+
+
 class RemodelPreferences(BaseModel):
     target_pattern: str = "star_schema"
     collapse_ctes: bool = True
@@ -27,6 +37,7 @@ class RemodelRequest(BaseModel):
     preferences: RemodelPreferences = Field(default_factory=RemodelPreferences)
     legacy_targets: dict[str, dict[str, str]] = Field(default_factory=dict)
     lookup_rewrites: list[dict[str, Any]] = Field(default_factory=list)
+    shadowed_lookup_renames: list[dict[str, Any]] = Field(default_factory=list)
     parity_context: dict[str, Any] | None = None
     legacy_transformations_count: int | None = None
     legacy_graph_nodes: list[dict[str, Any]] = Field(default_factory=list)

@@ -25,6 +25,7 @@ from remodel_engine.schema import (
     RemodelRequest,
     RemodelResponse,
     RemodeledModel,
+    ShadowedLookupRenameSpec,
 )
 from remodel_engine.star_shadowing import fix_star_shadowing_for_ctas
 from remodel_engine.sql_analysis import compile_dbt_sql, extract_refs, parse_ctes
@@ -38,6 +39,9 @@ class RemodelEngine:
         lookup_specs = {
             s["model_name"]: LookupRewriteSpec(**s) for s in request.lookup_rewrites
         }
+        shadow_lookup_specs = [
+            ShadowedLookupRenameSpec(**s) for s in request.shadowed_lookup_renames
+        ]
         parity_ctx = _parity_context_from_request(request)
 
         decompose_stats = DecomposeResult()
@@ -103,10 +107,16 @@ class RemodelEngine:
                         working,
                         parity_ctx,
                         runtime_table_map,
+                        shadow_lookup_specs,
                     )
             elif request.preferences.physical_decompose:
                 for item in working:
-                    item.sql = fix_star_shadowing_for_ctas(item.sql)
+                    item.sql = fix_star_shadowing_for_ctas(
+                        item.sql,
+                        model_name=item.name,
+                        source_raw_model=item.source_raw_model,
+                        shadowed_lookup_renames=shadow_lookup_specs,
+                    )
 
             for item in working:
                 pre_refactor_sql = item.sql
@@ -355,6 +365,7 @@ def _materialize_physical_models(
     models: list[_WorkModel],
     context: ParityContext,
     table_map: dict[str, str],
+    shadow_lookup_specs: list[ShadowedLookupRenameSpec],
 ) -> dict[str, str]:
     physical = [
         PhysicalModel(
@@ -371,14 +382,28 @@ def _materialize_physical_models(
     for name in order:
         item = by_name[name]
         ref_columns = _ref_source_column_names(conn, item.sql, updated)
+        renamed_present = any(
+            spec.renamed_column.upper() in ref_columns
+            for spec in shadow_lookup_specs
+            if item.name == spec.model_name
+            or (item.source_raw_model == spec.model_name)
+            or item.name.startswith(f"int_{spec.model_name}__")
+        )
         item.sql = fix_star_shadowing_for_ctas(
             item.sql,
-            source_has_rate_plan_lkp="RATE_PLAN_PK_LKP" in ref_columns,
+            model_name=item.name,
+            source_raw_model=item.source_raw_model,
+            shadowed_lookup_renames=shadow_lookup_specs,
+            renamed_column_present=renamed_present,
         )
-        compiled = compile_dbt_sql(item.sql, updated, context.source_table_map)
-        table = f"remodel_{name}"
-        conn.execute(f"CREATE OR REPLACE TABLE {table} AS {compiled}")
-        updated[name] = table
+        try:
+            compiled = compile_dbt_sql(item.sql, updated, context.source_table_map)
+            table = f"remodel_{name}"
+            conn.execute(f"CREATE OR REPLACE TABLE {table} AS {compiled}")
+            updated[name] = table
+        except (KeyError, duckdb.Error):
+            # Keep remodeling; parity/explain on downstream models will fail closed.
+            continue
     return updated
 
 

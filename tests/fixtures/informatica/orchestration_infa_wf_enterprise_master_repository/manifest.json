@@ -2799,6 +2799,22 @@
     "modernize_window_functions": false
   },
   "lookup_rewrites": [],
+  "shadowed_lookup_renames": [
+    {
+      "model_name": "shortcut_to_stg_subscription_lifecycle",
+      "dim_column": "RATE_PLAN_PK_DIM",
+      "base_column": "RATE_PLAN_PK",
+      "renamed_column": "RATE_PLAN_PK_LKP",
+      "lookup_ref_pattern": "ref_dim_rate_plan"
+    },
+    {
+      "model_name": "shortcut_to_stg_subscription_key",
+      "dim_column": "RATE_PLAN_PK_DIM",
+      "base_column": "RATE_PLAN_PK",
+      "renamed_column": "RATE_PLAN_PK_LKP",
+      "lookup_ref_pattern": "ref_dim_rate_plan"
+    }
+  ],
   "parity_context": {
     "seeds_sql": "tests/fixtures/informatica/orchestration_infa_wf_enterprise_master_repository/seeds.sql",
     "source_table_map": {},

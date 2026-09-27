@@ -16,7 +16,7 @@ Physical decomposition materializes models with `CREATE TABLE AS`. Analytical en
 - **Rate-plan lookups:** For `lkp_lkp_ref_dim_rate_plan` binds, renames the join PK to `RATE_PLAN_PK_LKP`. Downstream models expand `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK)` to `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK_LKP, RATE_PLAN_PK)` **only when** the immediate upstream ref already exposes `RATE_PLAN_PK_LKP` (parity materialization introspects ref column names per model in topological order).
 - **Renamed lookups:** Intentionally distinct aliases (e.g. `DIAGNOSIS_PK_LOOKUP`) are left unchanged.
 
-When `parity_context` is absent, star-shadowing runs once per model without upstream column gating (COALESCE is not expanded unless callers pass `source_has_rate_plan_lkp=True` to `fix_star_shadowing_for_ctas`).
+When `parity_context` is absent, star-shadowing runs once per model without upstream column gating (COALESCE expansion requires `renamed_column_present=True` and a matching `shadowed_lookup_renames` manifest entry).
 
 Together this preserves data and null-pattern parity across decomposed models without hand-editing exported SQL.
 

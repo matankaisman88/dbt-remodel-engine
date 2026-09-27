@@ -5,9 +5,15 @@ from __future__ import annotations
 import hashlib
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from remodel_engine.layer_synthesizer import Layer, LegacyTargetMeta, classify_model
 from remodel_engine.sql_analysis import analyze_sql, parse_ctes, split_dbt_header_and_body
+
+_REF_RAW_MODEL_RE = re.compile(
+    r"\{\{\s*ref\s*\(\s*['\"]([^'\"]+)['\"]\s*\)\s*\}\}",
+    re.IGNORECASE,
+)
 
 _CONFIG_BLOCK_RE = re.compile(
     r"(\{\{\s*config\s*\([\s\S]*?\)\s*\}\})",
@@ -63,6 +69,10 @@ def physical_decompose_batch(
     parsed = [_parse_monolith(entry) for entry in raw_models]
     if not parsed:
         return DecomposeResult()
+
+    raw_public_model = {
+        item.raw_name: _mart_model_name(item.raw_name, legacy_targets) for item in parsed
+    }
 
     cte_hash_counts: dict[str, int] = {}
     cte_hash_body: dict[str, str] = {}
@@ -140,6 +150,7 @@ def physical_decompose_batch(
             if matched:
                 break
         sql_body = _rewrite_cte_refs(sample_body, upstream_map)
+        sql_body = _rewrite_raw_model_refs(sql_body, raw_public_model)
         layer_result = classify_model(model_name, sql_body, legacy_targets=legacy_targets)
         layer = layer_result.layer.value
         path = _layer_path(layer, model_name)
@@ -168,6 +179,7 @@ def physical_decompose_batch(
                 if upstream in local_map
             }
             sql_body = _rewrite_cte_refs(cte.sql, upstream_map)
+            sql_body = _rewrite_raw_model_refs(sql_body, raw_public_model)
             layer_result = classify_model(model_name, sql_body, legacy_targets=legacy_targets)
             layer = layer_result.layer.value
             emitted[model_name] = PhysicalModel(
@@ -181,6 +193,7 @@ def physical_decompose_batch(
 
         mart_name = _mart_model_name(item.raw_name, legacy_targets)
         mart_select = _rewrite_cte_refs(item.final_select, local_map)
+        mart_select = _rewrite_raw_model_refs(mart_select, raw_public_model)
         mart_sql = _with_header(item.header, mart_select)
         mart_layer = classify_model(
             mart_name,
@@ -210,6 +223,21 @@ def physical_decompose_batch(
         ctes_materialized=ctes_materialized,
         passthrough_ctes_skipped=passthrough_skipped,
     )
+
+
+def write_physical_models(models: list[PhysicalModel], corpus_root: Path) -> list[Path]:
+    """Persist decomposed models under ``corpus_root/models/{staging|intermediate|marts}/``."""
+    written: list[Path] = []
+    for model in models:
+        rel = Path(str(model.relative_path or "").replace("\\", "/"))
+        if rel.parts[:1] != ("models",):
+            rel = Path(_layer_path(model.layer, model.model_name))
+        dest = corpus_root / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        sql = model.sql if model.sql.endswith("\n") else f"{model.sql}\n"
+        dest.write_text(sql, encoding="utf-8")
+        written.append(dest)
+    return written
 
 
 def topological_model_order(models: list[PhysicalModel]) -> list[str]:
@@ -290,6 +318,21 @@ def _rewrite_cte_refs(sql: str, cte_to_model: dict[str, str]) -> str:
         replacement = f"{{{{ ref('{model}') }}}}"
         out = re.sub(rf"\b{re.escape(cte_name)}\b", replacement, out, flags=re.IGNORECASE)
     return out.strip()
+
+
+def _rewrite_raw_model_refs(sql: str, raw_to_public: dict[str, str]) -> str:
+    """Point refs at decomposed mart names instead of monolithic raw model names."""
+    if not raw_to_public:
+        return sql.strip()
+
+    def repl(match: re.Match[str]) -> str:
+        raw_name = match.group(1)
+        public = raw_to_public.get(raw_name)
+        if not public or public == raw_name:
+            return match.group(0)
+        return f"{{{{ ref('{public}') }}}}"
+
+    return _REF_RAW_MODEL_RE.sub(repl, sql).strip()
 
 
 def _sanitize_token(name: str) -> str:

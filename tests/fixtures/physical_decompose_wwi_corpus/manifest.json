@@ -1,0 +1,50 @@
+{
+  "pipeline_id": "wwi_physical_decompose",
+  "source_platform": "informatica",
+  "legacy_transformations_count": 5,
+  "legacy_graph": {
+    "nodes": [
+      {"id": "stg", "label": "Stage Customers", "meta": {"type": "expression"}},
+      {"id": "tgt_dim", "label": "DIM_CUSTOMER", "meta": {"type": "target"}},
+      {"id": "tgt_fct", "label": "FCT_INVOICE_LINES", "meta": {"type": "target"}}
+    ],
+    "edges": [
+      {"source": "stg", "target": "tgt_dim"},
+      {"source": "stg", "target": "tgt_fct"}
+    ]
+  },
+  "legacy_targets": {
+    "raw_tgt_dim_customer": {
+      "target_name": "DIM_CUSTOMER",
+      "last_transformation_type": "update_strategy_scd"
+    },
+    "raw_tgt_fct_invoice_lines": {
+      "target_name": "FCT_INVOICE_LINES",
+      "last_transformation_type": "fact_load"
+    }
+  },
+  "preferences": {
+    "target_pattern": "star_schema",
+    "collapse_ctes": true,
+    "modernize_window_functions": false,
+    "physical_decompose": true
+  },
+  "lookup_rewrites": [],
+  "parity_context": {
+    "seeds_sql": "tests/fixtures/physical_decompose_wwi_corpus/seeds.sql",
+    "source_table_map": {
+      "wwi.customers": "seed_customers",
+      "wwi.invoice_lines": "seed_invoice_lines"
+    },
+    "model_table_map": {
+      "raw_stg_customers": "parity_stg_customers",
+      "raw_tgt_dim_customer": "parity_tgt_dim_customer",
+      "raw_tgt_fct_invoice_lines": "parity_tgt_fct_invoice_lines"
+    }
+  },
+  "raw_dbt_models": [
+    {"model_name": "raw_stg_customers", "file": "raw_stg_customers.sql", "materialization": "view"},
+    {"model_name": "raw_tgt_dim_customer", "file": "raw_tgt_dim_customer.sql", "materialization": "table"},
+    {"model_name": "raw_tgt_fct_invoice_lines", "file": "raw_tgt_fct_invoice_lines.sql", "materialization": "table"}
+  ]
+}
