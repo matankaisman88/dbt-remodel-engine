@@ -11,6 +11,11 @@ app = FastAPI(title="dbt-remodel-engine", version="0.1.0")
 _engine = RemodelEngine()
 
 
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.post("/api/v1/remodel", response_model=RemodelResponse)
 def remodel(request: RemodelRequest) -> RemodelResponse:
     return _engine.remodel(request)

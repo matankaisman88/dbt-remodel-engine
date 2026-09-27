@@ -72,6 +72,17 @@ uvicorn remodel_engine.api:app --reload
 
 `POST /api/v1/remodel` — request/response schema in `remodel_engine/schema.py` (matches the architecture spec).
 
+### Running via Docker
+
+For consumer repos that run dependencies via docker-compose (without local engine development):
+
+```bash
+docker build -t dbt-remodel-engine .
+docker run -p 8001:8001 dbt-remodel-engine
+```
+
+The service listens on port **8001**. Liveness: `GET /health` → `{"status":"ok"}`.
+
 ## Verification report
 
 `remodeling_verification_report.md` lists **every** corpus and model’s layer, parity status, CTE merges, and unfiltered failure / `NEEDS_MANUAL_REVIEW` lists. Corpora are discovered from all `tests/fixtures/**/manifest.json` paths. A model is never marked pass without a successful parity gate when `parity_context` is supplied.

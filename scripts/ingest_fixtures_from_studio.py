@@ -18,6 +18,8 @@ ROOT = SCRIPTS.parent
 FIXTURES = ROOT / "tests" / "fixtures"
 STUDIO_COMPILE_DEFAULTS = SCRIPTS / "studio_compile_defaults.json"
 
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
@@ -386,9 +388,18 @@ def find_seed_sql(studio: Path, seed_globs: list[str], export_dir: Path) -> Path
 
 
 def rewrite_manifest_seeds_path(manifest_path: Path, seeds_relpath: str) -> None:
+    from remodel_engine.seed_introspection import extract_source_table_map
+
     data = json.loads(manifest_path.read_text())
     parity = data.get("parity_context") or {}
     parity["seeds_sql"] = seeds_relpath
+    seeds_path = manifest_path.parent / Path(seeds_relpath).name
+    if seeds_path.is_file():
+        table_map = extract_source_table_map(seeds_path.read_text())
+        parity["source_table_map"] = {
+            f"{schema}.{table}": physical
+            for (schema, table), physical in table_map.items()
+        }
     data["parity_context"] = parity
     manifest_path.write_text(json.dumps(data, indent=2) + "\n")
 
@@ -443,6 +454,8 @@ def ingest_corpus(studio: Path, plan: CorpusIngestPlan, *, compile_missing: bool
         shutil.copy2(seeds_src, dest / "seeds.sql")
     elif not (dest / "seeds.sql").is_file():
         raise FileNotFoundError(f"No seeds.sql for {plan.corpus_name} under studio or export bundle")
+
+    rewrite_manifest_seeds_path(dest / "manifest.json", fixture_seeds_relpath(plan))
 
     model_count = len(list((dest / "models").glob("*.sql"))) if (dest / "models").is_dir() else 0
     return {

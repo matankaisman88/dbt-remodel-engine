@@ -162,7 +162,7 @@ def _parity_context_from_request(request: RemodelRequest) -> ParityContext | Non
     from pathlib import Path
 
     ctx = request.parity_context
-    source_map = {
+    explicit_source = {
         (k.split(".", 1)[0], k.split(".", 1)[1]): v
         for k, v in ctx.get("source_table_map", {}).items()
     }
@@ -172,6 +172,12 @@ def _parity_context_from_request(request: RemodelRequest) -> ParityContext | Non
         if not seeds_path.is_file():
             seeds_path = Path.cwd() / seeds_sql
         seeds_sql = seeds_path.read_text()
+    derived_source: dict[tuple[str, str], str] = {}
+    if isinstance(seeds_sql, str) and seeds_sql.strip():
+        from remodel_engine.seed_introspection import extract_source_table_map
+
+        derived_source = extract_source_table_map(seeds_sql)
+    source_map = {**derived_source, **explicit_source}
     return ParityContext(
         model_table_map=ctx.get("model_table_map", {}),
         source_table_map=source_map,
