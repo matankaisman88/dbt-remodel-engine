@@ -17,6 +17,7 @@ class RemodelPreferences(BaseModel):
     target_pattern: str = "star_schema"
     collapse_ctes: bool = True
     modernize_window_functions: bool = True
+    physical_decompose: bool = False
 
 
 class RemodelRequest(BaseModel):
@@ -38,6 +39,8 @@ class RefactoringSummary(BaseModel):
     ctes_collapsed: int = 0
     window_functions_applied: int = 0
     models_needs_manual_review: int = 0
+    shared_models_extracted: int = 0
+    ctes_materialized: int = 0
 
 
 class GraphNode(BaseModel):
@@ -75,11 +78,13 @@ class RemodeledModel(BaseModel):
     model_name: str
     layer: str
     sql: str
+    relative_path: str | None = None
     inner_ctes: list[str] = Field(default_factory=list)
     classification_reason: str
     parity_check: ParityCheck
     flagged: bool = False
     merge_audits: list[dict[str, Any]] = Field(default_factory=list)
+    source_raw_model: str | None = None
 
 
 class RemodelResponse(BaseModel):

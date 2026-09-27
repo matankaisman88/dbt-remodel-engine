@@ -60,7 +60,7 @@ def test_informatica_fixture_compiles_and_remodels(xml_path: Path, tmp_path: Pat
     resp = RemodelEngine().remodel(req)
     assert resp.pipeline_id == pipeline_id
     assert resp.remodeled_models
-    assert len(resp.remodeled_models) == len(req.raw_dbt_models)
+    assert len(resp.remodeled_models) >= len(req.raw_dbt_models)
     assert resp.status in {"success", "needs_manual_review", "failed_parity"}
 
 

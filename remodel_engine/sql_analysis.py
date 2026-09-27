@@ -188,6 +188,7 @@ def compile_dbt_sql(
     source_table_map: dict[tuple[str, str], str],
 ) -> str:
     """Replace ref/source Jinja with DuckDB table names for parity execution."""
+    out = strip_dbt_directives(sql)
 
     def ref_repl(match: re.Match[str]) -> str:
         name = match.group(1)
@@ -201,7 +202,72 @@ def compile_dbt_sql(
             raise KeyError(f"Unknown source: {key}")
         return source_table_map[key]
 
-    out = REF_PATTERN.sub(ref_repl, sql)
+    out = REF_PATTERN.sub(ref_repl, out)
     out = SOURCE_PATTERN.sub(source_repl, out)
     out = re.sub(r"\{\{.*?\}\}", "", out, flags=re.DOTALL)
+    out = re.sub(r"\{#.*?#\}", "", out, flags=re.DOTALL)
     return out.strip()
+
+
+def strip_dbt_directives(sql: str) -> str:
+    """Remove dbt config blocks and banner comments before warehouse execution."""
+    _header, body = split_dbt_header_and_body(sql)
+    return body
+
+
+def split_dbt_header_and_body(sql: str) -> tuple[str, str]:
+    """Return ``(dbt header comments + config, executable SQL body)``."""
+    lines = sql.splitlines()
+    banner: list[str] = []
+    idx = 0
+    while idx < len(lines):
+        stripped = lines[idx].strip()
+        if stripped.startswith("--") or stripped == "":
+            banner.append(lines[idx])
+            idx += 1
+            continue
+        break
+    rest = "\n".join(lines[idx:])
+    config_end = _find_config_block_end(rest)
+    if config_end is not None:
+        config_block = rest[:config_end].strip()
+        after = rest[config_end:].lstrip("\n")
+        after_lines = after.splitlines()
+        body_idx = 0
+        while body_idx < len(after_lines):
+            stripped = after_lines[body_idx].strip()
+            if stripped.startswith("--") or stripped == "":
+                body_idx += 1
+                continue
+            break
+        body = "\n".join(after_lines[body_idx:]).strip()
+        header_parts = [*banner]
+        if config_block:
+            header_parts.append(config_block)
+        header = "\n".join(header_parts).strip()
+        return header, body or sql.strip()
+
+    header = "\n".join(banner).strip()
+    return header, rest.strip() or sql.strip()
+
+
+def _find_config_block_end(text: str) -> int | None:
+    match = re.search(r"\{\{[\s\n]*config\s*\(", text, re.IGNORECASE)
+    if not match:
+        return None
+    paren_start = match.end() - 1
+    depth = 0
+    for idx in range(paren_start, len(text)):
+        ch = text[idx]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                j = idx + 1
+                while j < len(text) and text[j].isspace():
+                    j += 1
+                if j + 1 < len(text) and text[j : j + 2] == "}}":
+                    return j + 2
+                return None
+    return None
