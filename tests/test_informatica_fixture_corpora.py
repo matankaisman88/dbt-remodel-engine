@@ -163,7 +163,7 @@ def _expected_remodeled_model_count(req) -> int:
     total = len(req.raw_dbt_models)
     for spec in req.entity_consolidations:
         old_tables = spec.get("old_tables") or []
-        total += 1 + len(old_tables) + 1  # crosswalk + compat views + audit
+        total += 2 + len(old_tables) + 1  # crosswalk + entity + compat views + audit
     return total
 
 

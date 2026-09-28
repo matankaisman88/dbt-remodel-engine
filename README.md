@@ -20,6 +20,10 @@ When `parity_context` is absent, star-shadowing runs once per model without upst
 
 Together this preserves data and null-pattern parity across decomposed models without hand-editing exported SQL.
 
+### Entity consolidation crosswalk
+
+Manifest-driven entity consolidation emits a **VALUES-backed crosswalk** built from `parity_context.entity_consolidation_clusters`, plus singleton fallbacks for old-table rows not in any cluster. The inline `VALUES` pattern is intended for **moderate cluster counts** (parity verification and fixture corpora); it is not a seed/CSV ingestion path in this pass.
+
 ### Rule #2 risk assessment and layer synthesis
 
 Layer classification (`layer_synthesizer.py`) and parity grain gating (`sql_analysis.py`, `parity_gate.py`) are decoupled to eliminate false `needs_manual_review` flags:
