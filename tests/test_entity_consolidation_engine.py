@@ -107,7 +107,8 @@ def test_entity_consolidation_emits_crosswalk_compat_and_audit_models():
     assert "int_dim_customer__survivorship_audit" in names
     assert "stg_legacy_cust_a__compat" in names
     assert "stg_legacy_cust_b__compat" in names
-    assert len(resp.remodeled_models) == 1 + 4
+    assert "dim_customer" in names
+    assert len(resp.remodeled_models) == 1 + 5
 
 
 def test_entity_consolidation_needs_survivorship_review_on_ambiguous_tie():

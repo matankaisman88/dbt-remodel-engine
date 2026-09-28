@@ -9,6 +9,7 @@ import duckdb
 from pydantic import BaseModel, Field
 
 from remodel_engine.refactor_rules import assess_rule2
+from remodel_engine.schema import EntityConsolidationSpec
 from remodel_engine.sql_analysis import analyze_sql, assess_grain_risk, compile_dbt_sql
 
 
@@ -82,6 +83,53 @@ def verify_no_physical_data_loss(
             error=f"audit missing {len(missing)} raw keys; sample={sample}",
         )
     return ParityCheckResult(status="pass", row_count_match=True)
+
+
+def verify_entity_consolidation_no_data_loss(
+    conn: duckdb.DuckDBPyConnection,
+    *,
+    spec: EntityConsolidationSpec,
+    source_table_map: dict[str, str],
+    audit_table: str,
+    compat_tables: dict[str, str],
+) -> ParityCheckResult:
+    """Execute generated audit/compat SQL and assert no source rows are dropped."""
+    try:
+        for old_table, src_table in source_table_map.items():
+            key_col = spec.old_key_columns[old_table]
+            src_count = conn.execute(f"SELECT COUNT(*) FROM {src_table}").fetchone()[0]
+            compat_table = compat_tables[old_table]
+            compat_count = conn.execute(
+                f"SELECT COUNT(*) FROM {compat_table}"
+            ).fetchone()[0]
+            if src_count != compat_count:
+                return ParityCheckResult(
+                    status="fail",
+                    row_count_match=False,
+                    error=(
+                        f"compat view row count mismatch for {old_table}: "
+                        f"source={src_count}, compat={compat_count}"
+                    ),
+                )
+            missing = conn.execute(
+                f"""
+                SELECT COUNT(*) FROM (
+                  SELECT CAST({key_col} AS VARCHAR) AS old_key, '{old_table}' AS old_table
+                  FROM {src_table}
+                  EXCEPT
+                  SELECT old_key, old_table FROM {audit_table}
+                )
+                """
+            ).fetchone()[0]
+            if missing:
+                return ParityCheckResult(
+                    status="fail",
+                    row_count_match=False,
+                    error=f"audit missing {missing} rows from {old_table}",
+                )
+        return ParityCheckResult(status="pass", row_count_match=True)
+    except Exception as exc:  # noqa: BLE001
+        return ParityCheckResult(status="fail", error=str(exc))
 
 
 def run_parity_gate(
