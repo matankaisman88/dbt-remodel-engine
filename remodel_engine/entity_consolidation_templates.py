@@ -119,6 +119,9 @@ def _render_field_resolution_expr(field: str) -> str:
       FROM unified AS u
       WHERE u.new_key = g.new_key
     )
+    WHEN g.ec_row_cnt > 1
+      AND COALESCE(s.ec_distinct_{field}, 0) > 1
+      AND g.ec_null_ts_cnt > 0 THEN CAST(NULL AS VARCHAR)
     WHEN COALESCE(am.ec_distinct_{field}_at_max, 0) > 1 THEN CAST(NULL AS VARCHAR)
     ELSE (
       SELECT MIN(u.{field})
@@ -135,6 +138,10 @@ def _render_review_flag(spec: EntityConsolidationSpec) -> str:
         parts.append(
             f"(g.ec_row_cnt > 1 AND COALESCE(s.ec_distinct_{field}, 0) > 1 "
             f"AND COALESCE(am.ec_distinct_{field}_at_max, 0) > 1)"
+        )
+        parts.append(
+            f"(g.ec_row_cnt > 1 AND COALESCE(s.ec_distinct_{field}, 0) > 1 "
+            f"AND g.ec_null_ts_cnt > 0)"
         )
     if not parts:
         return "FALSE AS _survivorship_review"
@@ -183,6 +190,7 @@ grain AS (
   SELECT
     new_key,
     COUNT(*)::BIGINT AS ec_row_cnt,
+    COUNT(*) FILTER (WHERE _ec_ts IS NULL)::BIGINT AS ec_null_ts_cnt,
     MAX(_ec_ts) AS ec_max_ts
   FROM unified
   GROUP BY new_key

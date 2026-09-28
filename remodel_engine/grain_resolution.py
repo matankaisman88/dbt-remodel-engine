@@ -20,7 +20,7 @@ class SourceRecordRef:
     old_key: str
     old_table: str
     field_values: dict[str, Any]
-    timestamp: datetime
+    timestamp: datetime | None
 
 
 @dataclass
@@ -78,9 +78,19 @@ def classify_and_resolve(
             )
             continue
 
-        max_ts = max(r.timestamp for r in rows)
+        if any(r.timestamp is None for r in rows):
+            out[field] = GrainResolution(
+                verdict=GrainVerdict.LOSSY_AMBIGUOUS,
+                resolved_values=None,
+                reason="conflicting values with unknown timestamp",
+            )
+            continue
+
+        max_ts = max(r.timestamp for r in rows if r.timestamp is not None)
         at_max = [r for r in rows if r.timestamp == max_ts]
-        winner_values = {str(r.field_values.get(field)) for r in at_max if field in r.field_values}
+        winner_values = {
+            str(r.field_values.get(field)) for r in at_max if field in r.field_values
+        }
         if len(winner_values) > 1:
             out[field] = GrainResolution(
                 verdict=GrainVerdict.LOSSY_AMBIGUOUS,

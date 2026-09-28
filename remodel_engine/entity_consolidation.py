@@ -31,7 +31,14 @@ from remodel_engine.schema import EntityConsolidationSpec, ParityCheck, Remodele
 from remodel_engine.sql_analysis import compile_dbt_sql
 
 
-def _parse_timestamp(value: Any) -> datetime:
+class EntityConsolidationRejectedError(Exception):
+    """Fail-closed rejection for invalid entity consolidation inputs."""
+
+
+def parse_entity_timestamp(value: Any) -> datetime | None:
+    """Parse timestamps for consolidation; NULL/unparsable → unknown (None)."""
+    if value is None:
+        return None
     if isinstance(value, datetime):
         return value
     if isinstance(value, str):
@@ -45,15 +52,54 @@ def _parse_timestamp(value: Any) -> datetime:
                 return datetime.strptime(value, fmt)
             except ValueError:
                 continue
+        return None
     raise ValueError(f"unsupported timestamp value: {value!r}")
 
 
-def _source_record_from_dict(data: dict[str, Any]) -> SourceRecordRef:
+def _timestamp_from_row(data: dict[str, Any], spec: EntityConsolidationSpec) -> datetime | None:
+    """Column value is the single source of truth when present."""
+    fv = data.get("field_values") or {}
+    if spec.timestamp_column in fv:
+        return parse_entity_timestamp(fv[spec.timestamp_column])
+    if "timestamp" in data:
+        return parse_entity_timestamp(data.get("timestamp"))
+    return None
+
+
+def validate_cluster_timestamp_alignment(
+    spec: EntityConsolidationSpec,
+    clusters: list[dict[str, Any]],
+) -> None:
+    ts_col = spec.timestamp_column
+    for cluster in clusters:
+        new_key = str(cluster.get("new_key", ""))
+        for row in cluster.get("rows") or []:
+            fv = row.get("field_values") or {}
+            has_row_ts = "timestamp" in row and row.get("timestamp") is not None
+            has_col = ts_col in fv
+            if not (has_row_ts and has_col):
+                continue
+            row_ts = parse_entity_timestamp(row["timestamp"])
+            col_ts = parse_entity_timestamp(fv[ts_col])
+            if row_ts != col_ts:
+                raise EntityConsolidationRejectedError(
+                    "entity consolidation timestamp mismatch for "
+                    f"new_key={new_key!r} old_table={row['old_table']!r} "
+                    f"old_key={row['old_key']!r}: "
+                    f"row timestamp={row['timestamp']!r} != "
+                    f"{ts_col}={fv[ts_col]!r}"
+                )
+
+
+def _source_record_from_dict(
+    data: dict[str, Any],
+    spec: EntityConsolidationSpec,
+) -> SourceRecordRef:
     return SourceRecordRef(
         old_key=str(data["old_key"]),
         old_table=str(data["old_table"]),
         field_values=dict(data.get("field_values") or {}),
-        timestamp=_parse_timestamp(data["timestamp"]),
+        timestamp=_timestamp_from_row(data, spec),
     )
 
 
@@ -193,6 +239,9 @@ def execute_entity_consolidation_sql(
     extra_rows: list[dict[str, Any]] | None = None,
 ) -> dict[str, str]:
     """Compile and execute generated consolidation SQL; return model → DuckDB table."""
+    validate_cluster_timestamp_alignment(spec, clusters)
+    if extra_rows:
+        validate_cluster_timestamp_alignment(spec, [{"new_key": "_extra", "rows": extra_rows}])
     source_map = materialize_entity_consolidation_sources(
         conn, spec, clusters, extra_rows=extra_rows
     )
@@ -233,21 +282,30 @@ def execute_entity_consolidation_sql(
 def run_entity_consolidation_pass(
     specs: list[EntityConsolidationSpec],
     parity_context: dict[str, Any] | None,
-) -> tuple[list[RemodeledModel], bool]:
-    """Returns extra remodeled models and whether survivorship review is needed."""
+) -> tuple[list[RemodeledModel], bool, bool]:
+    """Returns remodeled models, survivorship-review flag, and any-spec-rejected flag."""
     clusters = load_entity_consolidation_clusters(parity_context)
     extra: list[RemodeledModel] = []
     needs_survivorship_review = False
+    any_spec_rejected = False
 
     for spec in specs:
         validate_entity_consolidation_spec(spec)
         spec_clusters = clusters_for_spec(spec, clusters)
+        try:
+            validate_cluster_timestamp_alignment(spec, spec_clusters)
+        except EntityConsolidationRejectedError:
+            any_spec_rejected = True
+            continue
+
         resolutions_by_new_key: dict[str, dict[str, GrainResolution]] = {}
         audit_rows: list[dict[str, Any]] = []
 
         for cluster in spec_clusters:
             new_key = str(cluster.get("new_key", ""))
-            refs = [_source_record_from_dict(r) for r in cluster.get("rows") or []]
+            refs = [
+                _source_record_from_dict(r, spec) for r in cluster.get("rows") or []
+            ]
             field_res = classify_and_resolve(refs, spec.conflict_fields)
             resolutions_by_new_key[new_key] = field_res
             for _field, resolution in field_res.items():
@@ -334,7 +392,7 @@ def run_entity_consolidation_pass(
                 row_count_match=loss_check.row_count_match,
                 error=loss_check.error,
             )
-    return extra, needs_survivorship_review
+    return extra, needs_survivorship_review, any_spec_rejected
 
 
 __all__ = [

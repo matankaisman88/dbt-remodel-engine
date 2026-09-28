@@ -283,21 +283,26 @@ class RemodelEngine:
             if conn is not None:
                 conn.close()
 
+        needs_survivorship_review = False
+        if entity_consolidation_specs:
+            (
+                consolidation_models,
+                needs_survivorship_review,
+                consolidation_rejected,
+            ) = run_entity_consolidation_pass(
+                entity_consolidation_specs,
+                request.parity_context,
+            )
+            remodeled.extend(consolidation_models)
+            if consolidation_rejected:
+                any_parity_fail = True
+
         status = "success"
         if any_parity_fail:
             status = "failed_parity"
         elif manual_review > 0:
             status = "needs_manual_review"
-
-        needs_survivorship_review = False
-        if entity_consolidation_specs:
-            consolidation_models, needs_survivorship_review = run_entity_consolidation_pass(
-                entity_consolidation_specs,
-                request.parity_context,
-            )
-            remodeled.extend(consolidation_models)
-
-        if needs_survivorship_review and status == "success":
+        elif needs_survivorship_review:
             status = "needs_survivorship_review"
 
         return RemodelResponse(

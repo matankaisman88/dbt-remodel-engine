@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import random
 from pathlib import Path
 
 import duckdb
@@ -18,8 +19,8 @@ from remodel_engine.entity_consolidation_templates import (
     render_crosswalk_sql,
     validate_entity_consolidation_spec,
 )
-from remodel_engine.grain_resolution import classify_and_resolve
-from remodel_engine.schema import EntityConsolidationSpec
+from remodel_engine.grain_resolution import GrainVerdict, classify_and_resolve
+from remodel_engine.schema import EntityConsolidationSpec, RawDbtModel, RemodelRequest
 from remodel_engine.entity_consolidation import _source_record_from_dict
 
 FEBRL_FIXTURE = (
@@ -226,7 +227,7 @@ def _python_entity_values(clusters: list[dict], spec: EntityConsolidationSpec) -
     out: dict[str, dict[str, object | None]] = {}
     for cluster in clusters:
         new_key = str(cluster["new_key"])
-        refs = [_source_record_from_dict(r) for r in cluster["rows"]]
+        refs = [_source_record_from_dict(r, spec) for r in cluster["rows"]]
         resolutions = classify_and_resolve(refs, spec.conflict_fields)
         out[new_key] = {
             field: (
@@ -266,12 +267,32 @@ def _febrl_clusters() -> list[dict]:
     return clusters
 
 
-def _assert_python_sql_parity(clusters: list[dict]):
-    spec = _febrl_spec()
+def _python_survivorship_review(cluster: dict, spec: EntityConsolidationSpec) -> bool:
+    refs = [_source_record_from_dict(r, spec) for r in cluster["rows"]]
+    resolutions = classify_and_resolve(refs, spec.conflict_fields)
+    return any(r.verdict == GrainVerdict.LOSSY_AMBIGUOUS for r in resolutions.values())
+
+
+def _assert_python_sql_parity(clusters: list[dict], spec: EntityConsolidationSpec):
     conn, executed = _run_spec(spec, clusters)
     py = _python_entity_values(clusters, spec)
     sql = _sql_entity_values(conn, executed, spec, clusters)
+    sql_rows = {
+        k: next(
+            r
+            for r in _fetch_table(conn, executed[spec.new_entity])
+            if str(r[spec.new_key_column]) == k
+        )
+        for k in sql
+    }
     assert set(py.keys()) == set(sql.keys())
+    for cluster in clusters:
+        new_key = str(cluster["new_key"])
+        if new_key not in py:
+            continue
+        assert _python_survivorship_review(cluster, spec) == bool(
+            sql_rows[new_key]["_survivorship_review"]
+        )
     for new_key, fields in py.items():
         for field, expected in fields.items():
             got = sql[new_key][field]
@@ -283,7 +304,7 @@ def _assert_python_sql_parity(clusters: list[dict]):
 
 
 def test_febrl_differential_python_vs_sql_all_clusters():
-    _assert_python_sql_parity(_febrl_clusters())
+    _assert_python_sql_parity(_febrl_clusters(), _febrl_spec())
 
 
 def test_febrl_differential_with_tied_timestamps_perturbation():
@@ -293,7 +314,7 @@ def test_febrl_differential_with_tied_timestamps_perturbation():
         for row in cluster["rows"]:
             row["timestamp"] = "2020-06-15T12:00:00"
             row["field_values"]["source_ts"] = "2020-06-15 12:00:00"
-    _assert_python_sql_parity(clusters)
+    _assert_python_sql_parity(clusters, _febrl_spec())
 
 
 def test_invalid_identifier_raises_value_error():
@@ -326,3 +347,268 @@ def test_single_quote_in_cluster_value_round_trips_in_crosswalk_sql():
     conn, executed = _run_spec(spec, clusters)
     crosswalk = _fetch_table(conn, executed["int_dim_customer__crosswalk"])
     assert crosswalk[0]["new_key"] == "cust-o'brien"
+
+
+def _minimal_engine_request(entity_consolidations, clusters):
+    from tests.test_entity_consolidation_engine import _FIXTURE
+
+    tgt_sql = (_FIXTURE / "models" / "tgt_orders.sql").read_text()
+    return RemodelRequest(
+        pipeline_id="ts_edge_cases",
+        source_platform="informatica",
+        raw_dbt_models=[
+            RawDbtModel(model_name="tgt_orders", sql=tgt_sql),
+        ],
+        entity_consolidations=entity_consolidations,
+        parity_context={
+            "seeds_sql": str(_FIXTURE / "seeds.sql"),
+            "model_table_map": {},
+            "source_table_map": {},
+            "entity_consolidation_clusters": clusters,
+        },
+    )
+
+
+def test_timestamp_mismatch_rejected_fail_closed_no_consolidation_models():
+    spec = _demo_spec()
+    clusters = [
+        {
+            "new_key": "cust-mismatch",
+            "rows": [
+                {
+                    "old_key": "1",
+                    "old_table": "legacy_cust_a",
+                    "timestamp": "2030-01-01T00:00:00",
+                    "field_values": {
+                        "customer_name": "OLD",
+                        "city": "NY",
+                        "updated_at": "2020-01-01",
+                    },
+                },
+                {
+                    "old_key": "2",
+                    "old_table": "legacy_cust_b",
+                    "timestamp": "2022-01-01T00:00:00",
+                    "field_values": {
+                        "customer_name": "NEW",
+                        "city": "NY",
+                        "updated_at": "2022-01-01",
+                    },
+                },
+            ],
+        }
+    ]
+    req = _minimal_engine_request([spec.model_dump()], clusters)
+    resp = RemodelEngine().remodel(req)
+    assert resp.status == "failed_parity"
+    names = {m.model_name for m in resp.remodeled_models}
+    assert "dim_customer" not in names
+    assert "int_dim_customer__crosswalk" not in names
+
+
+def test_missing_row_timestamp_uses_column_python_sql_agree():
+    spec = _demo_spec()
+    clusters = [
+        {
+            "new_key": "cust-no-row-ts",
+            "rows": [
+                {
+                    "old_key": "1",
+                    "old_table": "legacy_cust_a",
+                    "field_values": {
+                        "customer_name": "Alice",
+                        "city": "NY",
+                        "updated_at": "2020-01-01",
+                    },
+                },
+                {
+                    "old_key": "2",
+                    "old_table": "legacy_cust_b",
+                    "field_values": {
+                        "customer_name": "Alicia",
+                        "city": "NY",
+                        "updated_at": "2022-01-01",
+                    },
+                },
+            ],
+        }
+    ]
+    _assert_python_sql_parity(clusters, spec)
+
+
+def test_null_timestamp_conflict_ambiguous_agree_keeps_value():
+    spec = _demo_spec(conflict_fields=["customer_name"])
+    conflict = [
+        {
+            "new_key": "cust-null-conflict",
+            "rows": [
+                {
+                    "old_key": "1",
+                    "old_table": "legacy_cust_a",
+                    "field_values": {
+                        "customer_name": "A",
+                        "updated_at": None,
+                    },
+                },
+                {
+                    "old_key": "2",
+                    "old_table": "legacy_cust_b",
+                    "field_values": {
+                        "customer_name": "B",
+                        "updated_at": "2022-01-01",
+                    },
+                },
+            ],
+        }
+    ]
+    conn, executed = _run_spec(spec, conflict)
+    row = next(
+        r
+        for r in _fetch_table(conn, executed["dim_customer"])
+        if r["customer_key"] == "cust-null-conflict"
+    )
+    assert row["customer_name"] is None
+    assert row["_survivorship_review"] is True
+
+    agree = [
+        {
+            "new_key": "cust-null-agree",
+            "rows": [
+                {
+                    "old_key": "3",
+                    "old_table": "legacy_cust_a",
+                    "field_values": {"customer_name": "Same", "updated_at": None},
+                },
+                {
+                    "old_key": "4",
+                    "old_table": "legacy_cust_b",
+                    "field_values": {"customer_name": "Same", "updated_at": "2022-01-01"},
+                },
+            ],
+        }
+    ]
+    conn2, executed2 = _run_spec(spec, agree)
+    row2 = next(
+        r
+        for r in _fetch_table(conn2, executed2["dim_customer"])
+        if r["customer_key"] == "cust-null-agree"
+    )
+    assert row2["customer_name"] == "Same"
+    assert row2["_survivorship_review"] is False
+
+    req = _minimal_engine_request(
+        [spec.model_dump()],
+        conflict,
+    )
+    assert RemodelEngine().remodel(req).status == "needs_survivorship_review"
+
+
+def test_unparsable_timestamp_matches_null_semantics_python_and_sql():
+    spec = _demo_spec(conflict_fields=["customer_name"])
+    clusters = [
+        {
+            "new_key": "cust-bad-ts",
+            "rows": [
+                {
+                    "old_key": "1",
+                    "old_table": "legacy_cust_a",
+                    "field_values": {
+                        "customer_name": "A",
+                        "updated_at": "not-a-date",
+                    },
+                },
+                {
+                    "old_key": "2",
+                    "old_table": "legacy_cust_b",
+                    "field_values": {
+                        "customer_name": "B",
+                        "updated_at": "2022-01-01",
+                    },
+                },
+            ],
+        }
+    ]
+    _assert_python_sql_parity(clusters, spec)
+
+
+def _random_differential_clusters(seed: int = 42, n: int = 300) -> list[dict]:
+    rng = random.Random(seed)
+    values = ["A", "B", "C", None]
+    dates = [
+        "2020-01-01",
+        "2020-06-01",
+        "2021-01-01",
+        "2021-06-01",
+        None,
+        "not-a-date",
+    ]
+    clusters: list[dict] = []
+    for i in range(n):
+        row_count = rng.randint(1, 4)
+        rows = []
+        for j in range(row_count):
+            ts = dates[rng.randrange(len(dates))]
+            if rng.random() < 0.15:
+                ts = None
+            rows.append(
+                {
+                    "old_key": f"{i}-{j}",
+                    "old_table": "legacy_cust_a" if j % 2 == 0 else "legacy_cust_b",
+                    "field_values": {
+                        "customer_name": values[rng.randrange(len(values))],
+                        "updated_at": ts,
+                    },
+                }
+            )
+        clusters.append({"new_key": f"rand-{i}", "rows": rows})
+    return clusters
+
+
+def test_randomized_python_vs_sql_differential_zero_mismatches():
+    spec = _demo_spec(conflict_fields=["customer_name"])
+    _assert_python_sql_parity(_random_differential_clusters(), spec)
+
+
+def test_flipping_timestamp_column_changes_sql_survivor():
+    spec = _demo_spec(conflict_fields=["customer_name"])
+    clusters = [
+        {
+            "new_key": "cust-flip",
+            "rows": [
+                {
+                    "old_key": "1",
+                    "old_table": "legacy_cust_a",
+                    "field_values": {
+                        "customer_name": "FromA",
+                        "updated_at": "2022-01-01",
+                    },
+                },
+                {
+                    "old_key": "2",
+                    "old_table": "legacy_cust_b",
+                    "field_values": {
+                        "customer_name": "FromB",
+                        "updated_at": "2020-01-01",
+                    },
+                },
+            ],
+        }
+    ]
+    conn, executed = _run_spec(spec, clusters)
+    before = next(
+        r
+        for r in _fetch_table(conn, executed["dim_customer"])
+        if r["customer_key"] == "cust-flip"
+    )["customer_name"]
+
+    flipped = copy.deepcopy(clusters)
+    flipped[0]["rows"][1]["field_values"]["updated_at"] = "2023-01-01"
+    conn2, executed2 = _run_spec(spec, flipped)
+    after = next(
+        r
+        for r in _fetch_table(conn2, executed2["dim_customer"])
+        if r["customer_key"] == "cust-flip"
+    )["customer_name"]
+
+    assert before == "FromA"
+    assert after == "FromB"
