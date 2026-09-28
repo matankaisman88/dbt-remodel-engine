@@ -13,8 +13,28 @@ Physical decomposition materializes models with `CREATE TABLE AS`. Analytical en
 `remodel_engine/star_shadowing.py` harmonizes bindings when `physical_decompose` is enabled. Rewrites use **sqlglot** AST transforms (`harmonize_bind_select_ast`, `rewrite_coalesce_bindings_ast`) instead of regex: SQL is parsed with `sqlglot.parse_one(..., read="duckdb")` after swapping `{{ ... }}` Jinja for parse placeholders (restored on output). On parse failure, the original SQL is returned unchanged.
 
 - **Shadowed join columns:** Drops redundant `join.COL AS COL` projections when trailing `base.*` shadows the same name and `base.COL` already appears elsewhere in the bind list, so downstream references bind to the base attribute without CTAS suffix drift.
-- **Rate-plan lookups:** For `lkp_lkp_ref_dim_rate_plan` binds, renames the join PK to `RATE_PLAN_PK_LKP`. Downstream models expand `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK)` to `COALESCE(RATE_PLAN_PK_DIM, RATE_PLAN_PK_LKP, RATE_PLAN_PK)` **only when** the immediate upstream ref already exposes `RATE_PLAN_PK_LKP` (parity materialization introspects ref column names per model in topological order).
+- **Shadowed lookup renames (manifest-driven, not hardcoded):** When a lookup join projects the base column under the same name as the base table (`lkp.COL AS COL` next to a trailing `base.*`), the lookup's column is renamed so the two stay distinguishable, and downstream `COALESCE` expressions are extended to include it. Which lookups get this treatment is declared per pipeline in the manifest via `shadowed_lookup_renames` (`ShadowedLookupRenameSpec`, see below). The engine contains no table or column names of its own.
 - **Renamed lookups:** Intentionally distinct aliases (e.g. `DIAGNOSIS_PK_LOOKUP`) are left unchanged.
+
+#### `shadowed_lookup_renames` spec
+
+Each entry is a `ShadowedLookupRenameSpec`:
+
+| Field | Meaning |
+|-------|---------|
+| `model_name` | Raw model the spec applies to. Also matches its decomposed layers (`int_<model_name>__*`). |
+| `lookup_ref_pattern` | Case-insensitive regex tested against the model SQL; the lookup bind is only rewritten when it matches. |
+| `base_column` | The column that collides (e.g. `ORDER_PK`). |
+| `renamed_column` | Alias given to the lookup's copy of `base_column` (e.g. `ORDER_PK_LKP`). |
+| `dim_column` | The dimension-side column used in `COALESCE(<dim_column>, <base_column>)`. |
+
+Behavior per spec:
+
+- **Rename:** in a bind `SELECT` with a trailing `base.*`, a projection `<lookup_alias>.<base_column> AS <base_column>` is re-aliased to `renamed_column`.
+- **COALESCE expansion:** `COALESCE(<dim_column>, <base_column>)` becomes `COALESCE(<dim_column>, <renamed_column>, <base_column>)` **only when** the immediate upstream ref already exposes `renamed_column` (parity materialization introspects ref column names per model in topological order). With several specs on one model, the first spec whose `dim_column` name appears in the SQL text is used (substring match, not AST-based).
+- **No matching spec:** only the generic shadowed-column pruning above runs; nothing is renamed and no `COALESCE` is expanded.
+
+The `RATE_PLAN_PK` / `RATE_PLAN_PK_DIM` / `RATE_PLAN_PK_LKP` names appear only in test data (the Informatica corpus fixtures `informatica_xml_real_world_complex_pipeline` and `orchestration_infa_wf_enterprise_master_repository`, plus `tests/test_star_shadowing.py` and `tests/test_subscription_lifecycle_parity.py`) as example specs, never in `remodel_engine/`. `tests/test_star_shadowing.py` also covers an unrelated `account_spec` (different columns) to show the mechanism is not tied to rate plans.
 
 When `parity_context` is absent, star-shadowing runs once per model without upstream column gating (COALESCE expansion requires `renamed_column_present=True` and a matching `shadowed_lookup_renames` manifest entry).
 
