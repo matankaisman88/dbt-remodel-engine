@@ -277,6 +277,28 @@ def parse_ctes(sql: str) -> list[CteDefinition]:
         depth = 0
         j = paren_start
         while j < len(sql):
+            if sql[j : j + 2] == "--":
+                eol = sql.find("\n", j + 2)
+                j = eol if eol != -1 else len(sql)
+                continue
+            if sql[j : j + 2] == "/*":
+                end_block = sql.find("*/", j + 2)
+                j = end_block + 2 if end_block != -1 else len(sql)
+                continue
+            if sql[j] in ("'", '"'):
+                q = sql[j]
+                k = j + 1
+                while k < len(sql):
+                    if sql[k] == q:
+                        if k + 1 < len(sql) and sql[k + 1] == q:
+                            k += 2
+                            continue
+                        k += 1
+                        break
+                    k += 1
+                j = k
+                continue
+
             ch = sql[j]
             if ch == "(":
                 depth += 1

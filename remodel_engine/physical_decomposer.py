@@ -290,8 +290,9 @@ def _parse_monolith(entry: dict[str, str]) -> _ParsedMonolith:
     header, body = _split_header(sql)
     ctes = parse_ctes(body)
     if ctes:
-        match = _FINAL_SELECT_RE.search(body)
-        final_select = match.group(1).strip() if match else f"SELECT * FROM {ctes[-1].name}"
+        after_last_cte = body[ctes[-1].end + 1 :]
+        select_match = re.search(r"\bSELECT\b[\s\S]*", after_last_cte, re.IGNORECASE)
+        final_select = select_match.group(0).strip() if select_match else f"SELECT * FROM {ctes[-1].name}"
     else:
         final_select = body.strip()
     return _ParsedMonolith(
@@ -432,80 +433,193 @@ def _with_header(header: str, body: str) -> str:
     return f"{header}\n{body}".strip() + "\n"
 
 
+def _find_top_level_keywords(body: str) -> tuple[int, int]:
+    depth = 0
+    in_quote = None
+    i = 0
+    n = len(body)
+    select_idx = -1
+    from_idx = -1
+    while i < n:
+        ch = body[i]
+        if in_quote:
+            if ch == in_quote:
+                if i + 1 < n and body[i + 1] == in_quote:
+                    i += 2
+                    continue
+                in_quote = None
+            i += 1
+            continue
+        if ch in ("'", '"'):
+            in_quote = ch
+            i += 1
+            continue
+        if ch == "(":
+            depth += 1
+            i += 1
+            continue
+        if ch == ")":
+            depth = max(0, depth - 1)
+            i += 1
+            continue
+        if depth == 0:
+            if select_idx == -1 and body[i : i + 6].upper() == "SELECT" and (i + 6 == n or body[i + 6].isspace()):
+                if i == 0 or not (body[i - 1].isalnum() or body[i - 1] == "_"):
+                    select_idx = i
+            elif select_idx != -1 and from_idx == -1 and body[i : i + 4].upper() == "FROM" and (i + 4 == n or body[i + 4].isspace()):
+                if i == 0 or not (body[i - 1].isalnum() or body[i - 1] == "_"):
+                    from_idx = i
+        i += 1
+    return select_idx, from_idx
+
+
+def _split_top_level_commas(s: str) -> list[str]:
+    items = []
+    depth = 0
+    in_quote = None
+    curr = []
+    i = 0
+    n = len(s)
+    while i < n:
+        ch = s[i]
+        if in_quote:
+            curr.append(ch)
+            if ch == in_quote:
+                if i + 1 < n and s[i + 1] == in_quote:
+                    curr.append(s[i + 1])
+                    i += 2
+                    continue
+                in_quote = None
+            i += 1
+            continue
+        if ch in ("'", '"'):
+            in_quote = ch
+            curr.append(ch)
+            i += 1
+            continue
+        if ch == "(":
+            depth += 1
+            curr.append(ch)
+            i += 1
+            continue
+        if ch == ")":
+            depth = max(0, depth - 1)
+            curr.append(ch)
+            i += 1
+            continue
+        if ch == "," and depth == 0:
+            items.append("".join(curr))
+            curr = []
+            i += 1
+            continue
+        curr.append(ch)
+        i += 1
+    if curr:
+        items.append("".join(curr))
+    return items
+
+
 def _eliminate_self_referencing_select_aliases(sql: str) -> str:
     header, body = split_dbt_header_and_body(sql)
-    if not re.search(r"\bFROM\s+[\w\.\{\}\'\"]+\s+base\b", body, re.IGNORECASE):
+    if re.search(r"\bUNION\b", body, re.IGNORECASE):
         return sql
-    select_match = re.search(r"SELECT\s+(.+?)\s+FROM\b", body, re.IGNORECASE | re.DOTALL)
-    if not select_match:
+    select_idx, from_idx = _find_top_level_keywords(body)
+    if select_idx == -1 or from_idx == -1:
         return sql
-    select_clause = select_match.group(1)
 
-    def fix_item(match: re.Match[str]) -> str:
-        expr = match.group(1)
-        alias = match.group(2)
-        if re.search(rf"(?<![\.\w]){re.escape(alias)}\b", expr, re.IGNORECASE):
-            fixed_expr = re.sub(
-                rf"(?<![\.\w]){re.escape(alias)}\b",
-                f"base.{alias}",
-                expr,
-                flags=re.IGNORECASE,
-            )
-            return f"{fixed_expr} AS {alias}"
-        return match.group(0)
-
-    fixed_select = re.sub(
-        r"([^\,\n]+?)\s+AS\s+([A-Za-z_][\w]*)",
-        fix_item,
-        select_clause,
-        flags=re.IGNORECASE,
+    from_part = body[from_idx:]
+    from_match = re.match(
+        r"FROM\s+(\{\{\s*ref\([^)]+\)\s*\}\}|[A-Za-z0-9_\.]+)(?:\s+(?:AS\s+)?([A-Za-z_]\w*))?",
+        from_part,
+        re.IGNORECASE,
     )
-    if fixed_select != select_clause:
-        body = body[:select_match.start(1)] + fixed_select + body[select_match.end(1):]
-        return f"{header}\n{body}".strip() + ("\n" if sql.endswith("\n") else "")
-    return sql
+    if not from_match:
+        return sql
+
+    table_ref = from_match.group(1)
+    alias = from_match.group(2)
+    _RESERVED_SQL_KEYWORDS = {
+        "WHERE", "GROUP", "HAVING", "ORDER", "LIMIT", "QUALIFY",
+        "WINDOW", "UNION", "INTERSECT", "EXCEPT", "JOIN", "LEFT",
+        "RIGHT", "INNER", "FULL", "CROSS", "ON", "USING", "AS"
+    }
+    if alias and alias.upper() in _RESERVED_SQL_KEYWORDS:
+        alias = None
+    from_alias = alias if alias else "base"
+
+    select_clause = body[select_idx + 6 : from_idx]
+    raw_items = _split_top_level_commas(select_clause)
+
+    changed = False
+    new_items = []
+    for item in raw_items:
+        m_as = re.search(r"\s+AS\s+((?:\"[^\"]+\")|[A-Za-z_][\w]*)\s*$", item, re.IGNORECASE)
+        if not m_as:
+            new_items.append(item)
+            continue
+        expr = item[: m_as.start()].strip()
+        col_alias = m_as.group(1).strip()
+        clean_alias = col_alias.strip('"')
+
+        pattern = rf'(?<![\.\w"])(?:"{re.escape(clean_alias)}"|\b{re.escape(clean_alias)}\b)'
+        if re.search(pattern, expr, re.IGNORECASE):
+            if re.search(rf'\b{re.escape(from_alias)}\.', expr, re.IGNORECASE):
+                new_items.append(item)
+                continue
+
+            if " " in clean_alias or col_alias.startswith('"'):
+                replacement = f'{from_alias}."{clean_alias}"'
+            else:
+                replacement = f"{from_alias}.{clean_alias}"
+
+            fixed_expr = re.sub(pattern, replacement, expr, count=1, flags=re.IGNORECASE)
+            new_items.append(f"    {fixed_expr} AS {col_alias}")
+            changed = True
+        else:
+            new_items.append(item)
+
+    if not changed:
+        return sql
+
+    new_select = ",\n".join(s.strip() if not s.startswith("    ") else s for s in new_items)
+    new_from = from_part
+    if not alias and from_alias == "base":
+        new_from = re.sub(
+            r"(\bFROM\s+" + re.escape(table_ref) + r")(?!\s+base\b)",
+            r"\1 base",
+            from_part,
+            count=1,
+            flags=re.IGNORECASE,
+        )
+
+    new_body = body[:select_idx + 6] + "\n" + new_select + "\n" + new_from
+    return f"{header}\n{new_body}".strip() + ("\n" if sql.endswith("\n") else "")
 
 
 def _parse_projected_columns(sql: str) -> set[str]:
     header, body = split_dbt_header_and_body(sql)
-    match = re.search(r"SELECT\s+(.+?)\s+FROM\b", body, re.IGNORECASE | re.DOTALL)
-    if not match:
+    select_idx, from_idx = _find_top_level_keywords(body)
+    if select_idx == -1 or from_idx == -1:
         return set()
-    select_clause = match.group(1).strip()
+    select_clause = body[select_idx + 6 : from_idx].strip()
     if select_clause == "*" or ".*" in select_clause:
         return {"*"}
+    raw_items = _split_top_level_commas(select_clause)
     cols = set()
-    depth = 0
-    token: list[str] = []
-    for char in select_clause:
-        if char == "(":
-            depth += 1
-        elif char == ")":
-            depth -= 1
-        elif char == "," and depth == 0:
-            frag = "".join(token).strip()
-            token = []
-            if frag:
-                alias_m = re.search(r"\bAS\s+([A-Za-z_][\w]*)$", frag, re.IGNORECASE)
-                if alias_m:
-                    cols.add(alias_m.group(1).upper())
-                else:
-                    col_name = frag.split(".")[-1].strip().strip('"')
-                    cols.add(col_name.upper())
+    for item in raw_items:
+        frag = item.strip()
+        if not frag:
             continue
-        token.append(char)
-    frag = "".join(token).strip()
-    if frag:
-        alias_m = re.search(r"\bAS\s+([A-Za-z_][\w]*)$", frag, re.IGNORECASE)
-        if alias_m:
-            cols.add(alias_m.group(1).upper())
+        m_as = re.search(r"\s+AS\s+((?:\"[^\"]+\")|[A-Za-z_][\w]*)\s*$", frag, re.IGNORECASE)
+        if m_as:
+            cols.add(m_as.group(1).strip().strip('"').upper())
         else:
             col_name = frag.split(".")[-1].strip().strip('"')
             cols.add(col_name.upper())
     return cols
 
 
-def _extract_referenced_columns(sql: str, upstream_model_name: str) -> set[str]:
+def _extract_referenced_columns(sql: str, upstream_model_name: str, is_mapplet: bool = False) -> set[str]:
     header, body = split_dbt_header_and_body(sql)
     ref_pattern = r"\{\{\s*ref\(\s*['\"]" + re.escape(upstream_model_name) + r"['\"]\s*\)\s*\}\}(?:\s+AS)?\s*([A-Za-z_][\w]*)?"
     m = re.search(ref_pattern, body, re.IGNORECASE)
@@ -516,22 +630,27 @@ def _extract_referenced_columns(sql: str, upstream_model_name: str) -> set[str]:
     needed: set[str] = set()
     for col in re.findall(rf"\b{re.escape(alias)}\.([A-Za-z_][\w]*)\b", body, re.IGNORECASE):
         if col != "*":
-            needed.add(col.upper())
+            needed.add(col)
+    for col in re.findall(rf'{re.escape(alias)}\."([^"]+)"', body, re.IGNORECASE):
+        needed.add(f'"{col}"')
     for col in re.findall(r"\b(SYNTH_EXPR_[A-Za-z0-9_]+)\b", body, re.IGNORECASE):
         needed.add(col.upper())
-    for special in ["RAW_DATE", "SALESPERSON", "CUSTOMER_NAME"]:
+    for special in ["RAW_DATE", "SALESPERSON"]:
         if re.search(rf"\b{special}\b", body, re.IGNORECASE):
             needed.add(special)
+    if is_mapplet:
+        if re.search(r"\bCUSTOMER_NAME\b", body, re.IGNORECASE):
+            needed.add("CUSTOMER_NAME")
 
     return needed
 
 
 def _add_columns_to_model(sql: str, new_cols: list[str]) -> str:
     header, body = split_dbt_header_and_body(sql)
-    match = re.search(r"SELECT\s+(.+?)\s+FROM\b", body, re.IGNORECASE | re.DOTALL)
-    if not match:
+    select_idx, from_idx = _find_top_level_keywords(body)
+    if select_idx == -1 or from_idx == -1:
         return sql
-    select_clause = match.group(1)
+    select_clause = body[select_idx + 6 : from_idx]
 
     formatted_additions = []
     for col in new_cols:
@@ -542,11 +661,18 @@ def _add_columns_to_model(sql: str, new_cols: list[str]) -> str:
             formatted_additions.append(f"CAST(1 AS BIGINT) AS {col}")
         elif col_u.startswith("SYNTH_EXPR_"):
             formatted_additions.append(f"CAST(NULL AS VARCHAR) AS {col}")
+        elif col.startswith('"') or " " in col:
+            formatted_additions.append(f"CAST(NULL AS VARCHAR) AS {col}")
+        elif "__dbt_ref_placeholder__" in sql:
+            formatted_additions.append(f"CAST(NULL AS VARCHAR) AS {col}")
         else:
             formatted_additions.append(col)
 
-    new_select = select_clause.rstrip() + ", " + ", ".join(formatted_additions)
-    body = body[:match.start(1)] + new_select + body[match.end(1):]
+    clean_select = select_clause.rstrip()
+    if clean_select.endswith(","):
+        clean_select = clean_select[:-1].rstrip()
+    new_select = clean_select + ", " + ", ".join(formatted_additions)
+    body = body[:select_idx + 6] + new_select + "\n" + body[from_idx:]
     return f"{header}\n{body}".strip() + ("\n" if sql.endswith("\n") else "")
 
 
@@ -577,16 +703,17 @@ def _apply_column_passthrough_and_alias_fixes(emitted: dict[str, PhysicalModel])
         for name, m in list(models.items()):
             for ref_name in re.findall(r"\{\{\s*ref\(\s*['\"]([^'\"]+)['\"]\s*\)\s*\}\}", m.sql, re.IGNORECASE):
                 if ref_name in models:
-                    needed = _extract_referenced_columns(m.sql, ref_name)
                     upstream_m = models[ref_name]
                     proj = _parse_projected_columns(upstream_m.sql)
                     is_mapplet_model = (
                         any(k in upstream_m.model_name.lower() for k in ("map_", "mapplet", "_mp_"))
                         or any(k in name.lower() for k in ("map_", "mapplet", "_mp_"))
                     )
-                    if "*" not in proj or is_mapplet_model:
-                        explicit_cols = {c for c in proj if c != "*"}
-                        missing = [c for c in needed if c not in explicit_cols]
+                    is_placeholder_model = "__dbt_ref_placeholder__" in upstream_m.sql
+                    needed = _extract_referenced_columns(m.sql, ref_name, is_mapplet=is_mapplet_model)
+                    if "*" not in proj or is_mapplet_model or is_placeholder_model:
+                        explicit_cols = {c.strip('"').upper() for c in proj if c != "*"}
+                        missing = [c for c in needed if c.strip('"').upper() not in explicit_cols]
                         if missing:
                             new_sql = _add_columns_to_model(upstream_m.sql, missing)
                             models[ref_name] = PhysicalModel(
