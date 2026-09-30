@@ -580,8 +580,13 @@ def _apply_column_passthrough_and_alias_fixes(emitted: dict[str, PhysicalModel])
                     needed = _extract_referenced_columns(m.sql, ref_name)
                     upstream_m = models[ref_name]
                     proj = _parse_projected_columns(upstream_m.sql)
-                    if "*" not in proj:
-                        missing = [c for c in needed if c not in proj]
+                    is_mapplet_model = (
+                        any(k in upstream_m.model_name.lower() for k in ("map_", "mapplet", "_mp_"))
+                        or any(k in name.lower() for k in ("map_", "mapplet", "_mp_"))
+                    )
+                    if "*" not in proj or is_mapplet_model:
+                        explicit_cols = {c for c in proj if c != "*"}
+                        missing = [c for c in needed if c not in explicit_cols]
                         if missing:
                             new_sql = _add_columns_to_model(upstream_m.sql, missing)
                             models[ref_name] = PhysicalModel(
